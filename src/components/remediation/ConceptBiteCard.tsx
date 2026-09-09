@@ -96,8 +96,12 @@ export function ConceptBiteCard({
         challengeIndex: randSeed,
       }),
     })
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      .then(async (res) => {
+        if (!res.ok) {
+          const errBody = await res.json().catch(() => null);
+          const msg = errBody?.error || `HTTP ${res.status}`;
+          throw new Error(msg);
+        }
         return res.json();
       })
       .then((json: ConceptBiteData) => {
@@ -112,7 +116,7 @@ export function ConceptBiteCard({
       })
       .catch((err) => {
         console.error("Failed to load concept bite:", err);
-        setError("Could not load concept bite");
+        setError(err instanceof Error ? err.message : "Could not load concept bite");
         setLoading(false);
       });
   }
@@ -132,8 +136,12 @@ export function ConceptBiteCard({
         challengeIndex: randSeed,
       }),
     })
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      .then(async (res) => {
+        if (!res.ok) {
+          const errBody = await res.json().catch(() => null);
+          const msg = errBody?.error || `HTTP ${res.status}`;
+          throw new Error(msg);
+        }
         return res.json();
       })
       .then((json: ConceptBiteData) => {
@@ -151,7 +159,7 @@ export function ConceptBiteCard({
       .catch((err) => {
         if (!isCancelled) {
           console.error("Failed to load concept bite:", err);
-          setError("Could not load concept bite");
+          setError(err instanceof Error ? err.message : "Could not load concept bite");
           setLoading(false);
         }
       });

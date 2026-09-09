@@ -82,13 +82,13 @@ export function CourseSelector({
                 } catch {}
               }}
               className={cn(
-                "inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-medium transition-all whitespace-nowrap shrink-0 border",
+                "inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-medium transition-all duration-200 whitespace-nowrap shrink-0 border cursor-pointer active:scale-95",
                 isSelected
-                  ? "gradient-brand glow-brand text-white border-primary/40 shadow-sm"
-                  : "glass-card text-muted-foreground hover:text-foreground hover:border-primary/30"
+                  ? "gradient-brand glow-brand text-white border-primary/40 shadow-sm shadow-primary/20 scale-[1.02]"
+                  : "glass-card text-muted-foreground hover:text-foreground hover:border-primary/40 hover:bg-accent/40"
               )}
             >
-              <Icon className={cn("h-4 w-4", isSelected ? "text-white" : "text-primary/70")} />
+              <Icon className={cn("h-4 w-4 transition-transform duration-200 group-hover:scale-110", isSelected ? "text-white" : "text-primary/70")} />
               <span>{course.title}</span>
             </Link>
           );

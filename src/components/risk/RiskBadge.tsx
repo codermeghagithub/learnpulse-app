@@ -44,7 +44,7 @@ export function RiskBadge({ bucket, score, showScore = false, className }: RiskB
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold border",
+        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold border shadow-2xs backdrop-blur-xs transition-transform duration-150 hover:scale-105",
         styles.bg,
         styles.text,
         styles.border,
@@ -52,10 +52,16 @@ export function RiskBadge({ bucket, score, showScore = false, className }: RiskB
       )}
       title="Learning Risk Indicator"
     >
-      <span className={cn("h-1.5 w-1.5 rounded-full", styles.dot)} />
+      <span
+        className={cn(
+          "h-1.5 w-1.5 rounded-full shrink-0",
+          styles.dot,
+          bucket === "At Risk" || bucket === "Critical" ? "animate-pulse" : ""
+        )}
+      />
       {bucket}
       {showScore && score !== undefined && (
-        <span className="opacity-70 font-normal">
+        <span className="opacity-75 font-normal">
           ({(score * 100).toFixed(0)}%)
         </span>
       )}

@@ -5,11 +5,11 @@ import type { ConceptBiteOutput, BilingualChallenge, ConceptBiteSection } from "
 import { z } from "zod";
 
 const requestSchema = z.object({
-  conceptId: z.string().uuid("Invalid concept ID"),
+  conceptId: z.string().trim().min(1, "Concept ID is required"),
   conceptName: z.string().trim().min(1).max(200),
   description: z.string().max(2000).optional(),
   forceRefresh: z.boolean().optional(),
-  challengeIndex: z.number().int().min(0).max(100).optional(),
+  challengeIndex: z.number().int().optional(),
 });
 
 interface PersistedQuickCheck {
@@ -35,8 +35,9 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const parsed = requestSchema.safeParse(body);
     if (!parsed.success) {
+      console.warn("[/api/ai/concept-bite] Validation failure:", parsed.error.format());
       return NextResponse.json(
-        { error: "Invalid request payload" },
+        { error: "Invalid request payload", details: parsed.error.issues },
         { status: 400 }
       );
     }

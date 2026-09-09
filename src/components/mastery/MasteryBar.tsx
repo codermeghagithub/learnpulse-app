@@ -78,7 +78,7 @@ export function MasteryBar({
       )}
       <div
         className={cn(
-          "w-full rounded-full bg-muted overflow-hidden",
+          "w-full rounded-full bg-muted/70 dark:bg-muted/50 overflow-hidden relative",
           heightClass,
         )}
         role="progressbar"
@@ -88,11 +88,13 @@ export function MasteryBar({
       >
         <div
           className={cn(
-            "h-full rounded-full transition-all duration-700 ease-out",
+            "h-full rounded-full transition-all duration-700 ease-out relative overflow-hidden",
             colorClass,
           )}
           style={{ width: `${clampedScore}%` }}
-        />
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_2.5s_infinite] w-full" />
+        </div>
       </div>
 
       {showAccuracySubtitle && attemptsCount !== undefined && (
