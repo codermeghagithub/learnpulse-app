@@ -165,15 +165,30 @@
 /* ── Custom utility classes ── */
 @layer utilities {
   .glass {
-    background: var(--card);
-    backdrop-filter: blur(12px);
-    border: 1px solid var(--border);
+    background: color-mix(in oklab, var(--card) 85%, transparent);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid color-mix(in oklab, var(--border) 75%, transparent);
   }
 
+  /* Linear & Framer style multi-layered glass card */
   .glass-card {
-    background: var(--card);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--border);
+    background: color-mix(in oklab, var(--card) 92%, transparent);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid color-mix(in oklab, var(--border) 80%, transparent);
+    box-shadow:
+      0 1px 2px 0 rgba(0, 0, 0, 0.05),
+      0 4px 16px -2px rgba(0, 0, 0, 0.08);
+  }
+
+  .dark .glass-card {
+    background: color-mix(in oklab, var(--card) 88%, transparent);
+    border: 1px solid color-mix(in oklab, var(--border) 75%, transparent);
+    box-shadow:
+      0 1px 0 0 rgba(255, 255, 255, 0.05) inset,
+      0 0 0 1px rgba(255, 255, 255, 0.02) inset,
+      0 8px 32px -8px rgba(0, 0, 0, 0.6);
   }
 
   .gradient-brand {
@@ -181,10 +196,21 @@
   }
 
   .gradient-text {
-    background: linear-gradient(135deg, oklch(0.75 0.20 264), oklch(0.80 0.18 200));
+    background: linear-gradient(135deg, oklch(0.78 0.20 264), oklch(0.82 0.18 200));
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+  }
+
+  /* Duolingo inspired tactile button feel */
+  .tactile-button {
+    box-shadow: 0 4px 0 0 color-mix(in oklab, var(--primary) 70%, black 30%);
+    transition: all 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .tactile-button:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 0 color-mix(in oklab, var(--primary) 70%, black 30%);
   }
 
   .glow-brand {
@@ -199,14 +225,17 @@
     box-shadow: 0 4px 20px -2px oklch(0.62 0.23 27 / 15%);
   }
 
+  /* Linear-style smooth lift and border glow on hover */
   .card-hover {
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .card-hover:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.25);
-    border-color: color-mix(in oklab, var(--border) 60%, var(--primary) 40%);
+    transform: translateY(-3px);
+    box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.35);
+    border-color: color-mix(in oklab, var(--border) 50%, var(--primary) 50%);
   }
 
   .animate-pulse-slow {

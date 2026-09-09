@@ -54,11 +54,11 @@ export function MasteryExplainerModal({
           type="button"
           onClick={() => setIsOpen(true)}
           className={cn(
-            "inline-flex items-center gap-1.5 rounded-xl border border-primary/20 bg-primary/5 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/10 transition-colors",
+            "inline-flex items-center gap-1.5 rounded-xl border border-primary/25 bg-primary/10 px-3.5 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 hover:border-primary/40 active:scale-95 transition-all shadow-2xs cursor-pointer",
             className,
           )}
         >
-          <HelpCircle className="h-3.5 w-3.5" />
+          <HelpCircle className="h-3.5 w-3.5 transition-transform group-hover:rotate-12" />
           <span>{buttonText}</span>
         </button>
       ) : (

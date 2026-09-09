@@ -28,7 +28,7 @@ export default async function DashboardLayout({
       <AnimatedBackground />
 
       <Sidebar role="student" fullName={profile.full_name} />
-      <main className="flex-1 overflow-y-auto scrollbar-thin relative z-10">
+      <main className="flex-1 overflow-y-auto scrollbar-thin relative z-10 pt-14 md:pt-0">
         {children}
       </main>
     </div>
