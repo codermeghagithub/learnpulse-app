@@ -3,6 +3,7 @@ import {
   buildAdjacencyList,
   bfsPrerequisites,
   topologicalSort,
+  getForwardDependents,
   type ConceptEdge,
 } from "../graph";
 
@@ -125,3 +126,33 @@ describe("topologicalSort", () => {
     expect(sorted).toBeNull();
   });
 });
+
+describe("getForwardDependents", () => {
+  it("returns direct dependents sorted by weight descending", () => {
+    const testEdges: ConceptEdge[] = [
+      { prerequisite_id: "c1", concept_id: "c2", weight: 1 },
+      { prerequisite_id: "c1", concept_id: "c3", weight: 5 },
+      { prerequisite_id: "c1", concept_id: "c4", weight: 3 },
+    ];
+    const adj = buildAdjacencyList(testEdges);
+    const deps = getForwardDependents(adj, "c1");
+
+    expect(deps).toHaveLength(3);
+    expect(deps[0]).toEqual({ prerequisite_id: "c1", concept_id: "c3", weight: 5 });
+    expect(deps[1]).toEqual({ prerequisite_id: "c1", concept_id: "c4", weight: 3 });
+    expect(deps[2]).toEqual({ prerequisite_id: "c1", concept_id: "c2", weight: 1 });
+  });
+
+  it("returns empty array for a leaf concept with no dependents", () => {
+    const adj = buildAdjacencyList(edges);
+    const deps = getForwardDependents(adj, "recursion");
+    expect(deps).toEqual([]);
+  });
+
+  it("returns empty array for an unknown concept not in the graph", () => {
+    const adj = buildAdjacencyList(edges);
+    const deps = getForwardDependents(adj, "non-existent-concept");
+    expect(deps).toEqual([]);
+  });
+});
+

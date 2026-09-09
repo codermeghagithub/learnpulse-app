@@ -25,6 +25,8 @@ export interface AdjacencyList {
   dependents: Map<string, Array<{ id: string; weight: number }>>;
 }
 
+export type Graph = AdjacencyList;
+
 /**
  * Build bidirectional adjacency lists from a flat edge list.
  * Call this once per page load using a single DB query.
@@ -152,3 +154,22 @@ export function topologicalSort(
   if (sorted.length !== conceptIds.length) return null;
   return sorted;
 }
+
+/**
+ * Return all direct forward dependents of a concept, sorted by edge weight descending.
+ * Reads from the pre-built adj.dependents map — O(1) lookup + O(k log k) sort.
+ */
+export function getForwardDependents(
+  adj: AdjacencyList,
+  conceptId: string
+): ConceptEdge[] {
+  const directDeps = adj.dependents.get(conceptId) ?? [];
+  return directDeps
+    .map((dep) => ({
+      prerequisite_id: conceptId,
+      concept_id: dep.id,
+      weight: dep.weight,
+    }))
+    .sort((a, b) => b.weight - a.weight);
+}
+

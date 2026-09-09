@@ -8,6 +8,7 @@ import { computeRisk, inactivityScore, declineScore } from "@/lib/algorithms/ris
 import { MasteryExplainerModal } from "@/components/mastery/MasteryExplainerModal";
 import { getAccuracyText } from "@/lib/masteryLevels";
 import { getDaysSince } from "@/lib/utils";
+import { calculateRetention } from "@/lib/algorithms/decay";
 import {
   BookOpen,
   TrendingUp,
@@ -134,6 +135,8 @@ export default async function DashboardPage({ searchParams }: PageProps) {
         attemptsCount: 0,
         correctCount: 0,
         hasAttempted: false,
+        isDue: false,
+        retentionScore: 0,
         risk,
       };
     }
@@ -150,6 +153,16 @@ export default async function DashboardPage({ searchParams }: PageProps) {
       inactivity: inactivityScore(daysSinceLast),
     });
 
+    const decay = calculateRetention(
+      {
+        masteryScore: row.score,
+        lastAttemptAt: new Date(row.updated_at),
+        timesCorrect: row.correct_count,
+        totalAttempts: row.attempts_count,
+      },
+      new Date()
+    );
+
     return {
       id: concept.id,
       name: concept.name,
@@ -158,6 +171,8 @@ export default async function DashboardPage({ searchParams }: PageProps) {
       attemptsCount: row.attempts_count,
       correctCount: row.correct_count,
       hasAttempted: true,
+      isDue: decay.isDue,
+      retentionScore: decay.retentionScore,
       risk,
     };
   });
@@ -320,6 +335,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                       correctCount={concept.correctCount}
                       showLabel={true}
                       size="sm"
+                      isDue={concept.isDue}
                     />
                     <div className="text-[11px] text-muted-foreground/90 font-medium">
                       {getAccuracyText(concept.correctCount, concept.attemptsCount, concept.score)}
@@ -356,6 +372,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                     correctCount={concept.correctCount}
                     showLabel={true}
                     size="sm"
+                    isDue={concept.isDue}
                   />
                   <div className="text-[11px] text-muted-foreground/90 font-medium">
                     {getAccuracyText(concept.correctCount, concept.attemptsCount, concept.score)}

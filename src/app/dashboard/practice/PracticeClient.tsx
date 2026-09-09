@@ -26,15 +26,20 @@ interface ConceptInfo {
   score: number;
   attemptsCount?: number;
   correctCount?: number;
+  isDue?: boolean;
+  retentionScore?: number;
 }
 
 interface Question {
   id: string;
+  concept_id?: string;
   question_text: string;
   options: Array<{ key: string; text: string }>;
   correct_answer?: string;
   explanation?: string;
   difficulty: "easy" | "medium" | "hard";
+  isReviewQuestion?: boolean;
+  originConceptId?: string;
 }
 
 interface MasteryUpdate {
@@ -42,6 +47,15 @@ interface MasteryUpdate {
   newScore: number;
   gain: number;
   isCorrect: boolean;
+  decayDiagnosis?: {
+    confirmed: boolean;
+    conceptId: string;
+    conceptName: string;
+    masteryScore: number;
+    rootCause: string;
+    explanation: string;
+    actionPlan: Array<{ step: number; action: string }>;
+  } | null;
 }
 
 interface Course {
@@ -102,7 +116,9 @@ export function PracticeClient({
       body: JSON.stringify({
         questionId: currentQ.id,
         selectedAnswer,
-        conceptId: activeConcept.id,
+        conceptId: currentQ.concept_id ?? activeConcept.id,
+        isReviewQuestion: currentQ.isReviewQuestion,
+        originConceptId: currentQ.originConceptId,
       }),
     });
 
@@ -131,7 +147,7 @@ export function PracticeClient({
   const isEmpty = activeQuestions.length === 0;
 
   return (
-    <div className="px-8 py-8 max-w-3xl mx-auto space-y-8">
+    <div className="px-8 py-8 pb-16 max-w-3xl mx-auto space-y-8">
       {/* Header */}
       <div className="animate-slide-up flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
@@ -166,21 +182,28 @@ export function PracticeClient({
               href={`/dashboard/practice?conceptId=${c.id}${selectedCourseId ? `&courseId=${selectedCourseId}` : ""}`}
               id={`concept-tab-${c.id}`}
               className={cn(
-                "rounded-xl border px-4 py-2 text-sm font-medium transition-all",
+                "rounded-xl border px-4 py-2 text-sm font-medium transition-all flex items-center gap-1.5",
                 c.id === activeConcept.id
                   ? "border-primary bg-primary/15 text-primary"
-                  : "border-border text-muted-foreground hover:border-primary/30",
+                  : c.isDue
+                    ? "border-amber-500/40 bg-amber-500/10 text-amber-500 hover:border-amber-500/60"
+                    : "border-border text-muted-foreground hover:border-primary/30",
               )}
             >
-              {c.name}
+              <span>{c.name}</span>
+              {c.isDue && (
+                <span className="text-xs text-amber-500 font-semibold" title="Review Due">⏳</span>
+              )}
               <span
                 className={cn(
-                  "ml-2 text-xs",
-                  c.score < 40
-                    ? "text-mastery-low"
-                    : c.score < 70
-                      ? "text-mastery-mid"
-                      : "text-mastery-high",
+                  "ml-1 text-xs",
+                  c.isDue
+                    ? "text-amber-500 font-semibold"
+                    : c.score < 40
+                      ? "text-mastery-low"
+                      : c.score < 70
+                        ? "text-mastery-mid"
+                        : "text-mastery-high",
                 )}
               >
                 {c.score.toFixed(0)}%
@@ -195,25 +218,31 @@ export function PracticeClient({
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="flex items-center gap-2.5 flex-wrap">
             <span className="font-bold text-base">{activeConcept.name}</span>
-            <span
-              className={cn(
-                "text-xs px-2.5 py-0.5 rounded-full border font-medium",
-                getMasteryStage(currentMastery, conceptAttempts).badgeClass
-              )}
-            >
-              {getMasteryStage(currentMastery, conceptAttempts).stageBadge}
-            </span>
+            {activeConcept.isDue ? (
+              <span className="text-xs px-2.5 py-0.5 rounded-full border border-amber-500/20 bg-amber-500/15 text-amber-500 font-medium">
+                ⏳ Fading — review due
+              </span>
+            ) : (
+              <span
+                className={cn(
+                  "text-xs px-2.5 py-0.5 rounded-full border font-medium",
+                  getMasteryStage(currentMastery, conceptAttempts).badgeClass
+                )}
+              >
+                {getMasteryStage(currentMastery, conceptAttempts).stageBadge}
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-2">
-            {lastUpdate && (
+            {lastUpdate && lastUpdate.previousScore !== lastUpdate.newScore && (
               <div
                 className={cn(
                   "flex items-center gap-1 text-sm font-semibold animate-slide-up",
                   lastUpdate.isCorrect ? "text-mastery-high" : "text-mastery-low",
                 )}
               >
-                {lastUpdate.isCorrect ? <TrendingUp className="h-4 w-4" /> : null}
+                {lastUpdate.gain > 0 ? <TrendingUp className="h-4 w-4" /> : null}
                 {lastUpdate.previousScore}% → {lastUpdate.newScore}%
                 {lastUpdate.gain > 0 && (
                   <span className="text-xs text-mastery-high">
@@ -233,6 +262,7 @@ export function PracticeClient({
           correctCount={conceptCorrect}
           showLabel={false}
           size="md"
+          isDue={activeConcept.isDue}
         />
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 text-xs text-muted-foreground pt-0.5">
@@ -240,8 +270,14 @@ export function PracticeClient({
             {getAccuracyText(conceptCorrect, conceptAttempts, currentMastery)}
           </span>
           <span className="text-muted-foreground">
-            {masteredCount > 0 && !isCompleted ? `${masteredCount} already solved • ` : ""}
-            Q {Math.min(currentIdx + 1, activeQuestions.length)} of {activeQuestions.length}
+            {isCompleted ? (
+              <span className="text-emerald-500 font-medium">All questions completed ✓</span>
+            ) : (
+              <>
+                {masteredCount > 0 ? `${masteredCount} already solved • ` : ""}
+                Q {Math.min(currentIdx + 1, activeQuestions.length)} of {activeQuestions.length}
+              </>
+            )}
           </span>
         </div>
       </div>
@@ -328,7 +364,28 @@ export function PracticeClient({
           </div>
         </div>
       ) : (
-        <div className="animate-slide-up">
+        <div className="animate-slide-up space-y-3">
+          {currentQ?.isReviewQuestion && (
+            <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-medium">
+              <span className="text-base">⏳</span>
+              <div>
+                <strong>Forgetting-Curve Review Question</strong>: Testing long-term retention of prerequisite concept knowledge.
+              </div>
+            </div>
+          )}
+
+          {lastUpdate?.decayDiagnosis && (
+            <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/25 space-y-1.5 animate-slide-up text-xs">
+              <div className="font-semibold text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                <span>⚠️</span>
+                <span>Root-Cause Trace: Decayed retention on {lastUpdate.decayDiagnosis.conceptName}</span>
+              </div>
+              <p className="text-muted-foreground leading-relaxed">
+                {lastUpdate.decayDiagnosis.explanation}
+              </p>
+            </div>
+          )}
+
           <QuizCard
             key={`${activeConcept.id}-${currentIdx}`}
             questionId={currentQ.id}

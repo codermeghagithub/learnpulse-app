@@ -18,20 +18,10 @@ const requestSchema = z.object({
 
 // ─── In-Memory Cache ──────────────────────────────────────────────────────────
 
-/**
- * Fast in-memory cache — repeated selections of the same wrong option
- * resolve in <1ms with zero redundant LLM queries.
- *
- * Key: `{questionId}_{selectedKey}_{reasoningHash}` — the reasoning hash
- * ensures a student who explains their thinking gets a targeted response,
- * while students with no reasoning still get a fast cached result.
- */
 type MisconceptionDiagnosis = Awaited<ReturnType<typeof diagnoseMisconception>>;
 const misconceptionCache = new Map<string, MisconceptionDiagnosis>();
 
-/** Build a short, stable cache key from the question + selection + reasoning. */
 function buildCacheKey(questionId: string, selectedKey: string, studentReasoning?: string): string {
-  // Simple hash: truncate reasoning to first 50 chars to group similar inputs
   const reasoningSlug = studentReasoning ? `_${studentReasoning.slice(0, 50)}` : "";
   return `${questionId}_${selectedKey}${reasoningSlug}`;
 }
