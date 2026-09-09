@@ -1,24 +1,10 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
-import Link from "next/link";
-import { MasteryBar } from "@/components/mastery/MasteryBar";
-import { RiskBadge } from "@/components/risk/RiskBadge";
 import { computeRisk, inactivityScore, declineScore } from "@/lib/algorithms/risk";
-import { MasteryExplainerModal } from "@/components/mastery/MasteryExplainerModal";
-import { getAccuracyText } from "@/lib/masteryLevels";
 import { getDaysSince } from "@/lib/utils";
 import { calculateRetention } from "@/lib/algorithms/decay";
-import {
-  BookOpen,
-  TrendingUp,
-  AlertTriangle,
-  ArrowRight,
-  Zap,
-  Target,
-} from "lucide-react";
-
-import { CourseSelector } from "@/components/CourseSelector";
+import { DashboardClientView } from "./DashboardClientView";
 
 export const dynamic = "force-dynamic";
 
@@ -192,197 +178,22 @@ export default async function DashboardPage({ searchParams }: PageProps) {
   ).length;
 
   return (
-    <div className="px-8 py-8 max-w-4xl mx-auto space-y-8">
-      {/* Page header */}
-      <div className="animate-slide-up flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold">
-            Good day, {profile.full_name.split(" ")[0]} 👋
-          </h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            Here&apos;s your learning health overview
-          </p>
-        </div>
-        <MasteryExplainerModal buttonText="How is Mastery calculated?" variant="button" />
-      </div>
-
-      {/* Course selector tabs */}
-      {validCourses.length > 0 && (
-        <div className="animate-slide-up">
-          <CourseSelector
-            courses={validCourses}
-            selectedCourseId={selectedCourseId ?? ""}
-            basePath="/dashboard"
-          />
-        </div>
-      )}
-
-      {validConcepts.length === 0 ? (
-        /* ── Empty state: No concepts in course ── */
-        <div className="animate-slide-up glass-card rounded-2xl p-12 text-center space-y-5">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl gradient-brand glow-brand mx-auto">
-            <BookOpen className="h-8 w-8 text-white" />
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold">No Concepts Added Yet</h2>
-            <p className="text-muted-foreground text-sm mt-2 max-w-sm mx-auto">
-              This course does not have any concepts authored yet.
-            </p>
-          </div>
-        </div>
-      ) : (
-        <>
-          {/* If no concepts attempted at all yet, show getting-started prompt */}
-          {attemptedConcepts.length === 0 && (
-            <div className="animate-slide-up glass-card rounded-2xl p-6 flex items-center justify-between border-primary/20 bg-primary/5">
-              <div>
-                <h3 className="font-semibold text-sm text-foreground">
-                  Welcome to {selectedCourse?.title}!
-                </h3>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Start your first practice session to build your learning health and identify gaps.
-                </p>
-              </div>
-              <Link
-                href={`/dashboard/practice${selectedCourseId ? `?courseId=${selectedCourseId}` : ""}`}
-                id="empty-state-cta"
-                className="inline-flex items-center gap-1.5 rounded-xl gradient-brand glow-brand text-white px-4 py-2 text-xs font-semibold hover:opacity-90 transition-opacity shrink-0 ml-4"
-              >
-                <Zap className="h-3.5 w-3.5" />
-                Start Practicing
-              </Link>
-            </div>
-          )}
-
-          {/* ── Stats row ── */}
-          <div className="grid grid-cols-3 gap-4 animate-slide-up">
-            {/* Learning Health */}
-            <div className="glass-card rounded-2xl p-5 space-y-3 col-span-1">
-              <div className="flex items-center justify-between text-muted-foreground text-sm">
-                <span className="flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4" />
-                  Learning Health
-                </span>
-                <MasteryExplainerModal variant="icon" />
-              </div>
-              <div className="text-4xl font-bold gradient-text">
-                {learningHealth.toFixed(0)}%
-              </div>
-              <MasteryBar score={learningHealth} showLabel={false} size="sm" />
-            </div>
-
-            {/* Concepts tracked */}
-            <div className="glass-card rounded-2xl p-5 space-y-1 col-span-1">
-              <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                <Target className="h-4 w-4" />
-                Concepts Tracked
-              </div>
-              <div className="text-4xl font-bold">{conceptsWithRisk.length}</div>
-              <p className="text-xs text-muted-foreground">in this course</p>
-            </div>
-
-            {/* At-risk count */}
-            <div className="glass-card rounded-2xl p-5 space-y-1 col-span-1">
-              <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                <AlertTriangle className="h-4 w-4" />
-                At Risk
-              </div>
-              <div
-                className={`text-4xl font-bold ${
-                  atRiskCount > 0
-                    ? "text-mastery-low"
-                    : "text-mastery-high"
-                }`}
-              >
-                {atRiskCount}
-              </div>
-              <p className="text-xs text-muted-foreground">need attention</p>
-            </div>
-          </div>
-
-          {/* ── Weak concepts list ── */}
-          {weakConcepts.length > 0 && (
-            <div className="animate-slide-up">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="font-semibold text-base">
-                  Concepts Needing Attention
-                </h2>
-                <span className="text-xs text-muted-foreground">
-                  {weakConcepts.length} concept{weakConcepts.length > 1 ? "s" : ""} below 60%
-                </span>
-              </div>
-
-              <div className="space-y-3">
-                {weakConcepts.map((concept, idx) => (
-                  <Link
-                    key={concept.id}
-                    href={`/dashboard/gaps/${concept.id}`}
-                    id={`concept-card-${idx}`}
-                    className="group block glass-card rounded-xl p-4 hover:border-primary/30 transition-all duration-200 space-y-2.5"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-sm group-hover:text-primary transition-colors">
-                        {concept.name}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <RiskBadge bucket={concept.risk.bucket} />
-                        <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors group-hover:translate-x-0.5" />
-                      </div>
-                    </div>
-                    <MasteryBar
-                      score={concept.score}
-                      attemptsCount={concept.attemptsCount}
-                      correctCount={concept.correctCount}
-                      showLabel={true}
-                      size="sm"
-                      isDue={concept.isDue}
-                    />
-                    <div className="text-[11px] text-muted-foreground/90 font-medium">
-                      {getAccuracyText(concept.correctCount, concept.attemptsCount, concept.score)}
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* ── All concepts ── */}
-          <div className="animate-slide-up">
-            <h2 className="font-semibold text-base mb-4">All Concepts</h2>
-            <div className="space-y-3">
-              {conceptsWithRisk.map((concept, idx) => (
-                <Link
-                  key={concept.id}
-                  href={`/dashboard/gaps/${concept.id}`}
-                  id={`all-concept-${idx}`}
-                  className="group block glass-card rounded-xl p-4 hover:border-primary/30 transition-all duration-200 space-y-2.5"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium text-sm group-hover:text-primary transition-colors">
-                      {concept.name}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <RiskBadge bucket={concept.risk.bucket} />
-                      <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
-                    </div>
-                  </div>
-                  <MasteryBar
-                    score={concept.score}
-                    attemptsCount={concept.attemptsCount}
-                    correctCount={concept.correctCount}
-                    showLabel={true}
-                    size="sm"
-                    isDue={concept.isDue}
-                  />
-                  <div className="text-[11px] text-muted-foreground/90 font-medium">
-                    {getAccuracyText(concept.correctCount, concept.attemptsCount, concept.score)}
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </>
-      )}
-    </div>
+    <DashboardClientView
+      fullName={profile.full_name}
+      validCourses={validCourses}
+      selectedCourseId={selectedCourseId}
+      selectedCourse={selectedCourse}
+      validConcepts={validConcepts}
+      conceptsWithRisk={conceptsWithRisk}
+      attemptedConcepts={attemptedConcepts}
+      weakConcepts={weakConcepts}
+      learningHealth={learningHealth}
+      atRiskCount={atRiskCount}
+    />
   );
 }
+
+
+
+
+
