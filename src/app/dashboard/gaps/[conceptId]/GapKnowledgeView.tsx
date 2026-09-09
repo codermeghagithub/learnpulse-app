@@ -25,6 +25,12 @@ export function GapKnowledgeView({
   targetConcept,
 }: GapKnowledgeViewProps) {
   const [viewMode, setViewMode] = useState<"graph" | "chain">("graph");
+  const [selectedConceptId, setSelectedConceptId] = useState<string>(targetConcept.id);
+
+  const selectedNode = nodes.find((n) => n.id === selectedConceptId) ?? {
+    id: targetConcept.id,
+    name: targetConcept.name,
+  };
 
   return (
     <div className="space-y-6">
@@ -85,17 +91,19 @@ export function GapKnowledgeView({
           edges={edges}
           courseId={courseId}
           targetConceptId={targetConcept.id}
+          onSelectNode={(nodeId) => setSelectedConceptId(nodeId)}
         />
       ) : (
         <ConceptChain nodes={nodes} />
       )}
 
-      {/* 60-Second Remediation Bite (Closing the Learning Loop) */}
+      {/* 60-Second Remediation Bite (Single authoritative instance for the active concept) */}
       <div className="pt-2">
         <ConceptBiteCard
-          conceptId={targetConcept.id}
-          conceptName={targetConcept.name}
-          description={targetConcept.description ?? undefined}
+          key={selectedNode.id}
+          conceptId={selectedNode.id}
+          conceptName={selectedNode.name}
+          description={selectedNode.id === targetConcept.id ? targetConcept.description ?? undefined : undefined}
         />
       </div>
     </div>

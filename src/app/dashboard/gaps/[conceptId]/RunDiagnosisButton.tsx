@@ -14,7 +14,6 @@ import {
   AlertCircle,
 } from "lucide-react";
 import type { DiagnosisOutput } from "@/lib/ai/schemas";
-import { ConceptBiteCard } from "@/components/remediation/ConceptBiteCard";
 
 
 interface DiagnosisInput {
@@ -224,13 +223,7 @@ export function RunDiagnosisButton({
           diagnosisInput.targetConceptId;
 
         return (
-          <div className="space-y-4 pt-2">
-            {/* 60-Second Remediation Bite for the identified root-cause bottleneck */}
-            <ConceptBiteCard
-              conceptId={targetPracticeConceptId}
-              conceptName={result.blockingConcept}
-            />
-
+          <div className="pt-2">
             <Link
               id="start-recovery-plan-btn"
               href={`/dashboard/practice?conceptId=${targetPracticeConceptId}${diagnosisInput.courseId ? `&courseId=${diagnosisInput.courseId}` : ""}`}
