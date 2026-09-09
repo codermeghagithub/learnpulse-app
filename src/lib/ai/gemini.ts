@@ -1219,7 +1219,7 @@ export async function generateConceptBite(
 
       // If challengePool exists, pick a random challenge for the root quickCheck
       const pool = data.challengePool && data.challengePool.length > 0 ? data.challengePool : undefined;
-      let activeChallenge = pool
+      const activeChallenge = pool
         ? (typeof preferredIndex === "number"
             ? pool[Math.abs(preferredIndex) % pool.length]
             : pool[Math.floor(Math.random() * pool.length)])

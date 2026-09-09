@@ -5,14 +5,10 @@ import { useRouter } from "next/navigation";
 import {
   Sparkles,
   Zap,
-  BookOpen,
   CheckCircle2,
   AlertTriangle,
   Loader2,
-  Layers,
-  Network,
   X,
-  Plus,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

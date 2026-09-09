@@ -1,16 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 import { generateConceptBite, buildDeterministicConceptBiteFallback } from "@/lib/ai/gemini";
-import { conceptBiteSchema } from "@/lib/ai/schemas";
+import type { ConceptBiteOutput, BilingualChallenge, ConceptBiteSection } from "@/lib/ai/schemas";
 import { z } from "zod";
 
 const requestSchema = z.object({
-  conceptId: z.string().min(1),
-  conceptName: z.string().min(1),
-  description: z.string().optional(),
+  conceptId: z.string().uuid("Invalid concept ID"),
+  conceptName: z.string().trim().min(1).max(200),
+  description: z.string().max(2000).optional(),
   forceRefresh: z.boolean().optional(),
-  challengeIndex: z.number().optional(),
+  challengeIndex: z.number().int().min(0).max(100).optional(),
 });
+
+interface PersistedQuickCheck {
+  en?: ConceptBiteSection;
+  hi?: ConceptBiteSection;
+  anchorEn?: string;
+  anchorHi?: string;
+  challengePool?: BilingualChallenge[];
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -28,7 +36,7 @@ export async function POST(req: NextRequest) {
     const parsed = requestSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
-        { error: "Invalid payload", details: parsed.error.format() },
+        { error: "Invalid request payload" },
         { status: 400 }
       );
     }
@@ -54,7 +62,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Check if existing bite has full bilingual challenge pool
-    const existingQc = existingBite?.quick_check as any;
+    const existingQc = existingBite?.quick_check as PersistedQuickCheck | null;
     const hasFullPool =
       existingQc &&
       Array.isArray(existingQc.challengePool) &&
@@ -62,9 +70,9 @@ export async function POST(req: NextRequest) {
       existingQc.en &&
       existingQc.hi;
 
-    let biteResult: any;
+    let biteResult: ConceptBiteOutput;
 
-    if (existingBite && hasFullPool) {
+    if (existingBite && hasFullPool && existingQc.challengePool) {
       const pool = existingQc.challengePool;
       const chosenIdx =
         typeof challengeIndex === "number"

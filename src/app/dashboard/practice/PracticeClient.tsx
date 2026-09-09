@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -119,14 +119,32 @@ export function PracticeClient({
   const [pendingSyncCount, setPendingSyncCount] = useState(0);
   const [isSyncing, setIsSyncing] = useState(false);
 
+  const handleTriggerSync = useCallback(async () => {
+    setIsSyncing(true);
+    try {
+      const res = await syncOfflineAttempts();
+      setPendingSyncCount(getQueuedAttempts().length);
+      if (res.syncedCount > 0) {
+        router.refresh();
+      }
+    } finally {
+      setIsSyncing(false);
+    }
+  }, [router]);
+
   useEffect(() => {
-    setPendingSyncCount(getQueuedAttempts().length);
-    setIsOfflineMode(!isBrowserOnline());
+    const queue = getQueuedAttempts();
+    const isOnline = isBrowserOnline();
+
+    const timer = setTimeout(() => {
+      setPendingSyncCount(queue.length);
+      setIsOfflineMode(!isOnline);
+    }, 0);
 
     function handleOnline() {
       setIsOfflineMode(false);
-      const queue = getQueuedAttempts();
-      if (queue.length > 0) {
+      const q = getQueuedAttempts();
+      if (q.length > 0) {
         handleTriggerSync();
       }
     }
@@ -139,23 +157,11 @@ export function PracticeClient({
     window.addEventListener("offline", handleOffline);
 
     return () => {
+      clearTimeout(timer);
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
     };
-  }, []);
-
-  async function handleTriggerSync() {
-    setIsSyncing(true);
-    try {
-      const res = await syncOfflineAttempts();
-      setPendingSyncCount(getQueuedAttempts().length);
-      if (res.syncedCount > 0) {
-        router.refresh();
-      }
-    } finally {
-      setIsSyncing(false);
-    }
-  }
+  }, [handleTriggerSync]);
 
   const currentConceptIdx = conceptList.findIndex(
     (c) => c.id === activeConcept.id,

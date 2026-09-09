@@ -4,7 +4,7 @@ import { useState } from "react";
 import { InteractiveDagGraph, type DagNode, type DagEdge } from "@/components/mastery/InteractiveDagGraph";
 import { ConceptChain } from "@/components/mastery/ConceptChain";
 import { ConceptBiteCard } from "@/components/remediation/ConceptBiteCard";
-import { Network, ListOrdered, Sparkles, BookOpen } from "lucide-react";
+import { Network, ListOrdered } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface GapKnowledgeViewProps {

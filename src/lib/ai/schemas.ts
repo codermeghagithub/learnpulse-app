@@ -97,6 +97,7 @@ export const conceptBiteSchema = z.object({
   en: conceptBiteSectionSchema.optional(),
   hi: conceptBiteSectionSchema.optional(),
   challengePool: z.array(bilingualChallengeSchema).optional(),
+  isAiGenerated: z.boolean().optional(),
 });
 
 export type QuickCheckOption = z.infer<typeof quickCheckOptionSchema>;

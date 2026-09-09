@@ -5,17 +5,17 @@ import { rankRootCauses, type RootCauseCandidate } from "@/lib/algorithms/rootCa
 import { z } from "zod";
 
 const requestSchema = z.object({
-  targetConceptId: z.string().uuid(),
-  targetConceptName: z.string(),
-  targetMastery: z.number(),
+  targetConceptId: z.string().uuid("Invalid target concept ID"),
+  targetConceptName: z.string().trim().min(1).max(200),
+  targetMastery: z.number().min(0).max(100),
   prerequisites: z.array(
     z.object({
-      conceptId: z.string(),
-      concept: z.string(),
-      mastery: z.number(),
-      edgeWeight: z.number(),
+      conceptId: z.string().uuid("Invalid prerequisite concept ID"),
+      concept: z.string().trim().min(1).max(200),
+      mastery: z.number().min(0).max(100),
+      edgeWeight: z.number().min(0).max(10),
     })
-  ),
+  ).max(50),
 });
 
 export async function POST(req: NextRequest) {
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     const parsed = requestSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
-        { error: "Invalid request", details: parsed.error.flatten() },
+        { error: "Invalid request payload" },
         { status: 400 }
       );
     }

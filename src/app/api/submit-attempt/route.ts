@@ -5,11 +5,11 @@ import { computeScaledMastery } from "@/lib/algorithms/mastery";
 import { z } from "zod";
 
 const requestSchema = z.object({
-  questionId: z.string().uuid(),
-  selectedAnswer: z.string().min(1),
-  conceptId: z.string().uuid(),
+  questionId: z.string().uuid("Invalid question ID"),
+  selectedAnswer: z.string().trim().min(1, "Answer cannot be empty").max(500, "Answer too long"),
+  conceptId: z.string().uuid("Invalid concept ID"),
   isReviewQuestion: z.boolean().optional(),
-  originConceptId: z.string().uuid().optional(),
+  originConceptId: z.string().uuid("Invalid origin concept ID").optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const parsed = requestSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+      return NextResponse.json({ error: "Invalid request payload" }, { status: 400 });
     }
 
     const { questionId, selectedAnswer, conceptId, isReviewQuestion, originConceptId } = parsed.data;

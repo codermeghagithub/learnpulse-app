@@ -24,8 +24,6 @@ import {
   Loader2,
   Layers,
   ArrowRight,
-  Network,
-  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SyllabusIngestionModal } from "@/components/teacher/SyllabusIngestionModal";

@@ -6,14 +6,14 @@ import { z } from "zod";
 // ─── Request Validation ───────────────────────────────────────────────────────
 
 const requestSchema = z.object({
-  questionId: z.string().min(1),
-  questionText: z.string().min(1),
-  selectedOptionText: z.string().min(1),
-  selectedKey: z.string().min(1),
-  correctOptionText: z.string().min(1),
-  conceptName: z.string().min(1),
+  questionId: z.string().uuid("Invalid question ID"),
+  questionText: z.string().trim().min(1).max(2000),
+  selectedOptionText: z.string().trim().min(1).max(1000),
+  selectedKey: z.string().trim().min(1).max(50),
+  correctOptionText: z.string().trim().min(1).max(1000),
+  conceptName: z.string().trim().min(1).max(200),
   /** Optional: the student's self-reported reasoning for their answer. */
-  studentReasoning: z.string().max(500).optional(),
+  studentReasoning: z.string().trim().max(500).optional(),
 });
 
 // ─── In-Memory Cache ──────────────────────────────────────────────────────────
@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
     const parsed = requestSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
-        { error: "Invalid payload", details: parsed.error.format() },
+        { error: "Invalid request payload" },
         { status: 400 }
       );
     }

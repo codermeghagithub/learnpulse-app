@@ -1,7 +1,6 @@
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
-import { ConceptChain } from "@/components/mastery/ConceptChain";
 import { GapKnowledgeView } from "./GapKnowledgeView";
 import { MasteryBar } from "@/components/mastery/MasteryBar";
 

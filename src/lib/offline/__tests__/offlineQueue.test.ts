@@ -5,7 +5,6 @@ import {
   removeQueuedAttempt,
   clearQueuedAttempts,
   syncOfflineAttempts,
-  isBrowserOnline,
 } from "../offlineQueue";
 
 describe("offlineQueue", () => {

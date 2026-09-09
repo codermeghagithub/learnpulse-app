@@ -9,9 +9,6 @@ import {
   CheckCircle2,
   XCircle,
   HelpCircle,
-  Loader2,
-  ChevronRight,
-  Languages,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -121,8 +118,47 @@ export function ConceptBiteCard({
   }
 
   useEffect(() => {
-    fetchBite(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    let isCancelled = false;
+    const randSeed = Math.floor(Math.random() * 1000);
+
+    fetch("/api/ai/concept-bite", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        conceptId,
+        conceptName,
+        description,
+        forceRefresh: false,
+        challengeIndex: randSeed,
+      }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((json: ConceptBiteData) => {
+        if (!isCancelled) {
+          setData(json);
+          const poolLen = json.challengePool?.length || 1;
+          const initialIdx =
+            typeof json.activeChallengeIndex === "number"
+              ? json.activeChallengeIndex % poolLen
+              : Math.floor(Math.random() * poolLen);
+          setChallengeIdx(initialIdx);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (!isCancelled) {
+          console.error("Failed to load concept bite:", err);
+          setError("Could not load concept bite");
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      isCancelled = true;
+    };
   }, [conceptId, conceptName, description]);
 
   function handleSelectOption(key: "A" | "B" | "C" | "D", activeAnswer: string) {

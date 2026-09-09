@@ -20,7 +20,6 @@ import {
   Zap,
   Info,
   ArrowRight,
-  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -70,7 +69,6 @@ function CustomConceptNode({ data }: NodeProps<Node<ConceptNodeData>>) {
   const isUnattempted = isTeacher && roundedMastery === 0;
   const isWeak = !isUnattempted && roundedMastery < 40;
   const isPartial = !isUnattempted && roundedMastery >= 40 && roundedMastery < 85;
-  const isStrong = !isUnattempted && roundedMastery >= 85;
 
   let badgeDot = "bg-emerald-500";
   let borderClass = "border-emerald-500/40 hover:border-emerald-500/80";
@@ -298,7 +296,7 @@ export function InteractiveDagGraph({
     }
 
     return { flowNodes: nodesList, flowEdges: edgesList };
-  }, [rawNodes, rawEdges, selectedNodeId, targetConceptId]);
+  }, [rawNodes, rawEdges, selectedNodeId, targetConceptId, mode]);
 
   const handleNodeClick = useCallback(
     (_: React.MouseEvent, node: Node) => {

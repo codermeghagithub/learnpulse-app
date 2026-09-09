@@ -26,15 +26,17 @@ function getStorage() {
     return window.localStorage;
   }
   return {
-    getItem: (_: string): string | null => JSON.stringify(memoryStore),
-    setItem: (_: string, value: string): void => {
+    getItem: (): string | null => JSON.stringify(memoryStore),
+    setItem: (key: string, value: string): void => {
+      void key;
       try {
         memoryStore = JSON.parse(value);
       } catch {
         memoryStore = [];
       }
     },
-    removeItem: (_: string): void => {
+    removeItem: (key?: string): void => {
+      void key;
       memoryStore = [];
     },
   };

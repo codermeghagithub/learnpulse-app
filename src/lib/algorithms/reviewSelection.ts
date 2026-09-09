@@ -13,6 +13,7 @@
  */
 
 import { createClient } from "@/utils/supabase/server";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { getForwardDependents, type Graph } from "./graph";
 
 export interface ReviewQuestion {
@@ -31,7 +32,7 @@ export interface SelectReviewQuestionParams {
   studentId: string;
   decayedConceptId: string;
   graph: Graph;
-  supabase?: any;
+  supabase?: SupabaseClient;
 }
 
 /**
@@ -54,10 +55,10 @@ export function filterUnmasteredQuestions<T extends { id: string }>(
  */
 export async function selectReviewQuestion(
   params: SelectReviewQuestionParams,
-  explicitClient?: any
+  explicitClient?: SupabaseClient
 ): Promise<ReviewQuestion | null> {
   const { studentId, decayedConceptId, graph } = params;
-  const client = explicitClient ?? params.supabase ?? (await createClient());
+  const client = (explicitClient ?? params.supabase ?? (await createClient())) as SupabaseClient;
 
   // 1. Get forward dependents sorted by weight descending
   const dependents = getForwardDependents(graph, decayedConceptId);

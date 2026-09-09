@@ -2,13 +2,15 @@ import { describe, it, expect } from "vitest";
 import { selectReviewQuestion } from "../reviewSelection";
 import { buildAdjacencyList, type ConceptEdge } from "../graph";
 
+import type { SupabaseClient } from "@supabase/supabase-js";
+
 describe("selectReviewQuestion", () => {
   const STUDENT_ID = "student-1";
   const DECAYED_ID = "arrays";
 
   function createMockSupabase(db: {
-    questionsByConcept: Record<string, any[]>;
-    attemptsByUser: Record<string, any[]>;
+    questionsByConcept: Record<string, Array<Record<string, unknown>>>;
+    attemptsByUser: Record<string, Array<Record<string, unknown>>>;
   }) {
     return {
       from: (table: string) => {
@@ -29,7 +31,7 @@ describe("selectReviewQuestion", () => {
               eq: (_col: string, userId: string) => ({
                 in: async (_col2: string, qIds: string[]) => {
                   const userAttempts = db.attemptsByUser[userId] ?? [];
-                  const filtered = userAttempts.filter((a) => qIds.includes(a.question_id));
+                  const filtered = userAttempts.filter((a) => qIds.includes(a.question_id as string));
                   return { data: filtered, error: null };
                 },
               }),
@@ -39,7 +41,7 @@ describe("selectReviewQuestion", () => {
 
         throw new Error(`Unexpected table: ${table}`);
       },
-    };
+    } as unknown as SupabaseClient;
   }
 
   it("selects unseen question from highest-weight forward dependent first", async () => {
