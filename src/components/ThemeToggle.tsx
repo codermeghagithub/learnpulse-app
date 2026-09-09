@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { Sun, Moon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -8,38 +8,42 @@ interface ThemeToggleProps {
   className?: string;
 }
 
-export function ThemeToggle({ className }: ThemeToggleProps) {
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
-  const [mounted, setMounted] = useState(false);
+function subscribeTheme(callback: () => void) {
+  window.addEventListener("learnpulse-theme-change", callback);
+  window.addEventListener("storage", callback);
+  return () => {
+    window.removeEventListener("learnpulse-theme-change", callback);
+    window.removeEventListener("storage", callback);
+  };
+}
 
-  useEffect(() => {
-    setMounted(true);
-    // Check saved theme or initial class on document
-    const saved = localStorage.getItem("learnpulse-theme") as "dark" | "light" | null;
-    if (saved === "light" || saved === "dark") {
-      setTheme(saved);
-      if (saved === "light") {
-        document.documentElement.classList.remove("dark");
-      } else {
-        document.documentElement.classList.add("dark");
-      }
-    } else {
-      // Default to dark mode
-      setTheme("dark");
-      document.documentElement.classList.add("dark");
-    }
-  }, []);
+function getThemeSnapshot(): "dark" | "light" {
+  if (typeof window === "undefined") return "dark";
+  const saved = localStorage.getItem("learnpulse-theme");
+  return saved === "light" ? "light" : "dark";
+}
+
+function getServerSnapshot(): "dark" | "light" {
+  return "dark";
+}
+
+export function ThemeToggle({ className }: ThemeToggleProps) {
+  const theme = useSyncExternalStore(subscribeTheme, getThemeSnapshot, getServerSnapshot);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
   function toggleTheme() {
     const nextTheme = theme === "dark" ? "light" : "dark";
-    setTheme(nextTheme);
     localStorage.setItem("learnpulse-theme", nextTheme);
-
     if (nextTheme === "light") {
       document.documentElement.classList.remove("dark");
     } else {
       document.documentElement.classList.add("dark");
     }
+    window.dispatchEvent(new Event("learnpulse-theme-change"));
   }
 
   return (

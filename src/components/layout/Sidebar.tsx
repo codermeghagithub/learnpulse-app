@@ -13,7 +13,6 @@ import {
   Zap,
   Menu,
   X,
-  Sparkles,
 } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 

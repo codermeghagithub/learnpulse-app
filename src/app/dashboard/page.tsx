@@ -1,24 +1,9 @@
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
-import Link from "next/link";
-import { MasteryBar } from "@/components/mastery/MasteryBar";
-import { RiskBadge } from "@/components/risk/RiskBadge";
 import { computeRisk, inactivityScore, declineScore } from "@/lib/algorithms/risk";
-import { MasteryExplainerModal } from "@/components/mastery/MasteryExplainerModal";
-import { getAccuracyText } from "@/lib/masteryLevels";
-import { getDaysSince, cn } from "@/lib/utils";
+import { getDaysSince } from "@/lib/utils";
 import { calculateRetention } from "@/lib/algorithms/decay";
-import {
-  BookOpen,
-  TrendingUp,
-  AlertTriangle,
-  ArrowRight,
-  Zap,
-  Target,
-} from "lucide-react";
-
-import { CourseSelector } from "@/components/CourseSelector";
 import { DashboardClientView } from "./DashboardClientView";
 
 export const dynamic = "force-dynamic";

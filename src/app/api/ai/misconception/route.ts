@@ -6,7 +6,7 @@ import { z } from "zod";
 // ─── Request Validation ───────────────────────────────────────────────────────
 
 const requestSchema = z.object({
-  questionId: z.string().uuid("Invalid question ID"),
+  questionId: z.string().trim().min(1).max(2000),
   questionText: z.string().trim().min(1).max(2000),
   selectedOptionText: z.string().trim().min(1).max(1000),
   selectedKey: z.string().trim().min(1).max(50),
