@@ -19,6 +19,15 @@ interface QuizOption {
   text: string;
 }
 
+interface MisconceptionSection {
+  thoughtTrap: string;
+  mentalAnchor: string;
+  cognitiveDissonance: {
+    paradoxScenario: string;
+    counterQuestion: string;
+  };
+}
+
 interface MisconceptionResult {
   thoughtTrap: string;
   mentalAnchor: string;
@@ -27,6 +36,8 @@ interface MisconceptionResult {
     paradoxScenario: string;
     counterQuestion: string;
   };
+  en?: MisconceptionSection;
+  hi?: MisconceptionSection;
   isAiGenerated?: boolean;
 }
 
@@ -59,14 +70,29 @@ function buildClientFallback(
   correctOpt: string,
   conceptName: string,
 ): MisconceptionResult {
-  return {
+  const enSection: MisconceptionSection = {
     thoughtTrap: `You likely selected "${selectedOpt}" because both options play critical roles in ${conceptName || "this domain"}. However, "${selectedOpt}" handles a different phase of the operational lifecycle than "${correctOpt}".`,
-    mentalAnchor: `Rule of thumb: Identify which component orchestrates or schedules work versus which component maintains state or runs nodes.`,
-    vernacularAnchor: `याद रखें: ${conceptName || "इस टॉपिक"} में दोनों विकल्पों का काम अलग है — एक तैयारी करता है और दूसरा उसे प्रोसेस करता है।`,
+    mentalAnchor: `Rule of thumb: Identify which component orchestrates decisions versus which maintains state or executes runtime operations.`,
     cognitiveDissonance: {
-      paradoxScenario: `Imagine swapping "${selectedOpt}" and "${correctOpt}" in a live system. If they were truly equivalent, the output would remain identical — but in practice one prepares data while the other consumes it. The system would produce incorrect results.`,
-      counterQuestion: `What specific output or behaviour would change if you replaced "${correctOpt}" with "${selectedOpt}" in a real implementation?`,
+      paradoxScenario: `Imagine swapping "${selectedOpt}" and "${correctOpt}" in a live system. If they were truly equivalent, the output would remain identical — but in practice one prepares data while the other consumes it. The system would produce incorrect or corrupted results.`,
+      counterQuestion: `What specific output or behavior would break if you replaced "${correctOpt}" with "${selectedOpt}" in a real implementation?`,
     },
+  };
+
+  const hiSection: MisconceptionSection = {
+    thoughtTrap: `आपने संभवतः "${selectedOpt}" इसलिए चुना क्योंकि दोनों विकल्प ${conceptName || "इस विषय"} में महत्वपूर्ण भूमिका निभाते हैं। लेकिन "${selectedOpt}" और "${correctOpt}" के काम करने का चरण और ज़िम्मेदारी पूरी तरह अलग है।`,
+    mentalAnchor: `याद रखें: हमेशा देखें कि कौन निर्णय लेता है और कौन उस स्थिति (state) को निष्पादित करता है — दोनों के काम अलग हैं।`,
+    cognitiveDissonance: {
+      paradoxScenario: `कल्पना करें कि लाइव सिस्टम में "${selectedOpt}" और "${correctOpt}" को आपस में बदल दिया जाए। यदि दोनों सच में एक जैसे होते, तो सिस्टम सही चलता — लेकिन वास्तव में एक घटक डेटा बनाता है और दूसरा उसका उपयोग करता है। बदलने पर सिस्टम गलत परिणाम देगा।`,
+      counterQuestion: `यदि आपकी धारणा सही होती, तो असल सिस्टम में "${correctOpt}" की जगह "${selectedOpt}" लगाने पर क्या टूट जाएगा?`,
+    },
+  };
+
+  return {
+    ...enSection,
+    vernacularAnchor: hiSection.mentalAnchor,
+    en: enSection,
+    hi: hiSection,
     isAiGenerated: false,
   };
 }
@@ -311,24 +337,55 @@ export function QuizCard({
           {/* Mental Mirror + Cognitive Dissonance (shown only on wrong answers) */}
           {!isCorrect && (
             <div className="rounded-2xl border border-primary/30 bg-primary/5 p-5 space-y-4 animate-slide-up shadow-lg">
-              {/* Header */}
-              <div className="flex items-center justify-between">
+              {/* Header with Dual Language Switcher */}
+              <div className="flex items-center justify-between flex-wrap gap-2">
                 <div className="flex items-center gap-2">
                   <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/15 text-primary">
                     <Brain className="h-4 w-4" />
                   </div>
                   <div>
                     <h3 className="text-xs font-bold text-foreground flex items-center gap-1.5">
-                      <span>Mental Mirror</span>
+                      <span>{anchorLang === "hi" ? "मेंटल मिरर" : "Mental Mirror"}</span>
                       <span className="text-[10px] text-muted-foreground font-normal">
-                        • Cognitive Misconception Diagnosis
+                        • {anchorLang === "hi" ? "संज्ञानात्मक भ्रांति विश्लेषण (NEP 2020)" : "Cognitive Misconception Diagnosis"}
                       </span>
                     </h3>
                   </div>
                 </div>
-                <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border border-primary/20 bg-primary/10 text-[10px] font-semibold text-primary">
-                  <Sparkles className="h-3 w-3" />
-                  <span>AI Deconstructed</span>
+
+                <div className="flex items-center gap-2">
+                  {/* Language Switcher for the entire Mental Mirror */}
+                  <div className="flex items-center bg-background/80 border border-primary/20 rounded-md p-0.5 text-[10px]">
+                    <button
+                      type="button"
+                      onClick={() => setAnchorLang("en")}
+                      className={cn(
+                        "px-2.5 py-0.5 rounded font-medium transition-all cursor-pointer",
+                        anchorLang === "en"
+                          ? "bg-primary text-white font-bold shadow-xs"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      English
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAnchorLang("hi")}
+                      className={cn(
+                        "px-2.5 py-0.5 rounded font-medium transition-all cursor-pointer",
+                        anchorLang === "hi"
+                          ? "bg-primary text-white font-bold shadow-xs"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      हिंदी
+                    </button>
+                  </div>
+
+                  <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border border-primary/20 bg-primary/10 text-[10px] font-semibold text-primary">
+                    <Sparkles className="h-3 w-3" />
+                    <span>{anchorLang === "hi" ? "एआई विश्लेषण" : "AI Deconstructed"}</span>
+                  </div>
                 </div>
               </div>
 
@@ -336,90 +393,89 @@ export function QuizCard({
                 <div className="flex items-center gap-3 py-3 text-xs text-muted-foreground animate-pulse">
                   <Sparkles className="h-4 w-4 text-primary animate-spin" />
                   <span>
-                    Deconstructing why your brain selected Option ({selected}
-                    )...
+                    {anchorLang === "hi"
+                      ? `विश्लेषण कर रहे हैं कि आपने विकल्प (${selected}) क्यों चुना...`
+                      : `Deconstructing why your brain selected Option (${selected})...`}
                   </span>
                 </div>
               ) : (
-                <div className="space-y-3">
-                  {/* Thought Trap */}
-                  <div className="rounded-xl border border-amber-500/25 bg-amber-500/5 p-3.5 space-y-1.5">
-                    <div className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
-                      <span>⚠️ The Thought Trap You Fell Into:</span>
-                    </div>
-                    <p className="text-xs text-foreground/90 leading-relaxed">
-                      {misconception?.thoughtTrap ??
-                        `You may have selected this option because both choices share closely related terminology in ${conceptName || "this subject"}.`}
-                    </p>
-                  </div>
+                (() => {
+                  const isHindi = anchorLang === "hi";
 
-                  {/* Mental Anchor */}
-                  <div className="rounded-xl border border-primary/25 bg-primary/5 p-3.5 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="text-xs font-bold text-primary flex items-center gap-1.5">
-                        <Lightbulb className="h-3.5 w-3.5" />
-                        <span>
-                          💡 {anchorLang === "en" ? "10-Second Mental Anchor:" : "१०-सेकंड याद रखने का सूत्र (NEP 2020):"}
-                        </span>
+                  const activeThoughtTrap = isHindi
+                    ? misconception?.hi?.thoughtTrap ||
+                      (misconception?.thoughtTrap
+                        ? `आपने संभवतः यह विकल्प इसलिए चुना क्योंकि दोनों विकल्प ${conceptName || "इस विषय"} में संबंधित हैं।`
+                        : undefined)
+                    : misconception?.en?.thoughtTrap || misconception?.thoughtTrap;
+
+                  const activeMentalAnchor = isHindi
+                    ? misconception?.hi?.mentalAnchor || misconception?.vernacularAnchor || misconception?.mentalAnchor
+                    : misconception?.en?.mentalAnchor || misconception?.mentalAnchor;
+
+                  const activeCognitiveDissonance = isHindi
+                    ? misconception?.hi?.cognitiveDissonance || misconception?.cognitiveDissonance
+                    : misconception?.en?.cognitiveDissonance || misconception?.cognitiveDissonance;
+
+                  return (
+                    <div className="space-y-3">
+                      {/* 1. Thought Trap */}
+                      <div className="rounded-xl border border-amber-500/25 bg-amber-500/5 p-3.5 space-y-1.5">
+                        <div className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                          <span>
+                            {isHindi
+                              ? "⚠️ सोच का जाल (Thought Trap):"
+                              : "⚠️ The Thought Trap You Fell Into:"}
+                          </span>
+                        </div>
+                        <p className="text-xs text-foreground/90 leading-relaxed">
+                          {activeThoughtTrap ??
+                            (isHindi
+                              ? `आपने संभवतः यह विकल्प इसलिए चुना क्योंकि दोनों विकल्प ${conceptName || "इस विषय"} से जुड़े हुए हैं।`
+                              : `You may have selected this option because both choices share closely related terminology in ${conceptName || "this subject"}.`)}
+                        </p>
                       </div>
-                      {misconception?.vernacularAnchor && (
-                        <div className="flex items-center bg-background/80 border border-primary/20 rounded-md p-0.5 text-[10px]">
-                          <button
-                            type="button"
-                            onClick={() => setAnchorLang("en")}
-                            className={cn(
-                              "px-2 py-0.5 rounded font-medium transition-all cursor-pointer",
-                              anchorLang === "en"
-                                ? "bg-primary text-white font-bold shadow-xs"
-                                : "text-muted-foreground hover:text-foreground"
-                            )}
-                          >
-                            English
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setAnchorLang("hi")}
-                            className={cn(
-                              "px-2 py-0.5 rounded font-medium transition-all cursor-pointer",
-                              anchorLang === "hi"
-                                ? "bg-primary text-white font-bold shadow-xs"
-                                : "text-muted-foreground hover:text-foreground"
-                            )}
-                          >
-                            हिंदी
-                          </button>
+
+                      {/* 2. Mental Anchor */}
+                      <div className="rounded-xl border border-primary/25 bg-primary/5 p-3.5 space-y-2">
+                        <div className="text-xs font-bold text-primary flex items-center gap-1.5">
+                          <Lightbulb className="h-3.5 w-3.5" />
+                          <span>
+                            💡 {isHindi ? "१०-सेकंड सूत्र (Mental Anchor):" : "10-Second Mental Anchor:"}
+                          </span>
+                        </div>
+                        <p className="text-xs text-foreground font-medium leading-relaxed">
+                          {activeMentalAnchor ??
+                            (isHindi
+                              ? `याद रखें: हमेशा देखें कि कौन निर्णय लेता है और कौन डेटा प्रोसेस करता है — दोनों के काम अलग हैं।`
+                              : `Rule of thumb: Clearly distinguish the component that makes decisions from the one that executes state.`)}
+                        </p>
+                      </div>
+
+                      {/* 3. Reality Check — Cognitive Dissonance Counter-Example */}
+                      {activeCognitiveDissonance && (
+                        <div className="rounded-xl border border-violet-500/30 bg-violet-500/5 p-3.5 space-y-2">
+                          <div className="text-xs font-bold text-violet-400 flex items-center gap-1.5">
+                            <Zap className="h-3.5 w-3.5" />
+                            <span>
+                              {isHindi
+                                ? "⚡ वास्तविकता की जाँच — क्या आपका मानसिक मॉडल सही है?"
+                                : "⚡ Reality Check — Does Your Mental Model Hold?"}
+                            </span>
+                          </div>
+                          <p className="text-xs text-foreground/90 leading-relaxed">
+                            {activeCognitiveDissonance.paradoxScenario}
+                          </p>
+                          <div className="rounded-lg border border-violet-500/20 bg-violet-500/5 px-3 py-2">
+                            <p className="text-xs text-violet-300 font-medium italic">
+                              🤔 {activeCognitiveDissonance.counterQuestion}
+                            </p>
+                          </div>
                         </div>
                       )}
                     </div>
-                    <p className="text-xs text-foreground font-medium leading-relaxed">
-                      {anchorLang === "hi" && misconception?.vernacularAnchor
-                        ? misconception.vernacularAnchor
-                        : (misconception?.mentalAnchor ??
-                          `Rule of thumb: Clearly distinguish the component that makes decisions from the one that executes state.`)}
-                    </p>
-                  </div>
-
-
-                  {/* ⚡ Reality Check — Cognitive Dissonance Counter-Example */}
-                  {misconception?.cognitiveDissonance && (
-                    <div className="rounded-xl border border-violet-500/30 bg-violet-500/5 p-3.5 space-y-2">
-                      <div className="text-xs font-bold text-violet-400 flex items-center gap-1.5">
-                        <Zap className="h-3.5 w-3.5" />
-                        <span>
-                          ⚡ Reality Check — Does Your Mental Model Hold?
-                        </span>
-                      </div>
-                      <p className="text-xs text-foreground/90 leading-relaxed">
-                        {misconception.cognitiveDissonance.paradoxScenario}
-                      </p>
-                      <div className="rounded-lg border border-violet-500/20 bg-violet-500/5 px-3 py-2">
-                        <p className="text-xs text-violet-300 font-medium italic">
-                          🤔 {misconception.cognitiveDissonance.counterQuestion}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                  );
+                })()
               )}
             </div>
           )}

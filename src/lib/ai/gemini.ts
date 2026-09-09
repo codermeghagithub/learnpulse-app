@@ -163,22 +163,47 @@ export async function diagnose(
 // ─── Misconception + Cognitive Dissonance ─────────────────────────────────────
 
 /** Fallback when Gemini is unavailable for misconception diagnosis. */
-function buildDeterministicMisconceptionFallback(input: {
+export function buildDeterministicMisconceptionFallback(input: {
   selectedOptionText: string;
   correctOptionText: string;
   conceptName: string;
 }): MisconceptionOutput {
+  const enThoughtTrap = `You likely selected "${input.selectedOptionText}" because both options share closely related terminology within ${input.conceptName}. However, "${input.selectedOptionText}" describes a different operational phase than "${input.correctOptionText}".`;
+  const enMentalAnchor = `Rule of thumb: Focus on the specific responsibility of ${input.conceptName} — ask yourself what the component does, not just where it lives.`;
+  const enParadox = `Imagine applying your assumption in a real system: if "${input.selectedOptionText}" and "${input.correctOptionText}" were interchangeable, swapping them would produce the same output. But in practice, they handle fundamentally different responsibilities — swapping them would cause the system to fail.`;
+  const enCounterQ = `If your assumption held, what specific output or behaviour would change if you replaced "${input.correctOptionText}" with "${input.selectedOptionText}" in a live system?`;
+
+  const hiThoughtTrap = `आपने संभवतः "${input.selectedOptionText}" इसलिए चुना क्योंकि दोनों विकल्प ${input.conceptName} से गहराई से जुड़े हैं। लेकिन "${input.selectedOptionText}" और "${input.correctOptionText}" के काम करने का चरण और ज़िम्मेदारी पूरी तरह अलग है।`;
+  const hiMentalAnchor = `याद रखें: ${input.conceptName} में दोनों विकल्पों के काम अलग हैं — हमेशा देखें कि कौन काम शुरू करता है और कौन डेटा प्रोसेस करता है।`;
+  const hiParadox = `कल्पना करें कि अगर आप इसे एक लाइव सिस्टम में लागू करें: यदि "${input.selectedOptionText}" और "${input.correctOptionText}" एक समान होते, तो उन्हें आपस में बदलने पर भी सिस्टम सही चलता। लेकिन असल में ऐसा करने पर सिस्टम तुरंत क्रैश या गलत परिणाम देगा।`;
+  const hiCounterQ = `यदि आपकी धारणा सही होती, तो लाइव प्रोडक्शन में "${input.correctOptionText}" की जगह "${input.selectedOptionText}" लगाने पर क्या परिणाम आता?`;
+
   return {
-    thoughtTrap: `You likely selected "${input.selectedOptionText}" because both options share closely related terminology within ${input.conceptName}. However, "${input.selectedOptionText}" describes a different operational phase than "${input.correctOptionText}".`,
-    mentalAnchor: `Rule of thumb: Focus on the specific responsibility of ${input.conceptName} — ask yourself what the component does, not just where it lives.`,
-    vernacularAnchor: `याद रखें: ${input.conceptName} में दोनों options के काम अलग हैं — हमेशा देखें कि कौन काम शुरू करता है और कौन प्रोसेस करता है।`,
+    thoughtTrap: enThoughtTrap,
+    mentalAnchor: enMentalAnchor,
+    vernacularAnchor: hiMentalAnchor,
     cognitiveDissonance: {
-      paradoxScenario: `Imagine applying your assumption in a real system: if "${input.selectedOptionText}" and "${input.correctOptionText}" were interchangeable, swapping them would produce the same output. But in practice, they handle fundamentally different responsibilities — swapping them would cause the system to fail.`,
-      counterQuestion: `If your assumption held, what specific output or behaviour would change if you replaced "${input.correctOptionText}" with "${input.selectedOptionText}" in a live system?`,
+      paradoxScenario: enParadox,
+      counterQuestion: enCounterQ,
+    },
+    en: {
+      thoughtTrap: enThoughtTrap,
+      mentalAnchor: enMentalAnchor,
+      cognitiveDissonance: {
+        paradoxScenario: enParadox,
+        counterQuestion: enCounterQ,
+      },
+    },
+    hi: {
+      thoughtTrap: hiThoughtTrap,
+      mentalAnchor: hiMentalAnchor,
+      cognitiveDissonance: {
+        paradoxScenario: hiParadox,
+        counterQuestion: hiCounterQ,
+      },
     },
   };
 }
-
 
 /**
  * Diagnose why a student chose a specific incorrect option, and produce
@@ -194,12 +219,37 @@ export async function diagnoseMisconception(input: {
   conceptName: string;
   studentReasoning?: string;
 }): Promise<MisconceptionOutput & { isAiGenerated: boolean }> {
-  const raw = await callGeminiRaw(buildMisconceptionPrompt(input), 0.2, 1024);
-  const validated = raw ? misconceptionOutputSchema.safeParse(raw) : null;
+  try {
+    const raw = await callGeminiRaw(buildMisconceptionPrompt(input), 0.2, 1200);
+    const validated = raw ? misconceptionOutputSchema.safeParse(raw) : null;
 
-  if (validated?.success) return { ...validated.data, isAiGenerated: true };
+    if (validated?.success) {
+      const data = validated.data;
+      const fallback = buildDeterministicMisconceptionFallback(input);
 
-  console.warn("[gemini:misconception] Failed, using deterministic fallback.");
+      const enSection = data.en || {
+        thoughtTrap: data.thoughtTrap,
+        mentalAnchor: data.mentalAnchor,
+        cognitiveDissonance: data.cognitiveDissonance,
+      };
+
+      const hiSection = data.hi || {
+        thoughtTrap: fallback.hi!.thoughtTrap,
+        mentalAnchor: data.vernacularAnchor || fallback.hi!.mentalAnchor,
+        cognitiveDissonance: fallback.hi!.cognitiveDissonance,
+      };
+
+      return {
+        ...data,
+        en: enSection,
+        hi: hiSection,
+        isAiGenerated: true,
+      };
+    }
+  } catch (err) {
+    console.warn("[gemini:misconception] Failed, using deterministic fallback:", err);
+  }
+
   return { ...buildDeterministicMisconceptionFallback(input), isAiGenerated: false };
 }
 

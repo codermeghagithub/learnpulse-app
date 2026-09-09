@@ -37,6 +37,12 @@ export const cognitiveDissonanceSchema = z.object({
   counterQuestion: z.string().min(1),
 });
 
+export const misconceptionSectionSchema = z.object({
+  thoughtTrap: z.string().min(1),
+  mentalAnchor: z.string().min(1),
+  cognitiveDissonance: cognitiveDissonanceSchema,
+});
+
 export const misconceptionOutputSchema = z.object({
   /** Diagnoses the cognitive mix-up that caused the wrong selection. */
   thoughtTrap: z.string().min(1),
@@ -46,7 +52,13 @@ export const misconceptionOutputSchema = z.object({
   vernacularAnchor: z.string().optional(),
   /** Counter-example that forces the student's false model to break down. */
   cognitiveDissonance: cognitiveDissonanceSchema,
+  /** Full English Mental Mirror section. */
+  en: misconceptionSectionSchema.optional(),
+  /** Full Hindi / Hinglish Mental Mirror section for NEP 2020. */
+  hi: misconceptionSectionSchema.optional(),
 });
+
+export type MisconceptionSection = z.infer<typeof misconceptionSectionSchema>;
 
 // ─── Concept Bite Remediation Schemas ─────────────────────────────────────────
 

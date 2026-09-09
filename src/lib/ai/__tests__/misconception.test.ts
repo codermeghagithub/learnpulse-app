@@ -55,4 +55,40 @@ describe("Mental Mirror AI Misconception Engine", () => {
     const parsed = misconceptionOutputSchema.safeParse(invalid);
     expect(parsed.success).toBe(false);
   });
+
+  it("validates full bilingual outputs with en and hi sections", () => {
+    const bilingualOutput = {
+      thoughtTrap: "You likely selected this because...",
+      mentalAnchor: "Rule of thumb: X does A, while Y does B.",
+      vernacularAnchor: "याद रखें: X A करता है, जबकि Y B संभालता है।",
+      cognitiveDissonance: {
+        paradoxScenario: "Imagine you apply your assumption here...",
+        counterQuestion: "If your assumption held, what would happen?",
+      },
+      en: {
+        thoughtTrap: "You likely selected this because...",
+        mentalAnchor: "Rule of thumb: X does A, while Y does B.",
+        cognitiveDissonance: {
+          paradoxScenario: "Imagine you apply your assumption here...",
+          counterQuestion: "If your assumption held, what would happen?",
+        },
+      },
+      hi: {
+        thoughtTrap: "आपने संभवतः यह विकल्प इसलिए चुना क्योंकि...",
+        mentalAnchor: "याद रखें: X A करता है, जबकि Y B संभालता है।",
+        cognitiveDissonance: {
+          paradoxScenario: "कल्पना करें कि यदि आप अपने अनुमान को यहाँ लागू करते हैं...",
+          counterQuestion: "यदि आपकी धारणा सही होती, तो क्या होता?",
+        },
+      },
+    };
+
+    const parsed = misconceptionOutputSchema.safeParse(bilingualOutput);
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.en?.thoughtTrap).toBe("You likely selected this because...");
+      expect(parsed.data.hi?.thoughtTrap).toContain("आपने संभवतः");
+      expect(parsed.data.hi?.mentalAnchor).toContain("याद रखें");
+    }
+  });
 });

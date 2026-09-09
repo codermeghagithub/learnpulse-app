@@ -94,27 +94,49 @@ export function buildMisconceptionPrompt({
     ? `\nThe student explained their reasoning as: "${studentReasoning.trim()}"\nUse this specific reasoning to make your diagnosis extremely targeted.\n`
     : "";
 
-  return `You are a cognitive learning scientist specializing in educational psychology and diagnostic feedback.
+  return `You are a cognitive learning scientist specializing in educational psychology, systems engineering, and diagnostic feedback.
 A student answered a practice question in the concept "${conceptName}".
 Question: "${questionText}"
 
 Correct Answer: "${correctOptionText}"
 The student mistakenly selected this distractor option: "${selectedOptionText}"
 ${reasoningSection}
-Your goal is to:
-1. "thoughtTrap": In 1-2 clear, compassionate sentences, explain WHY their brain fell for that specific choice. Start with "You likely selected this because..."
-2. "mentalAnchor": In 1 punchy, memorable sentence, give a contrast rule-of-thumb or analogy they will never forget.
-3. "vernacularAnchor": Provide a punchy contrast rule-of-thumb in natural, friendly Hinglish / Hindi for Indian engineering students (NEP 2020 cognitive reinforcement), starting with "याद रखें: ".
-4. "cognitiveDissonance": Deliver a CONCRETE counter-example — a specific scenario or mini-paradox where the student's wrong assumption visibly breaks. This should be a 2-3 sentence thought experiment, NOT a generic explanation. Then ask a single targeted follow-up question.
+Your goal is to deconstruct this misconception in DUAL LANGUAGES (English and Hindi/Hinglish for NEP 2020 mother-tongue reinforcement):
 
-Respond with ONLY a JSON object in this exact format (no markdown, no extra text):
+1. English Version ("en"):
+   - "thoughtTrap": In 1-2 clear, compassionate sentences, explain WHY their brain fell for that specific choice. Start with "You likely selected this because..."
+   - "mentalAnchor": In 1 punchy, memorable sentence, give a contrast rule-of-thumb or analogy starting with "Rule of thumb: ...".
+   - "cognitiveDissonance": Deliver a CONCRETE counter-example — a 2-sentence mini-paradox ("paradoxScenario") where the student's wrong assumption visibly breaks down, followed by a targeted reflection question ("counterQuestion").
+
+2. Hindi/Hinglish Version ("hi"):
+   - "thoughtTrap": Same cognitive diagnosis in natural, accessible Hindi / Hinglish starting with "आपने संभवतः यह विकल्प इसलिए चुना क्योंकि...".
+   - "mentalAnchor": Punchy contrast rule-of-thumb in Hindi starting with "याद रखें: ...".
+   - "cognitiveDissonance": The counter-example scenario ("paradoxScenario") and counter-question ("counterQuestion") translated into clear Hindi / Hinglish.
+
+Respond with ONLY a JSON object in this exact format (no markdown, no backticks, no extra text):
 {
   "thoughtTrap": "You likely selected this because...",
   "mentalAnchor": "Rule of thumb: X does A, while Y does B.",
   "vernacularAnchor": "याद रखें: X A करता है, जबकि Y B संभालता है।",
   "cognitiveDissonance": {
-    "paradoxScenario": "Imagine you apply your assumption here: [specific 2-3 sentence mini-scenario that breaks the student's false rule].",
-    "counterQuestion": "If your assumption held, what would happen when [targeted follow-up question]?"
+    "paradoxScenario": "Imagine you apply your assumption here: [specific 2-sentence scenario].",
+    "counterQuestion": "If your assumption held, what would happen when [targeted question]?"
+  },
+  "en": {
+    "thoughtTrap": "You likely selected this because...",
+    "mentalAnchor": "Rule of thumb: X does A, while Y does B.",
+    "cognitiveDissonance": {
+      "paradoxScenario": "Imagine you apply your assumption here: [specific 2-sentence scenario].",
+      "counterQuestion": "If your assumption held, what would happen when [targeted question]?"
+    }
+  },
+  "hi": {
+    "thoughtTrap": "आपने संभवतः यह विकल्प इसलिए चुना क्योंकि...",
+    "mentalAnchor": "याद रखें: X A करता है, जबकि Y B संभालता है।",
+    "cognitiveDissonance": {
+      "paradoxScenario": "कल्पना करें कि यदि आप अपने अनुमान को यहाँ लागू करते हैं: [विशिष्ट परिदृश्य]。",
+      "counterQuestion": "यदि आपकी धारणा सही होती, तो [लक्षित प्रश्न]?"
+    }
   }
 }
 `;

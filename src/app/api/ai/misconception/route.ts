@@ -90,24 +90,40 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error("[/api/ai/misconception] Error:", err);
 
-    // Hard fallback — the UI must never show a broken state
+    const enFallback = {
+      thoughtTrap:
+        "A common misconception is treating this component as responsible for the final output rather than an intermediate phase.",
+      mentalAnchor: "Rule of thumb: Check each phase's distinct input and output contract.",
+      cognitiveDissonance: {
+        paradoxScenario:
+          "Imagine swapping the two options in a real system. If they were truly interchangeable, nothing would break — but in practice, one component prepares data while the other consumes it. Swapping them would produce incorrect or empty output.",
+        counterQuestion:
+          "What specific output would your system produce if the two components exchanged their roles?",
+      },
+    };
+
+    const hiFallback = {
+      thoughtTrap:
+        "एक सामान्य भ्रांति यह है कि दोनों घटकों को एक जैसा मान लिया जाता है, जबकि एक केवल डेटा तैयार करता है और दूसरा अंतिम परिणाम संभालता है।",
+      mentalAnchor:
+        "याद रखें: हर component का काम अलग होता है — नाम से भ्रमित न हों, उसके असली उद्देश्य (responsibility) पर ध्यान दें।",
+      cognitiveDissonance: {
+        paradoxScenario:
+          "कल्पना करें कि लाइव सिस्टम में दोनों विकल्पों को आपस में बदल दिया जाए: यदि दोनों सच में एक जैसे होते, तो कुछ नहीं बिगड़ता। लेकिन असल में एक घटक डेटा बनाता है और दूसरा उसका उपयोग करता है। बदलने पर सिस्टम गलत परिणाम देगा।",
+        counterQuestion:
+          "यदि दोनों घटक अपनी भूमिकाएं बदल लें, तो आपका सिस्टम क्या विशिष्ट आउटपुट देगा?",
+      },
+    };
+
     return NextResponse.json(
       {
-        thoughtTrap:
-          "A common misconception is treating this component as responsible for the final output rather than an intermediate phase.",
-        mentalAnchor: "Rule of thumb: Check each phase's distinct input and output contract.",
-        vernacularAnchor:
-          "याद रखें: हर component का काम अलग होता है — नाम से भ्रमित न हों, उसके असली उद्देश्य (responsibility) पर ध्यान दें।",
-        cognitiveDissonance: {
-          paradoxScenario:
-            "Imagine swapping the two options in a real system. If they were truly interchangeable, nothing would break — but in practice, one component prepares data while the other consumes it. Swapping them would produce incorrect or empty output.",
-          counterQuestion:
-            "What specific output would your system produce if the two components exchanged their roles?",
-        },
+        ...enFallback,
+        vernacularAnchor: hiFallback.mentalAnchor,
+        en: enFallback,
+        hi: hiFallback,
         isAiGenerated: false,
         cached: false,
       },
-
       { status: 200 }
     );
   }
