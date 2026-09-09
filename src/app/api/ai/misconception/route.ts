@@ -3,6 +3,8 @@ import { createClient } from "@/utils/supabase/server";
 import { diagnoseMisconception } from "@/lib/ai/gemini";
 import { z } from "zod";
 
+// ─── Request Validation ───────────────────────────────────────────────────────
+
 const requestSchema = z.object({
   questionId: z.string().min(1),
   questionText: z.string().min(1),
@@ -10,14 +12,35 @@ const requestSchema = z.object({
   selectedKey: z.string().min(1),
   correctOptionText: z.string().min(1),
   conceptName: z.string().min(1),
+  /** Optional: the student's self-reported reasoning for their answer. */
+  studentReasoning: z.string().max(500).optional(),
 });
 
-// Fast in-memory cache to ensure sub-millisecond responses for repeated option selections
-const misconceptionCache = new Map<string, { thoughtTrap: string; mentalAnchor: string; isAiGenerated: boolean }>();
+// ─── In-Memory Cache ──────────────────────────────────────────────────────────
+
+/**
+ * Fast in-memory cache — repeated selections of the same wrong option
+ * resolve in <1ms with zero redundant LLM queries.
+ *
+ * Key: `{questionId}_{selectedKey}_{reasoningHash}` — the reasoning hash
+ * ensures a student who explains their thinking gets a targeted response,
+ * while students with no reasoning still get a fast cached result.
+ */
+const misconceptionCache = new Map<string, ReturnType<typeof diagnoseMisconception> extends Promise<infer T> ? T : never>();
+
+/** Build a short, stable cache key from the question + selection + reasoning. */
+function buildCacheKey(questionId: string, selectedKey: string, studentReasoning?: string): string {
+  // Simple hash: truncate reasoning to first 50 chars to group similar inputs
+  const reasoningSlug = studentReasoning ? `_${studentReasoning.slice(0, 50)}` : "";
+  return `${questionId}_${selectedKey}${reasoningSlug}`;
+}
+
+// ─── Route Handler ────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
   try {
-    // Optional auth check (supports both browser cookies and Bearer header)
+    // Auth: optional — allow session-cookie OR Bearer token.
+    // We never hard-block here; a missing session degrades gracefully.
     try {
       const supabase = await createClient();
       let user = (await supabase.auth.getUser()).data.user;
@@ -30,51 +53,64 @@ export async function POST(req: NextRequest) {
         }
       }
     } catch {
-      // Allow practice guidance even if session token is refreshing
+      // Intentionally allow the request through even if the session is refreshing.
     }
 
+    // Validate request body
     const body = await req.json();
     const parsed = requestSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json({ error: "Invalid payload", details: parsed.error.format() }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid payload", details: parsed.error.format() },
+        { status: 400 }
+      );
     }
 
-    const { questionId, questionText, selectedOptionText, selectedKey, correctOptionText, conceptName } = parsed.data;
+    const {
+      questionId,
+      questionText,
+      selectedOptionText,
+      selectedKey,
+      correctOptionText,
+      conceptName,
+      studentReasoning,
+    } = parsed.data;
 
-    // Check fast cache
-    const cacheKey = `${questionId}_${selectedKey}`;
-    if (misconceptionCache.has(cacheKey)) {
-      return NextResponse.json({
-        ...misconceptionCache.get(cacheKey)!,
-        cached: true,
-      });
+    // Cache lookup
+    const cacheKey = buildCacheKey(questionId, selectedKey, studentReasoning);
+    const cached = misconceptionCache.get(cacheKey);
+    if (cached) {
+      return NextResponse.json({ ...cached, cached: true });
     }
 
-    // Call Gemini Misconception Engine
+    // Call Gemini Misconception + Cognitive Dissonance Engine
     const result = await diagnoseMisconception({
       questionText,
       selectedOptionText,
       correctOptionText,
       conceptName,
+      studentReasoning,
     });
 
-    // Store in cache
-    misconceptionCache.set(cacheKey, {
-      thoughtTrap: result.thoughtTrap,
-      mentalAnchor: result.mentalAnchor,
-      isAiGenerated: result.isAiGenerated,
-    });
+    // Store in cache for subsequent requests
+    misconceptionCache.set(cacheKey, result);
 
-    return NextResponse.json({
-      ...result,
-      cached: false,
-    });
+    return NextResponse.json({ ...result, cached: false });
   } catch (err) {
     console.error("[/api/ai/misconception] Error:", err);
+
+    // Hard fallback — the UI must never show a broken state
     return NextResponse.json(
       {
-        thoughtTrap: "A common misconception is treating this component as responsible for the final output rather than an intermediate phase.",
+        thoughtTrap:
+          "A common misconception is treating this component as responsible for the final output rather than an intermediate phase.",
         mentalAnchor: "Rule of thumb: Check each phase's distinct input and output contract.",
+        cognitiveDissonance: {
+          paradoxScenario:
+            "Imagine swapping the two options in a real system. If they were truly interchangeable, nothing would break — but in practice, one component prepares data while the other consumes it. Swapping them would produce incorrect or empty output.",
+          counterQuestion:
+            "What specific output would your system produce if the two components exchanged their roles?",
+        },
         isAiGenerated: false,
         cached: false,
       },

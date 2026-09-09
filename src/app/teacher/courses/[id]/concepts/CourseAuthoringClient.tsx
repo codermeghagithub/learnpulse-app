@@ -10,6 +10,7 @@ import {
   deletePrerequisiteEdgeAction,
   createQuestionAction,
   deleteQuestionAction,
+  deleteCourseAction,
 } from "@/app/actions/authoring";
 import {
   ArrowLeft,
@@ -245,11 +246,29 @@ export function CourseAuthoringClient({
     }
   }
 
+  const [deletingCourse, setDeletingCourse] = useState(false);
+
   async function handleDeleteQuestion(qId: string) {
     const res = await deleteQuestionAction(course.id, qId);
     if (res.success) {
       setQuestions((prev) => prev.filter((q) => q.id !== qId));
       router.refresh();
+    }
+  }
+
+  async function handleDeleteCourse() {
+    const confirmed = window.confirm(
+      `Are you sure you want to permanently delete "${course.title}"?\n\nThis will remove all associated concepts, prerequisite dependencies, and questions.`
+    );
+    if (!confirmed) return;
+
+    setDeletingCourse(true);
+    const res = await deleteCourseAction(course.id);
+    if (res?.error) {
+      alert(`Failed to delete course: ${res.error}`);
+      setDeletingCourse(false);
+    } else {
+      window.location.href = "/teacher";
     }
   }
 
@@ -265,9 +284,26 @@ export function CourseAuthoringClient({
           <ArrowLeft className="h-4 w-4" />
           Back to Class Overview
         </Link>
-        <span className="text-xs font-semibold px-3 py-1 rounded-full border border-primary/30 bg-primary/10 text-primary">
-          {course.subject}
-        </span>
+        <div className="flex items-center gap-2.5">
+          <span className="text-xs font-semibold px-3 py-1 rounded-full border border-primary/30 bg-primary/10 text-primary">
+            {course.subject}
+          </span>
+          <button
+            id="delete-course-btn"
+            type="button"
+            onClick={handleDeleteCourse}
+            disabled={deletingCourse}
+            className="inline-flex items-center gap-1.5 text-xs text-destructive hover:text-destructive/90 font-medium bg-destructive/10 hover:bg-destructive/15 border border-destructive/20 px-3 py-1 rounded-lg transition-colors disabled:opacity-50"
+            title="Delete this course"
+          >
+            {deletingCourse ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Trash2 className="h-3.5 w-3.5" />
+            )}
+            Delete Course
+          </button>
+        </div>
       </div>
 
       {/* Header */}

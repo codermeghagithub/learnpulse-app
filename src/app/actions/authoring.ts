@@ -363,3 +363,27 @@ export async function deleteQuestionAction(courseId: string, questionId: string)
 
   return { success: true };
 }
+
+/**
+ * 6. Delete an entire Course (cascades to concepts, edges, questions, attempts, mastery)
+ */
+export async function deleteCourseAction(courseId: string) {
+  const { supabase, user } = await getTeacherUser();
+  await verifyCourseOwnership(supabase, courseId, user.id);
+
+  const { error } = await supabase
+    .from("courses")
+    .delete()
+    .eq("id", courseId)
+    .eq("teacher_id", user.id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/teacher");
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/practice");
+
+  return { success: true };
+}

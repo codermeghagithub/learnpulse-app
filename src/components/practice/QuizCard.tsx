@@ -8,14 +8,28 @@ import {
   Brain,
   Sparkles,
   Lightbulb,
+  Zap,
+  MessageSquare,
 } from "lucide-react";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface QuizOption {
   key: string;
   text: string;
 }
 
-interface QuizCardProps {
+interface MisconceptionResult {
+  thoughtTrap: string;
+  mentalAnchor: string;
+  cognitiveDissonance: {
+    paradoxScenario: string;
+    counterQuestion: string;
+  };
+  isAiGenerated?: boolean;
+}
+
+export interface QuizCardProps {
   questionId?: string;
   conceptName?: string;
   questionText: string;
@@ -29,12 +43,33 @@ interface QuizCardProps {
   isSubmitting?: boolean;
 }
 
-const DIFFICULTY_BADGE = {
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const DIFFICULTY_BADGE: Record<QuizCardProps["difficulty"], string> = {
   easy: "text-[var(--mastery-high)] bg-[var(--mastery-high)]/10 border-[var(--mastery-high)]/20",
   medium:
     "text-[var(--mastery-mid)] bg-[var(--mastery-mid)]/10 border-[var(--mastery-mid)]/20",
   hard: "text-[var(--mastery-low)] bg-[var(--mastery-low)]/10 border-[var(--mastery-low)]/20",
 };
+
+/** Inline fallback when the API is offline — keeps the UI from being empty. */
+function buildClientFallback(
+  selectedOpt: string,
+  correctOpt: string,
+  conceptName: string,
+): MisconceptionResult {
+  return {
+    thoughtTrap: `You likely selected "${selectedOpt}" because both options play critical roles in ${conceptName || "this domain"}. However, "${selectedOpt}" handles a different phase of the operational lifecycle than "${correctOpt}".`,
+    mentalAnchor: `Rule of thumb: Identify which component orchestrates or schedules work versus which component maintains state or runs nodes.`,
+    cognitiveDissonance: {
+      paradoxScenario: `Imagine swapping "${selectedOpt}" and "${correctOpt}" in a live system. If they were truly equivalent, the output would remain identical — but in practice one prepares data while the other consumes it. The system would produce incorrect results.`,
+      counterQuestion: `What specific output or behaviour would change if you replaced "${correctOpt}" with "${selectedOpt}" in a real implementation?`,
+    },
+    isAiGenerated: false,
+  };
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export function QuizCard({
   questionId,
@@ -52,22 +87,26 @@ export function QuizCard({
   const [selected, setSelected] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const isBusy = loading || isSubmitting;
-  const [misconception, setMisconception] = useState<{
-    thoughtTrap: string;
-    mentalAnchor: string;
-    isAiGenerated?: boolean;
-  } | null>(null);
+
+  // Optional: student explains their reasoning before / after submitting
+  const [studentReasoning, setStudentReasoning] = useState("");
+  const [showReasoningInput, setShowReasoningInput] = useState(false);
+
+  const [misconception, setMisconception] =
+    useState<MisconceptionResult | null>(null);
   const [loadingMisconception, setLoadingMisconception] = useState(false);
 
+  const isBusy = loading || isSubmitting;
   const isCorrect = selected === correctAnswer;
+
+  // ── Handlers ──────────────────────────────────────────────────────────────
 
   async function handleSubmit() {
     if (!selected || submitted) return;
     setLoading(true);
     setSubmitted(true);
 
-    // If answer is incorrect, trigger the Mental Mirror AI diagnosis
+    // Only trigger AI diagnosis when the student got it wrong
     if (selected !== correctAnswer) {
       setLoadingMisconception(true);
       const selectedOpt =
@@ -85,37 +124,42 @@ export function QuizCard({
           selectedKey: selected,
           correctOptionText: correctOpt,
           conceptName: conceptName || "this concept",
+          // Pass along any reasoning the student shared
+          studentReasoning: studentReasoning.trim() || undefined,
         }),
       })
         .then(async (res) => {
-          if (!res.ok) {
-            throw new Error(`HTTP ${res.status}`);
-          }
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
           return res.json();
         })
         .then((data) => {
-          if (data && data.thoughtTrap) {
-            setMisconception(data);
+          if (data?.thoughtTrap) {
+            setMisconception(data as MisconceptionResult);
           } else {
-            throw new Error("Invalid response format");
+            throw new Error("Unexpected response format");
           }
         })
-        .catch((err) => {
-          console.warn("[Mental Mirror] Using client fallback:", err);
-          setMisconception({
-            thoughtTrap: `You likely selected "${selectedOpt}" because both options play critical roles in ${conceptName || "this domain"}. However, "${selectedOpt}" handles a different phase of the operational lifecycle than "${correctOpt}".`,
-            mentalAnchor: `Rule of thumb: Identify which component orchestrates or schedules work versus which component maintains state or runs nodes.`,
-            isAiGenerated: false,
-          });
+        .catch(() => {
+          const selectedOpt =
+            options.find((o) => o.key === selected)?.text ?? selected;
+          const correctOpt =
+            options.find((o) => o.key === correctAnswer)?.text ?? correctAnswer;
+          setMisconception(
+            buildClientFallback(
+              selectedOpt,
+              correctOpt,
+              conceptName || "this concept",
+            ),
+          );
         })
-        .finally(() => {
-          setLoadingMisconception(false);
-        });
+        .finally(() => setLoadingMisconception(false));
     }
 
     await onSubmit(selected);
     setLoading(false);
   }
+
+  // ── Render ────────────────────────────────────────────────────────────────
 
   return (
     <div className="glass-card rounded-2xl p-6 space-y-6 animate-slide-up">
@@ -145,7 +189,6 @@ export function QuizCard({
 
           let optionStyle =
             "border-border hover:border-primary/40 hover:bg-primary/5";
-
           if (submitted) {
             if (isThisCorrect)
               optionStyle =
@@ -193,6 +236,44 @@ export function QuizCard({
         })}
       </div>
 
+      {/* Optional Reasoning Input — only shown before submission on incorrect attempts */}
+      {!submitted && selected && selected !== correctAnswer && (
+        <div className="space-y-2 animate-slide-up">
+          {!showReasoningInput ? (
+            <button
+              id="show-reasoning-btn"
+              onClick={() => setShowReasoningInput(true)}
+              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+            >
+              <MessageSquare className="h-3.5 w-3.5" />
+              Why did you pick this?{" "}
+              <span className="text-primary font-medium">
+                (helps AI tailor feedback)
+              </span>
+            </button>
+          ) : (
+            <div className="space-y-1.5">
+              <label
+                htmlFor="student-reasoning"
+                className="text-xs font-medium text-muted-foreground flex items-center gap-1.5"
+              >
+                <MessageSquare className="h-3.5 w-3.5" />
+                Your reasoning (optional — makes AI diagnosis sharper):
+              </label>
+              <textarea
+                id="student-reasoning"
+                value={studentReasoning}
+                onChange={(e) => setStudentReasoning(e.target.value)}
+                placeholder="e.g. I picked this because I assumed locks always prevent deadlocks..."
+                maxLength={500}
+                rows={2}
+                className="w-full rounded-xl border border-border bg-background/50 px-3 py-2 text-xs text-foreground focus:outline-none resize-none transition-colors"
+              />
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Feedback Section */}
       {submitted && (
         <div className="space-y-3 pt-1">
@@ -222,9 +303,10 @@ export function QuizCard({
             </div>
           </div>
 
-          {/* The Mental Mirror (shown on incorrect answers) */}
+          {/* Mental Mirror + Cognitive Dissonance (shown only on wrong answers) */}
           {!isCorrect && (
-            <div className="rounded-2xl border border-primary/30 bg-primary/5 p-5 space-y-3.5 animate-slide-up shadow-lg">
+            <div className="rounded-2xl border border-primary/30 bg-primary/5 p-5 space-y-4 animate-slide-up shadow-lg">
+              {/* Header */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/15 text-primary">
@@ -261,8 +343,8 @@ export function QuizCard({
                       <span>⚠️ The Thought Trap You Fell Into:</span>
                     </div>
                     <p className="text-xs text-foreground/90 leading-relaxed">
-                      {misconception?.thoughtTrap ||
-                        `You may have selected this option because both choices share closely related terminology in ${conceptName || "this subject"}. However, your selected choice executes a different operational responsibility.`}
+                      {misconception?.thoughtTrap ??
+                        `You may have selected this option because both choices share closely related terminology in ${conceptName || "this subject"}.`}
                     </p>
                   </div>
 
@@ -273,10 +355,30 @@ export function QuizCard({
                       <span>💡 10-Second Mental Anchor:</span>
                     </div>
                     <p className="text-xs text-foreground font-medium leading-relaxed">
-                      {misconception?.mentalAnchor ||
-                        `Rule of thumb: Clearly distinguish the component that makes decisions or schedules work from the component that executes state.`}
+                      {misconception?.mentalAnchor ??
+                        `Rule of thumb: Clearly distinguish the component that makes decisions from the one that executes state.`}
                     </p>
                   </div>
+
+                  {/* ⚡ Reality Check — Cognitive Dissonance Counter-Example */}
+                  {misconception?.cognitiveDissonance && (
+                    <div className="rounded-xl border border-violet-500/30 bg-violet-500/5 p-3.5 space-y-2">
+                      <div className="text-xs font-bold text-violet-400 flex items-center gap-1.5">
+                        <Zap className="h-3.5 w-3.5" />
+                        <span>
+                          ⚡ Reality Check — Does Your Mental Model Hold?
+                        </span>
+                      </div>
+                      <p className="text-xs text-foreground/90 leading-relaxed">
+                        {misconception.cognitiveDissonance.paradoxScenario}
+                      </p>
+                      <div className="rounded-lg border border-violet-500/20 bg-violet-500/5 px-3 py-2">
+                        <p className="text-xs text-violet-300 font-medium italic">
+                          🤔 {misconception.cognitiveDissonance.counterQuestion}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -284,7 +386,7 @@ export function QuizCard({
         </div>
       )}
 
-      {/* Submit button */}
+      {/* Submit / Recorded */}
       {!submitted ? (
         <button
           id="quiz-submit-btn"

@@ -14,9 +14,12 @@ import {
   AlertTriangle,
   ArrowRight,
   GraduationCap,
+  Sparkles,
 } from "lucide-react";
 
 import { CourseSelector } from "@/components/CourseSelector";
+import { CreateCourseModal } from "@/components/teacher/CreateCourseModal";
+import { DeleteCourseButton } from "@/components/teacher/DeleteCourseButton";
 
 export const dynamic = "force-dynamic";
 
@@ -61,9 +64,12 @@ export default async function TeacherPage({ searchParams }: PageProps) {
           <GraduationCap className="h-7 w-7 text-white" />
         </div>
         <h1 className="text-2xl font-bold">No courses yet</h1>
-        <p className="text-muted-foreground text-sm">
-          Your courses will appear here once the demo workspace is seeded.
+        <p className="text-muted-foreground text-sm max-w-md mx-auto">
+          Create your first course to begin tracking student risk, concept mastery, and prerequisite diagnostics.
         </p>
+        <div className="pt-2">
+          <CreateCourseModal />
+        </div>
       </div>
     );
   }
@@ -96,10 +102,20 @@ export default async function TeacherPage({ searchParams }: PageProps) {
     .select("id, name, difficulty, course_id")
     .eq("course_id", selectedCourseId);
 
-  const conceptIds = (concepts ?? []).map((c) => c.id);
+  const conceptList = concepts ?? [];
+  const conceptIds = conceptList.map((c) => c.id);
 
-  // Fetch all mastery records for these concepts (all students)
-  const { data: allMastery } =
+  // 1. Fetch all student profiles in the platform/class
+  const { data: allStudentProfiles } = await supabase
+    .from("profiles")
+    .select("id, full_name")
+    .eq("role", "student")
+    .order("full_name");
+
+  const classStudents = allStudentProfiles ?? [];
+
+  // 2. Fetch mastery records in the selected course
+  const { data: courseMastery } =
     conceptIds.length > 0
       ? await supabase
           .from("mastery")
@@ -109,15 +125,22 @@ export default async function TeacherPage({ searchParams }: PageProps) {
           .in("concept_id", conceptIds)
       : { data: [] };
 
-  // Compute class average per concept
+  // 3. Fetch global mastery across all subjects for complete student learning health
+  const { data: globalMastery } = await supabase
+    .from("mastery")
+    .select(
+      "user_id, concept_id, score, attempts_count, correct_count, updated_at",
+    );
+
+  // Compute class average per concept in this course
   const masteryByConcept = new Map<string, number[]>();
-  for (const m of allMastery ?? []) {
+  for (const m of courseMastery ?? []) {
     if (!masteryByConcept.has(m.concept_id))
       masteryByConcept.set(m.concept_id, []);
     masteryByConcept.get(m.concept_id)!.push(m.score);
   }
 
-  const conceptAverages = (concepts ?? [])
+  const conceptAverages = conceptList
     .map((c) => {
       const scores = masteryByConcept.get(c.id) ?? [];
       const avg =
@@ -128,16 +151,16 @@ export default async function TeacherPage({ searchParams }: PageProps) {
     })
     .sort((a, b) => a.average - b.average);
 
-  // Compute per-student risk scores
-  const studentMasteryMap = new Map<
+  // Map course-specific student mastery
+  const studentCourseDataMap = new Map<
     string,
     { scores: number[]; lastAttempt?: string; errors: number; total: number }
   >();
-  for (const m of allMastery ?? []) {
-    if (!studentMasteryMap.has(m.user_id)) {
-      studentMasteryMap.set(m.user_id, { scores: [], errors: 0, total: 0 });
+  for (const m of courseMastery ?? []) {
+    if (!studentCourseDataMap.has(m.user_id)) {
+      studentCourseDataMap.set(m.user_id, { scores: [], errors: 0, total: 0 });
     }
-    const entry = studentMasteryMap.get(m.user_id)!;
+    const entry = studentCourseDataMap.get(m.user_id)!;
     entry.scores.push(m.score);
     entry.total += m.attempts_count;
     entry.errors += m.attempts_count - m.correct_count;
@@ -149,55 +172,124 @@ export default async function TeacherPage({ searchParams }: PageProps) {
     }
   }
 
-  // Fetch student profile names
-  const studentIds = Array.from(studentMasteryMap.keys());
-  const { data: studentProfiles } =
-    studentIds.length > 0
-      ? await supabase
-          .from("profiles")
-          .select("id, full_name")
-          .in("id", studentIds)
-      : { data: [] };
+  // Map global student mastery
+  const studentGlobalDataMap = new Map<
+    string,
+    { scores: number[]; lastAttempt?: string; errors: number; total: number }
+  >();
+  for (const m of globalMastery ?? []) {
+    if (!studentGlobalDataMap.has(m.user_id)) {
+      studentGlobalDataMap.set(m.user_id, { scores: [], errors: 0, total: 0 });
+    }
+    const entry = studentGlobalDataMap.get(m.user_id)!;
+    entry.scores.push(m.score);
+    entry.total += m.attempts_count;
+    entry.errors += m.attempts_count - m.correct_count;
+    if (
+      !entry.lastAttempt ||
+      (m.updated_at && m.updated_at > entry.lastAttempt)
+    ) {
+      entry.lastAttempt = m.updated_at;
+    }
+  }
 
-  const studentProfileMap = new Map(
-    (studentProfiles ?? []).map((p) => [p.id, p.full_name]),
-  );
+  // Build comprehensive student performance roster for the entire class
+  const studentRoster = classStudents.map((student) => {
+    const courseData = studentCourseDataMap.get(student.id);
+    const globalData = studentGlobalDataMap.get(student.id);
 
-  // Compute risk for each student
-  const studentsWithRisk = studentIds
-    .map((sid) => {
-      const data = studentMasteryMap.get(sid)!;
-      const avgMastery =
-        data.scores.reduce((a, b) => a + b, 0) / (data.scores.length || 1);
-      const daysSinceLast = getDaysSince(data.lastAttempt);
-      const repeatedErrors = data.total > 0 ? data.errors / data.total : 0;
-
-      const risk = computeRisk({
-        masteryScore: avgMastery,
-        decline: 0,
-        repeatedErrors,
-        inactivity: inactivityScore(daysSinceLast),
-      });
-
-      return {
-        id: sid,
-        name: studentProfileMap.get(sid) ?? "Unknown Student",
-        avgMastery,
-        risk,
-        conceptCount: data.scores.length,
-      };
-    })
-    .sort((a, b) => b.risk.score - a.risk.score);
-
-  const atRiskStudents = studentsWithRisk.filter(
-    (s) => s.risk.bucket === "At Risk" || s.risk.bucket === "Critical",
-  );
-
-  const classAvg =
-    studentsWithRisk.length > 0
-      ? studentsWithRisk.reduce((sum, s) => sum + s.avgMastery, 0) /
-        studentsWithRisk.length
+    const hasCourseAttempts = !!courseData && courseData.scores.length > 0;
+    const courseAvgMastery = hasCourseAttempts
+      ? courseData.scores.reduce((a, b) => a + b, 0) / courseData.scores.length
       : 0;
+    const courseDaysSinceLast = courseData
+      ? getDaysSince(courseData.lastAttempt)
+      : 999;
+    const courseRepeatedErrors =
+      courseData && courseData.total > 0
+        ? courseData.errors / courseData.total
+        : 0;
+
+    const courseRisk = computeRisk({
+      masteryScore: courseAvgMastery,
+      decline: 0,
+      repeatedErrors: courseRepeatedErrors,
+      inactivity: inactivityScore(courseDaysSinceLast),
+    });
+
+    const hasGlobalAttempts = !!globalData && globalData.scores.length > 0;
+    const globalAvgMastery = hasGlobalAttempts
+      ? globalData.scores.reduce((a, b) => a + b, 0) / globalData.scores.length
+      : 0;
+    const globalDaysSinceLast = globalData
+      ? getDaysSince(globalData.lastAttempt)
+      : 999;
+    const globalRepeatedErrors =
+      globalData && globalData.total > 0
+        ? globalData.errors / globalData.total
+        : 0;
+
+    const globalRisk = computeRisk({
+      masteryScore: globalAvgMastery,
+      decline: 0,
+      repeatedErrors: globalRepeatedErrors,
+      inactivity: inactivityScore(globalDaysSinceLast),
+    });
+
+    return {
+      id: student.id,
+      name: student.full_name,
+      hasCourseAttempts,
+      courseAvgMastery,
+      courseConceptCount: courseData?.scores.length ?? 0,
+      courseTotalAttempts: courseData?.total ?? 0,
+      courseRisk,
+      hasGlobalAttempts,
+      globalAvgMastery,
+      globalTotalAttempts: globalData?.total ?? 0,
+      globalRisk,
+    };
+  });
+
+  // Sort roster:
+  // 1. Students active in this course with highest risk (Critical / At Risk) first
+  // 2. Remaining active students in this course
+  // 3. Students not yet active in this course (sorted by global risk)
+  studentRoster.sort((a, b) => {
+    if (a.hasCourseAttempts && !b.hasCourseAttempts) return -1;
+    if (!a.hasCourseAttempts && b.hasCourseAttempts) return 1;
+    if (a.hasCourseAttempts && b.hasCourseAttempts) {
+      return b.courseRisk.score - a.courseRisk.score;
+    }
+    return b.globalRisk.score - a.globalRisk.score;
+  });
+
+  const activeStudentsInCourse = studentRoster.filter(
+    (s) => s.hasCourseAttempts,
+  );
+  const atRiskStudentsInCourse = activeStudentsInCourse.filter(
+    (s) =>
+      s.courseRisk.bucket === "At Risk" ||
+      s.courseRisk.bucket === "Critical",
+  );
+
+  const courseClassAvg =
+    activeStudentsInCourse.length > 0
+      ? activeStudentsInCourse.reduce((sum, s) => sum + s.courseAvgMastery, 0) /
+        activeStudentsInCourse.length
+      : 0;
+
+  const allAttemptedStudents = studentRoster.filter(
+    (s) => s.hasGlobalAttempts,
+  );
+  const globalClassAvg =
+    allAttemptedStudents.length > 0
+      ? allAttemptedStudents.reduce((sum, s) => sum + s.globalAvgMastery, 0) /
+        allAttemptedStudents.length
+      : 0;
+
+  const displayClassAvg = activeStudentsInCourse.length > 0 ? courseClassAvg : globalClassAvg;
+  const displayAttemptsCount = activeStudentsInCourse.length > 0 ? activeStudentsInCourse.length : allAttemptedStudents.length;
 
   return (
     <div className="px-8 py-8 max-w-5xl mx-auto space-y-8">
@@ -211,14 +303,7 @@ export default async function TeacherPage({ searchParams }: PageProps) {
         </div>
         <div className="flex items-center gap-3">
           <MasteryExplainerModal buttonText="How is Mastery calculated?" variant="button" />
-          <Link
-            href="/teacher/courses/new"
-            id="create-course-header-btn"
-            className="inline-flex items-center gap-2 rounded-xl gradient-brand glow-brand text-white px-4 py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity self-start sm:self-auto shadow-sm"
-          >
-            <GraduationCap className="h-4 w-4" />
-            Create Course
-          </Link>
+          <CreateCourseModal />
         </div>
       </div>
 
@@ -231,7 +316,11 @@ export default async function TeacherPage({ searchParams }: PageProps) {
             basePath="/teacher"
           />
         </div>
-        <div className="flex justify-end">
+        <div className="flex items-center justify-end gap-2.5">
+          <DeleteCourseButton
+            courseId={selectedCourseId}
+            courseTitle={selectedCourse?.title ?? "Course"}
+          />
           <Link
             href={`/teacher/courses/${selectedCourseId}/concepts`}
             id="manage-curriculum-btn"
@@ -245,6 +334,7 @@ export default async function TeacherPage({ searchParams }: PageProps) {
 
       {/* Stats row */}
       <div className="grid grid-cols-3 gap-4 animate-slide-up">
+        {/* Card 1: Class Average */}
         <div className="glass-card rounded-2xl p-5 space-y-2">
           <div className="flex items-center justify-between text-muted-foreground text-sm">
             <div className="flex items-center gap-2">
@@ -255,36 +345,64 @@ export default async function TeacherPage({ searchParams }: PageProps) {
           </div>
           <div className="flex items-baseline gap-2">
             <span className="text-4xl font-bold gradient-text">
-              {classAvg.toFixed(0)}%
+              {displayClassAvg.toFixed(0)}%
             </span>
             <span className="text-xs text-muted-foreground font-medium">
-              {getMasteryStage(classAvg, studentsWithRisk.length > 0 ? 1 : 0).stageName}
+              {getMasteryStage(displayClassAvg, displayAttemptsCount).stageName}
             </span>
           </div>
-          <MasteryBar score={classAvg} attemptsCount={studentsWithRisk.length > 0 ? 1 : 0} showLabel={false} size="sm" />
+          <MasteryBar
+            score={displayClassAvg}
+            attemptsCount={displayAttemptsCount}
+            showLabel={false}
+            size="sm"
+          />
+          <p className="text-[11px] text-muted-foreground truncate">
+            {activeStudentsInCourse.length > 0
+              ? `In ${selectedCourse.title}`
+              : `Overall class average across curriculum`}
+          </p>
         </div>
 
+        {/* Card 2: Total Students */}
         <div className="glass-card rounded-2xl p-5 space-y-1">
           <div className="flex items-center gap-2 text-muted-foreground text-sm">
             <Users className="h-4 w-4" />
             Students
           </div>
-          <div className="text-4xl font-bold">{studentsWithRisk.length}</div>
-          <p className="text-xs text-muted-foreground">tracked this session</p>
+          <div className="text-4xl font-bold">{classStudents.length}</div>
+          <p className="text-xs text-muted-foreground">
+            enrolled students
+          </p>
         </div>
 
+        {/* Card 3: At Risk */}
         <div className="glass-card rounded-2xl p-5 space-y-1">
           <div className="flex items-center gap-2 text-muted-foreground text-sm">
             <AlertTriangle className="h-4 w-4" />
             At Risk
           </div>
           <div
-            className={`text-4xl font-bold ${atRiskStudents.length > 0 ? "text-mastery-low" : "text-mastery-high"}`}
+            className={`text-4xl font-bold ${
+              atRiskStudentsInCourse.length > 0
+                ? "text-mastery-low"
+                : activeStudentsInCourse.length === 0 && allAttemptedStudents.length > 0
+                  ? "text-foreground"
+                  : "text-mastery-high"
+            }`}
           >
-            {atRiskStudents.length}
+            {activeStudentsInCourse.length > 0
+              ? atRiskStudentsInCourse.length
+              : studentRoster.filter(
+                  (s) =>
+                    s.globalRisk.bucket === "At Risk" ||
+                    s.globalRisk.bucket === "Critical",
+                ).length}
           </div>
           <p className="text-xs text-muted-foreground">
-            students need attention
+            {activeStudentsInCourse.length > 0
+              ? `${atRiskStudentsInCourse.length} flagged in ${selectedCourse.title}`
+              : "students flagged across curriculum"}
           </p>
         </div>
       </div>
@@ -298,70 +416,124 @@ export default async function TeacherPage({ searchParams }: PageProps) {
           <MasteryExplainerModal variant="badge" />
         </div>
         <div className="space-y-3">
-          {conceptAverages.map((concept) => (
-            <div
-              key={concept.id}
-              className="glass-card rounded-xl p-4 space-y-2"
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-medium text-sm">{concept.name}</span>
-                <span className="text-xs text-muted-foreground">
-                  {concept.studentCount === 0
-                    ? "No student attempts yet"
-                    : `${concept.studentCount} student${concept.studentCount !== 1 ? "s" : ""} active`}
-                </span>
+          {conceptAverages.length > 0 ? (
+            conceptAverages.map((concept) => (
+              <div
+                key={concept.id}
+                className="glass-card rounded-xl p-4 space-y-2"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-sm">{concept.name}</span>
+                  <span className="text-xs font-semibold text-muted-foreground">
+                    {concept.average > 0 ? `${concept.average.toFixed(0)}%` : "0%"}
+                  </span>
+                </div>
+                <MasteryBar
+                  score={concept.average}
+                  attemptsCount={concept.studentCount > 0 ? 1 : 0}
+                  size="sm"
+                />
               </div>
-              <MasteryBar
-                score={concept.average}
-                attemptsCount={concept.studentCount > 0 ? 1 : 0}
-                size="sm"
-              />
+            ))
+          ) : (
+            <div className="glass-card rounded-xl p-6 text-center text-xs text-muted-foreground">
+              No concepts defined for this course yet. Use &ldquo;Author Concepts&rdquo; above to add curriculum.
             </div>
-          ))}
+          )}
         </div>
       </div>
 
-      {/* At-risk students */}
-      {studentsWithRisk.length > 0 && (
-        <div className="animate-slide-up">
-          <h2 className="font-semibold text-base mb-4">
-            Student Learning Risk Indicators
-            <span className="ml-2 text-xs font-normal text-muted-foreground">
-              (sorted by risk)
-            </span>
-          </h2>
-          <div className="space-y-3">
-            {studentsWithRisk.map((student, idx) => (
-              <Link
-                key={student.id}
-                href={`/teacher/students/${student.id}`}
-                id={`student-card-${idx}`}
-                className="group flex items-center justify-between glass-card rounded-xl p-4 hover:border-primary/30 transition-all duration-200"
-              >
-                <div className="flex items-center gap-4 min-w-0">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary font-semibold text-sm">
-                    {student.name.charAt(0).toUpperCase()}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-medium text-sm group-hover:text-primary transition-colors truncate">
-                      {student.name}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {student.avgMastery.toFixed(0)}% avg mastery •{" "}
-                      {student.conceptCount} concept
-                      {student.conceptCount !== 1 ? "s" : ""}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 shrink-0">
-                  <RiskBadge bucket={student.risk.bucket} />
-                  <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                </div>
-              </Link>
-            ))}
+      {/* Student Performance & Risk Indicators — ALWAYS VISIBLE */}
+      <div className="animate-slide-up space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <h2 className="font-semibold text-base flex items-center gap-2">
+              Student Performance & Learning Health
+              <span className="text-xs font-normal text-muted-foreground">
+                ({studentRoster.length} students enrolled)
+              </span>
+            </h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Live concept mastery, cognitive risk indicators, and individual drill-down profiles.
+            </p>
           </div>
         </div>
-      )}
+
+        {/* Informational notice when course has no attempts yet */}
+        {activeStudentsInCourse.length === 0 && (
+          <div className="rounded-xl border border-primary/25 bg-primary/5 p-4 flex items-start gap-3">
+            <Sparkles className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+            <div className="text-xs text-muted-foreground space-y-0.5">
+              <p className="font-semibold text-foreground">
+                No student practice recorded in {selectedCourse.title} yet
+              </p>
+              <p>
+                All {studentRoster.length} enrolled class students are listed below with their overall platform progress.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Student Roster Cards */}
+        <div className="space-y-3">
+          {studentRoster.map((student, idx) => (
+            <Link
+              key={student.id}
+              href={`/teacher/students/${student.id}?courseId=${selectedCourseId}`}
+              id={`student-card-${idx}`}
+              className="group flex items-center justify-between glass-card rounded-xl p-4 hover:border-primary/40 hover:bg-card/80 transition-all duration-200"
+            >
+              <div className="flex items-center gap-4 min-w-0 flex-1 pr-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full gradient-brand text-white font-semibold text-sm shadow-sm">
+                  {student.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="min-w-0 flex-1 space-y-1">
+                  <div className="flex items-center gap-2">
+                    <p className="font-semibold text-sm group-hover:text-primary transition-colors truncate text-foreground">
+                      {student.name}
+                    </p>
+                    {!student.hasCourseAttempts && (
+                      <span className="text-[10px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-medium border border-border">
+                        Pending in this course
+                      </span>
+                    )}
+                  </div>
+
+                  {student.hasCourseAttempts ? (
+                    <div className="flex items-center text-xs text-muted-foreground">
+                      <span className="font-medium text-foreground">
+                        {student.courseAvgMastery.toFixed(0)}% course mastery
+                      </span>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">
+                      {student.hasGlobalAttempts
+                        ? `${student.globalAvgMastery.toFixed(0)}% overall mastery across curriculum`
+                        : "Enrolled student"}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 shrink-0">
+                {student.hasCourseAttempts ? (
+                  <RiskBadge bucket={student.courseRisk.bucket} />
+                ) : student.hasGlobalAttempts ? (
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] text-muted-foreground hidden sm:inline">Overall:</span>
+                    <RiskBadge bucket={student.globalRisk.bucket} />
+                  </div>
+                ) : (
+                  <span className="text-xs px-2.5 py-1 rounded-lg bg-muted text-muted-foreground font-medium border border-border">
+                    Unranked
+                  </span>
+                )}
+                <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors group-hover:translate-x-0.5" />
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
