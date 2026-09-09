@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Trash2, Loader2 } from "lucide-react";
 import { deleteCourseAction } from "@/app/actions/authoring";
 
@@ -13,6 +14,7 @@ export function DeleteCourseButton({
   courseId,
   courseTitle,
 }: DeleteCourseButtonProps) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   async function handleDelete() {
@@ -28,7 +30,8 @@ export function DeleteCourseButton({
         alert(`Failed to delete course: ${res.error}`);
         setLoading(false);
       } else {
-        window.location.href = "/teacher";
+        router.push("/teacher");
+        router.refresh();
       }
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to delete course");

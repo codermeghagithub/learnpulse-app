@@ -32,7 +32,7 @@ interface Question {
   id: string;
   question_text: string;
   options: Array<{ key: string; text: string }>;
-  correct_answer?: string; // Only present in full questions (server-side only)
+  correct_answer?: string;
   explanation?: string;
   difficulty: "easy" | "medium" | "hard";
 }
@@ -54,21 +54,7 @@ interface PracticeClientProps {
   conceptList: ConceptInfo[];
   activeConcept: ConceptInfo;
   questions: Question[];
-  safeQuestions: Array<{
-    id: string;
-    question_text: string;
-    options: Array<{ key: string; text: string }>;
-    explanation?: string;
-    difficulty: "easy" | "medium" | "hard";
-  }>;
   allQuestions?: Question[];
-  safeAllQuestions?: Array<{
-    id: string;
-    question_text: string;
-    options: Array<{ key: string; text: string }>;
-    explanation?: string;
-    difficulty: "easy" | "medium" | "hard";
-  }>;
   totalConceptQuestions?: number;
   masteredCount?: number;
   isAlreadyMastered?: boolean;
@@ -82,9 +68,7 @@ export function PracticeClient({
   conceptList,
   activeConcept,
   questions,
-  safeQuestions,
   allQuestions,
-  safeAllQuestions,
   masteredCount = 0,
   isAlreadyMastered = false,
   initialMastery,
@@ -92,8 +76,7 @@ export function PracticeClient({
   selectedCourseId,
 }: PracticeClientProps) {
   const router = useRouter();
-  const [activeQuestions, setActiveQuestions] = useState(questions);
-  const [activeSafeQuestions, setActiveSafeQuestions] = useState(safeQuestions);
+  const [activeQuestions, setActiveQuestions] = useState<Question[]>(questions);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [currentMastery, setCurrentMastery] = useState(initialMastery);
   const [lastUpdate, setLastUpdate] = useState<MasteryUpdate | null>(null);
@@ -108,17 +91,16 @@ export function PracticeClient({
       ? conceptList[currentConceptIdx + 1]
       : null;
 
-  const currentQ = activeSafeQuestions[currentIdx];
-  const fullQ = activeQuestions[currentIdx];
+  const currentQ = activeQuestions[currentIdx];
 
   async function handleSubmit(selectedAnswer: string) {
-    if (!fullQ) return;
+    if (!currentQ) return;
 
     const res = await fetch("/api/submit-attempt", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        questionId: fullQ.id,
+        questionId: currentQ.id,
         selectedAnswer,
         conceptId: activeConcept.id,
       }),
@@ -139,14 +121,14 @@ export function PracticeClient({
 
   function handleNext() {
     setLastUpdate(null);
-    if (currentIdx < activeSafeQuestions.length - 1) {
+    if (currentIdx < activeQuestions.length - 1) {
       setCurrentIdx((i) => i + 1);
     } else {
       setIsCompleted(true);
     }
   }
 
-  const isEmpty = activeSafeQuestions.length === 0;
+  const isEmpty = activeQuestions.length === 0;
 
   return (
     <div className="px-8 py-8 max-w-3xl mx-auto space-y-8">
@@ -259,7 +241,7 @@ export function PracticeClient({
           </span>
           <span className="text-muted-foreground">
             {masteredCount > 0 && !isCompleted ? `${masteredCount} already solved • ` : ""}
-            Q {Math.min(currentIdx + 1, activeSafeQuestions.length)} of {activeSafeQuestions.length}
+            Q {Math.min(currentIdx + 1, activeQuestions.length)} of {activeQuestions.length}
           </span>
         </div>
       </div>
@@ -324,9 +306,8 @@ export function PracticeClient({
             <button
               id="practice-again-btn"
               onClick={() => {
-                if (allQuestions && safeAllQuestions && allQuestions.length > 0) {
+                if (allQuestions && allQuestions.length > 0) {
                   setActiveQuestions(allQuestions);
-                  setActiveSafeQuestions(safeAllQuestions);
                 }
                 setCurrentIdx(0);
                 setIsCompleted(false);
@@ -354,11 +335,11 @@ export function PracticeClient({
             conceptName={activeConcept.name}
             questionText={currentQ.question_text}
             options={currentQ.options}
-            correctAnswer={fullQ.correct_answer ?? ""}
+            correctAnswer={currentQ.correct_answer ?? ""}
             explanation={currentQ.explanation}
             difficulty={currentQ.difficulty}
             questionNumber={currentIdx + 1}
-            totalQuestions={activeSafeQuestions.length}
+            totalQuestions={activeQuestions.length}
             onSubmit={handleSubmit}
           />
         </div>
@@ -400,7 +381,7 @@ export function PracticeClient({
               onClick={handleNext}
               className="flex items-center gap-2 rounded-xl gradient-brand text-white px-4 py-2.5 text-sm font-medium hover:opacity-90 transition-opacity"
             >
-              {currentIdx < activeSafeQuestions.length - 1 ? "Next" : "Finish Concept Practice"}
+              {currentIdx < activeQuestions.length - 1 ? "Next" : "Finish Concept Practice"}
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>

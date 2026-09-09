@@ -202,31 +202,13 @@ export default async function PracticePage({ searchParams }: PageProps) {
   // If all are already mastered, serve allQuestions in review mode
   const questionsToServe = unmasteredQuestions.length > 0 ? unmasteredQuestions : validQuestions;
 
-  // Never send correct_answer to the client — strip it
-  const safeQuestions = questionsToServe.map((q) => ({
-    id: q.id,
-    question_text: q.question_text,
-    options: q.options,
-    difficulty: q.difficulty,
-    explanation: q.explanation,
-  }));
-  const safeAllQuestions = validQuestions.map((q) => ({
-    id: q.id,
-    question_text: q.question_text,
-    options: q.options,
-    difficulty: q.difficulty,
-    explanation: q.explanation,
-  }));
-
   return (
     <PracticeClient
       key={activeConcept.id}
       conceptList={conceptList}
       activeConcept={activeConcept}
       questions={questionsToServe}
-      safeQuestions={safeQuestions}
       allQuestions={validQuestions}
-      safeAllQuestions={safeAllQuestions}
       totalConceptQuestions={validQuestions.length}
       masteredCount={masteredQuestionIds.size}
       isAlreadyMastered={isAlreadyMastered}

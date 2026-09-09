@@ -268,7 +268,8 @@ export function CourseAuthoringClient({
       alert(`Failed to delete course: ${res.error}`);
       setDeletingCourse(false);
     } else {
-      window.location.href = "/teacher";
+      router.push("/teacher");
+      router.refresh();
     }
   }
 

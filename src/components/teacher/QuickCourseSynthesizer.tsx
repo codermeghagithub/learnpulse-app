@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Sparkles,
   Zap,
@@ -13,7 +14,6 @@ import {
   Check,
   Trash2,
   Plus,
-  Sliders,
   HelpCircle,
   Layers,
   Network,
@@ -112,6 +112,7 @@ interface QuickCourseSynthesizerProps {
 }
 
 export function QuickCourseSynthesizer({ isModal = false, onClose }: QuickCourseSynthesizerProps = {}) {
+  const router = useRouter();
   const [topicText, setTopicText] = useState("");
   const [status, setStatus] = useState<
     "idle" | "loading" | "preview" | "saving" | "saved" | "error"
@@ -288,7 +289,8 @@ export function QuickCourseSynthesizer({ isModal = false, onClose }: QuickCourse
       // Redirect teacher directly to Curriculum Editor for final confirmation & editing
       if (data.courseId) {
         onClose?.();
-        window.location.href = `/teacher/courses/${data.courseId}/concepts`;
+        router.push(`/teacher/courses/${data.courseId}/concepts`);
+        router.refresh();
       }
     } catch (err) {
       setErrorMessage(

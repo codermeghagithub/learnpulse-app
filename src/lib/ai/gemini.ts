@@ -145,13 +145,13 @@ export async function diagnose(
   if (primary?.success) return { ...primary.data, isAiGenerated: true };
 
   // Retry with a shorter prompt
-  console.log("[gemini:diagnose] Primary failed, retrying with fallback prompt...");
+  console.warn("[gemini:diagnose] Primary failed, retrying with fallback prompt...");
   const rawFallback = await callGeminiRaw(buildFallbackPrompt(input));
   const retry = rawFallback ? diagnosisOutputSchema.safeParse(rawFallback) : null;
   if (retry?.success) return { ...retry.data, isAiGenerated: true };
 
   // Deterministic fallback — never crashes
-  console.log("[gemini:diagnose] Both calls failed, using deterministic fallback.");
+  console.warn("[gemini:diagnose] Both calls failed, using deterministic fallback.");
   return { ...buildDeterministicDiagnosisFallback(input), isAiGenerated: false };
 }
 

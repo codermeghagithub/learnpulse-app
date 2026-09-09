@@ -1,14 +1,8 @@
 "use client";
 
-import { useState, useEffect, useSyncExternalStore } from "react";
+import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import {
-  HelpCircle,
-  X,
-  Brain,
-  TrendingUp,
-  Sparkles,
-} from "lucide-react";
+import { HelpCircle, X, Brain, TrendingUp, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface MasteryExplainerModalProps {
@@ -17,19 +11,12 @@ interface MasteryExplainerModalProps {
   className?: string;
 }
 
-const emptySubscribe = () => () => {};
-
 export function MasteryExplainerModal({
   buttonText = "How is Mastery calculated?",
   variant = "badge",
   className,
 }: MasteryExplainerModalProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const mounted = useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false
-  );
 
   // Close on Escape key
   useEffect(() => {
@@ -92,7 +79,6 @@ export function MasteryExplainerModal({
 
       {/* Modal Dialog rendered into document.body via Portal to escape parent stacking context */}
       {isOpen &&
-        mounted &&
         typeof document !== "undefined" &&
         createPortal(
           <div
@@ -152,7 +138,7 @@ export function MasteryExplainerModal({
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                   {/* Stage 1 */}
-                  <div className="p-3.5 rounded-xl border border-(--mastery-low)/30 bg-(--mastery-low)/5 space-y-1.5">
+                  <div className="p-3.5 rounded-xl border border-mastery-low/30 bg-(--mastery-low)/5 space-y-1.5">
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-mastery-low">
                         🌱 Level 1 • Getting Started

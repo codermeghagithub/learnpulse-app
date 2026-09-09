@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useSyncExternalStore } from "react";
+import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import {
@@ -18,17 +18,9 @@ import {
 import { cn } from "@/lib/utils";
 import { QuickCourseSynthesizer } from "./QuickCourseSynthesizer";
 
-const emptySubscribe = () => () => {};
-
 export function CreateCourseModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [mode, setMode] = useState<"choose" | "ai">("choose");
-
-  const mounted = useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false,
-  );
 
   // Close on Escape key & manage body scroll
   useEffect(() => {
@@ -73,7 +65,6 @@ export function CreateCourseModal() {
 
       {/* Modal Dialog via Portal */}
       {isOpen &&
-        mounted &&
         typeof document !== "undefined" &&
         createPortal(
           <div

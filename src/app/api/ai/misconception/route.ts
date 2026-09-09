@@ -26,7 +26,8 @@ const requestSchema = z.object({
  * ensures a student who explains their thinking gets a targeted response,
  * while students with no reasoning still get a fast cached result.
  */
-const misconceptionCache = new Map<string, ReturnType<typeof diagnoseMisconception> extends Promise<infer T> ? T : never>();
+type MisconceptionDiagnosis = Awaited<ReturnType<typeof diagnoseMisconception>>;
+const misconceptionCache = new Map<string, MisconceptionDiagnosis>();
 
 /** Build a short, stable cache key from the question + selection + reasoning. */
 function buildCacheKey(questionId: string, selectedKey: string, studentReasoning?: string): string {
