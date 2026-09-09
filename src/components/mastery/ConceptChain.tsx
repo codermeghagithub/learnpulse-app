@@ -8,6 +8,7 @@ interface ConceptNode {
   mastery: number;
   depth: number;
   isTarget?: boolean;
+  isDue?: boolean;
 }
 
 interface ConceptChainProps {
@@ -65,7 +66,7 @@ export function ConceptChain({ nodes, className }: ConceptChainProps) {
               )}
             >
               <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   {state === "weak" && (
                     <AlertTriangle className="h-3.5 w-3.5 text-mastery-low shrink-0" />
                   )}
@@ -75,7 +76,12 @@ export function ConceptChain({ nodes, className }: ConceptChainProps) {
                   <span className="font-medium text-sm">{node.name}</span>
                   {node.isTarget && (
                     <span className="text-xs px-1.5 py-0.5 rounded-md bg-primary/20 text-primary font-medium">
-                      Target
+                       Target
+                    </span>
+                  )}
+                  {node.isDue && (
+                    <span className="text-xs px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-500 font-medium flex items-center gap-1">
+                      ⏳ Fading
                     </span>
                   )}
                 </div>
@@ -83,7 +89,7 @@ export function ConceptChain({ nodes, className }: ConceptChainProps) {
                   Depth {node.depth}
                 </span>
               </div>
-              <MasteryBar score={node.mastery} size="sm" />
+              <MasteryBar score={node.mastery} size="sm" isDue={node.isDue} />
             </div>
           </div>
         );

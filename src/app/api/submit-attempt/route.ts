@@ -8,6 +8,8 @@ const requestSchema = z.object({
   questionId: z.string().uuid(),
   selectedAnswer: z.string().min(1),
   conceptId: z.string().uuid(),
+  isReviewQuestion: z.boolean().optional(),
+  originConceptId: z.string().uuid().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -37,7 +39,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid request" }, { status: 400 });
     }
 
-    const { questionId, selectedAnswer, conceptId } = parsed.data;
+    const { questionId, selectedAnswer, conceptId, isReviewQuestion, originConceptId } = parsed.data;
 
     // Fetch the question (server-side, includes correct answer)
     const { data: question } = await supabase
@@ -50,8 +52,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Question not found" }, { status: 404 });
     }
 
-    // Verify concept matches
-    if (question.concept_id !== conceptId) {
+    // Verify concept matches (allow review questions from forward dependents)
+    if (
+      question.concept_id !== conceptId &&
+      (!isReviewQuestion || (question.concept_id !== originConceptId && conceptId !== originConceptId))
+    ) {
       return NextResponse.json({ error: "Concept mismatch" }, { status: 400 });
     }
 
@@ -127,6 +132,58 @@ export async function POST(req: NextRequest) {
     revalidatePath("/dashboard/practice");
     revalidatePath("/teacher");
 
+    // If this was a decay review question and the student got it wrong,
+    // diagnose against originConceptId (the decayed concept) to trace the root cause
+    let decayDiagnosis = null;
+    if (isReviewQuestion && !isCorrect && originConceptId) {
+      const { data: originConcept } = await supabase
+        .from("concepts")
+        .select("id, name")
+        .eq("id", originConceptId)
+        .maybeSingle();
+
+      const { data: originMastery } = await supabase
+        .from("mastery")
+        .select("score")
+        .eq("user_id", user.id)
+        .eq("concept_id", originConceptId)
+        .maybeSingle();
+
+      const { data: existingIntervention } = await supabase
+        .from("interventions")
+        .select("root_cause, explanation, action_plan, confidence")
+        .eq("user_id", user.id)
+        .eq("concept_id", originConceptId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (existingIntervention) {
+        decayDiagnosis = {
+          confirmed: true,
+          conceptId: originConceptId,
+          conceptName: originConcept?.name ?? "Prerequisite Concept",
+          masteryScore: originMastery?.score ?? 0,
+          rootCause: existingIntervention.root_cause,
+          explanation: existingIntervention.explanation,
+          actionPlan: existingIntervention.action_plan,
+        };
+      } else {
+        decayDiagnosis = {
+          confirmed: true,
+          conceptId: originConceptId,
+          conceptName: originConcept?.name ?? "Prerequisite Concept",
+          masteryScore: originMastery?.score ?? 0,
+          rootCause: `Decayed retention on ${originConcept?.name ?? "prerequisite concept"} led to an error on downstream application.`,
+          explanation: `Review attempt failed due to forgetting-curve decay on ${originConcept?.name ?? "the prerequisite concept"}. Re-practicing foundational questions will restore downstream proficiency.`,
+          actionPlan: [
+            { step: 1, action: `Review foundational rules of ${originConcept?.name ?? "the concept"}` },
+            { step: 2, action: "Re-attempt practice questions to reset the forgetting curve" },
+          ],
+        };
+      }
+    }
+
     return NextResponse.json({
       isCorrect,
       previousScore: Math.round(previousScore),
@@ -135,6 +192,7 @@ export async function POST(req: NextRequest) {
       uniqueQuestionsCorrect,
       totalConceptQuestions,
       isConceptCompleted: uniqueQuestionsCorrect >= totalConceptQuestions,
+      decayDiagnosis,
     });
   } catch (err) {
     console.error("[/api/submit-attempt]", err);

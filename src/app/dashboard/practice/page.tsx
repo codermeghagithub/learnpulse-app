@@ -4,6 +4,9 @@ import { createClient } from "@/utils/supabase/server";
 import { PracticeClient } from "./PracticeClient";
 import { CourseSelector } from "@/components/CourseSelector";
 import { Zap } from "lucide-react";
+import { calculateRetention } from "@/lib/algorithms/decay";
+import { buildAdjacencyList } from "@/lib/algorithms/graph";
+import { selectReviewQuestion } from "@/lib/algorithms/reviewSelection";
 
 export const dynamic = "force-dynamic";
 
@@ -101,7 +104,7 @@ export default async function PracticePage({ searchParams }: PageProps) {
     conceptIds.length > 0
       ? await supabase
           .from("mastery")
-          .select("concept_id, score, attempts_count, correct_count")
+          .select("concept_id, score, attempts_count, correct_count, updated_at")
           .eq("user_id", user.id)
           .in("concept_id", conceptIds)
       : { data: [] };
@@ -114,26 +117,53 @@ export default async function PracticePage({ searchParams }: PageProps) {
     score: number;
     attemptsCount: number;
     correctCount: number;
+    isDue?: boolean;
+    retentionScore?: number;
   }
 
   const conceptList: ConceptInfo[] = validConcepts.map((c) => {
     const m = masteryMap.get(c.id);
+    let isDue = false;
+    let retentionScore = m?.score ?? 0;
+
+    if (m && m.updated_at) {
+      const decay = calculateRetention(
+        {
+          masteryScore: m.score,
+          lastAttemptAt: new Date(m.updated_at),
+          timesCorrect: m.correct_count,
+          totalAttempts: m.attempts_count,
+        },
+        new Date()
+      );
+      isDue = decay.isDue;
+      retentionScore = decay.retentionScore;
+    }
+
     return {
       id: c.id,
       name: c.name,
       score: m?.score ?? 0,
       attemptsCount: m?.attempts_count ?? 0,
       correctCount: m?.correct_count ?? 0,
+      isDue,
+      retentionScore,
     };
   });
 
   // Determine active concept:
   // 1. conceptId from params if in this course
-  // 2. Otherwise weakest concept (< 70) or first concept in this course
+  // 2. Otherwise concepts due for review (decayed)
+  // 3. Otherwise weakest concept (< 70) or first concept in this course
   let activeConcept = conceptList.find((c) => c.id === conceptId);
   if (!activeConcept && conceptList.length > 0) {
-    const weakest = [...conceptList].sort((a, b) => a.score - b.score)[0];
-    activeConcept = weakest ?? conceptList[0];
+    const dueConcept = conceptList.find((c) => c.isDue);
+    if (dueConcept) {
+      activeConcept = dueConcept;
+    } else {
+      const weakest = [...conceptList].sort((a, b) => a.score - b.score)[0];
+      activeConcept = weakest ?? conceptList[0];
+    }
   }
 
   if (!activeConcept) {
@@ -198,9 +228,31 @@ export default async function PracticePage({ searchParams }: PageProps) {
   const unmasteredQuestions = validQuestions.filter((q) => !masteredQuestionIds.has(q.id));
   const isAlreadyMastered = validQuestions.length > 0 && unmasteredQuestions.length === 0;
 
-  // If there are unmastered questions, serve only them (no repetitive questions)
-  // If all are already mastered, serve allQuestions in review mode
-  const questionsToServe = unmasteredQuestions.length > 0 ? unmasteredQuestions : validQuestions;
+  const baseQuestions = unmasteredQuestions.length > 0 ? unmasteredQuestions : validQuestions;
+
+  // Interleave decay review question at index 0 if active concept is due for review
+  let reviewQuestion = null;
+  if (activeConcept.isDue && selectedCourseId) {
+    const { data: edges } = await supabase
+      .from("concept_edges")
+      .select("prerequisite_id, concept_id, weight")
+      .eq("course_id", selectedCourseId);
+
+    const graph = buildAdjacencyList(edges ?? []);
+    reviewQuestion = await selectReviewQuestion(
+      {
+        studentId: user.id,
+        decayedConceptId: activeConcept.id,
+        graph,
+        supabase,
+      },
+      supabase
+    );
+  }
+
+  const questionsToServe = reviewQuestion
+    ? [reviewQuestion, ...baseQuestions.filter((q) => q.id !== reviewQuestion.id)]
+    : baseQuestions;
 
   return (
     <PracticeClient

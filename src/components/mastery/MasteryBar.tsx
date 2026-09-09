@@ -13,6 +13,7 @@ interface MasteryBarProps {
   correctCount?: number;
   showAccuracySubtitle?: boolean;
   customLabel?: string;
+  isDue?: boolean;
 }
 
 function getMasteryColor(score: number): string {
@@ -31,11 +32,13 @@ export function MasteryBar({
   correctCount,
   showAccuracySubtitle = false,
   customLabel,
+  isDue = false,
 }: MasteryBarProps) {
   const clampedScore = Math.max(0, Math.min(100, score));
   const colorClass = getMasteryColor(clampedScore);
   const stage = getMasteryStage(clampedScore, attemptsCount ?? (clampedScore > 0 ? 1 : 0));
-  const label = customLabel ?? stage.stageBadge;
+  const emoji = isDue ? "⏳" : stage.stageEmoji;
+  const label = customLabel ?? (isDue ? "Fading — review due" : stage.stageBadge);
   
   const gain =
     previousScore !== undefined ? clampedScore - previousScore : null;
@@ -46,8 +49,13 @@ export function MasteryBar({
     <div className={cn("space-y-1.5", className)}>
       {showLabel && (
         <div className="flex items-center justify-between text-xs sm:text-sm">
-          <span className="font-medium text-muted-foreground flex items-center gap-1.5">
-            <span>{stage.stageEmoji}</span>
+          <span
+            className={cn(
+              "font-medium flex items-center gap-1.5",
+              isDue ? "text-amber-500 font-semibold" : "text-muted-foreground"
+            )}
+          >
+            <span>{emoji}</span>
             <span>{label}</span>
           </span>
           <div className="flex items-center gap-2">
