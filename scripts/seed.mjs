@@ -37,27 +37,28 @@ const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
   auth: { persistSession: false },
 });
 
-// Deterministic EWMA algorithm identical to src/lib/algorithms/mastery.ts
-const ALPHA = 0.2;
-const DIFFICULTY_MULTIPLIER = {
-  easy: 0.8,
-  medium: 1.0,
-  hard: 1.2,
-};
-
-function updateMastery(previous, isCorrect, difficulty) {
-  const multiplier = DIFFICULTY_MULTIPLIER[difficulty] ?? 1.0;
-  const correctValue = isCorrect ? 100 * multiplier : 0;
-  const newScore = ALPHA * correctValue + (1 - ALPHA) * previous;
-  return Math.max(0, Math.min(100, newScore));
-}
-
-function computeMasteryFromAttempts(attempts) {
-  let score = 0;
-  for (const attempt of attempts) {
-    score = updateMastery(score, attempt.isCorrect, attempt.difficulty);
+/**
+ * Canonical bank-aware scaled mastery computation (identical to src/lib/algorithms/mastery.ts).
+ * Guarantees zero formula divergence between seed scripts, offline queue, and /api/submit-attempt.
+ */
+function computeScaledMastery({
+  totalConceptQuestions,
+  uniqueQuestionsCorrect,
+  totalAttempts,
+  totalCorrect,
+}) {
+  if (totalConceptQuestions <= 0 || uniqueQuestionsCorrect <= 0 || totalAttempts <= 0) {
+    return 0;
   }
-  return score;
+
+  const coverage = Math.min(1, Math.max(0, uniqueQuestionsCorrect / totalConceptQuestions));
+  const accuracy = Math.min(1, Math.max(0, totalCorrect / totalAttempts));
+
+  const basePoints = 80 * coverage;
+  const accuracyBonus = 20 * coverage * accuracy;
+
+  const finalScore = Math.round(basePoints + accuracyBonus);
+  return Math.max(0, Math.min(100, finalScore));
 }
 
 // Graph algorithms for topological sort and cycle-check (reusing exact logic from graph.ts)
@@ -207,19 +208,21 @@ function generateStudentAttempts() {
           { conceptKey, isCorrect: false, hoursAgo: 2 }
         );
       } else if (conceptKey === priyaRootCause) {
+        // q[0] mastered, q[1] unmastered: 50% coverage, 2/5 accuracy -> 44% scaled mastery (Bottleneck / At Risk)
         result.priya.push(
-          { conceptKey, isCorrect: true, hoursAgo: 140 },
-          { conceptKey, isCorrect: true, hoursAgo: 110 },
-          { conceptKey, isCorrect: true, hoursAgo: 80 },
-          { conceptKey, isCorrect: false, hoursAgo: 40 },
-          { conceptKey, isCorrect: false, hoursAgo: 10 }
+          { conceptKey, isCorrect: true, hoursAgo: 140 },  // q[0] correct
+          { conceptKey, isCorrect: false, hoursAgo: 110 }, // q[1] wrong
+          { conceptKey, isCorrect: true, hoursAgo: 80 },   // q[0] correct
+          { conceptKey, isCorrect: false, hoursAgo: 40 },  // q[1] wrong
+          { conceptKey, isCorrect: false, hoursAgo: 10 }   // q[0] wrong
         );
       } else if (conceptKey === priyaLow) {
+        // q[0] partially understood, q[1] unmastered: 50% coverage, 1/4 accuracy -> 43% scaled mastery
         result.priya.push(
-          { conceptKey, isCorrect: true, hoursAgo: 130 },
-          { conceptKey, isCorrect: false, hoursAgo: 90 },
-          { conceptKey, isCorrect: false, hoursAgo: 50 },
-          { conceptKey, isCorrect: false, hoursAgo: 15 }
+          { conceptKey, isCorrect: true, hoursAgo: 130 },  // q[0] correct
+          { conceptKey, isCorrect: false, hoursAgo: 90 },  // q[1] wrong
+          { conceptKey, isCorrect: false, hoursAgo: 50 },  // q[0] wrong
+          { conceptKey, isCorrect: false, hoursAgo: 15 }   // q[1] wrong
         );
       } else {
         result.priya.push(
@@ -489,6 +492,10 @@ async function main() {
       role: "student",
     });
 
+    // Ensure strict idempotency & ACID integrity: clear previous attempts and mastery for demo student before re-seeding
+    await supabase.from("attempts").delete().eq("user_id", student.id);
+    await supabase.from("mastery").delete().eq("user_id", student.id);
+
     // Map: conceptKey -> { attempts: [], lastUpdatedAt: string }
     const studentMasteryTracker = new Map();
     const attemptsToInsert = [];
@@ -527,6 +534,7 @@ async function main() {
       });
 
       tracker.attempts.push({
+        questionId: q.id,
         isCorrect: attempt.isCorrect,
         difficulty: q.difficulty,
         createdAt,
@@ -543,24 +551,36 @@ async function main() {
       await supabase.from("attempts").insert(batch);
     }
 
-    // Compute EWMA mastery for each concept the student attempted
+    // Compute bank-aware scaled mastery (identical to /api/submit-attempt)
     const masteryToUpsert = [];
     for (const [conceptKey, tracker] of studentMasteryTracker.entries()) {
       if (tracker.attempts.length === 0) continue;
 
-      const score = computeMasteryFromAttempts(tracker.attempts);
-      const correctCount = tracker.attempts.filter((a) => a.isCorrect).length;
+      const conceptQuestions = questionsByConceptId.get(tracker.conceptId) ?? [];
+      const totalConceptQuestions = Math.max(1, conceptQuestions.length);
+      const uniqueCorrect = new Set(
+        tracker.attempts.filter((a) => a.isCorrect).map((a) => a.questionId)
+      ).size;
+      const totalAttempts = tracker.attempts.length;
+      const totalCorrect = tracker.attempts.filter((a) => a.isCorrect).length;
+
+      const score = computeScaledMastery({
+        totalConceptQuestions,
+        uniqueQuestionsCorrect: uniqueCorrect,
+        totalAttempts,
+        totalCorrect,
+      });
 
       masteryToUpsert.push({
         user_id: student.id,
         concept_id: tracker.conceptId,
         score,
-        attempts_count: tracker.attempts.length,
-        correct_count: correctCount,
+        attempts_count: totalAttempts,
+        correct_count: totalCorrect,
         updated_at: tracker.lastAttemptTime ?? new Date().toISOString(),
       });
 
-      console.log(`    - ${conceptKey}: ${tracker.attempts.length} attempts, ${correctCount} correct → ${score.toFixed(1)}% mastery`);
+      console.log(`    - ${conceptKey}: ${totalAttempts} attempts, ${totalCorrect} correct, ${uniqueCorrect}/${totalConceptQuestions} unique → ${score}% mastery`);
     }
 
     if (masteryToUpsert.length > 0) {

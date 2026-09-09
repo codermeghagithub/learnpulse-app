@@ -47,6 +47,7 @@ interface InteractiveDagGraphProps {
   courseId?: string;
   targetConceptId?: string;
   className?: string;
+  mode?: "student" | "teacher";
   onSelectNode?: (nodeId: string) => void;
 }
 
@@ -59,20 +60,27 @@ interface ConceptNodeData extends Record<string, unknown> {
   depth: number;
   isTarget?: boolean;
   isSelected?: boolean;
+  mode?: "student" | "teacher";
 }
 
 function CustomConceptNode({ data }: NodeProps<Node<ConceptNodeData>>) {
-  const { name, mastery, depth, isTarget, isSelected } = data;
+  const { name, mastery, depth, isTarget, isSelected, mode } = data;
+  const isTeacher = mode === "teacher";
   const roundedMastery = Math.round(mastery);
-  const isWeak = roundedMastery < 40;
-  const isPartial = roundedMastery >= 40 && roundedMastery < 85;
-  const isStrong = roundedMastery >= 85;
+  const isUnattempted = isTeacher && roundedMastery === 0;
+  const isWeak = !isUnattempted && roundedMastery < 40;
+  const isPartial = !isUnattempted && roundedMastery >= 40 && roundedMastery < 85;
+  const isStrong = !isUnattempted && roundedMastery >= 85;
 
   let badgeDot = "bg-emerald-500";
   let borderClass = "border-emerald-500/40 hover:border-emerald-500/80";
   let scoreClass = "text-emerald-400";
 
-  if (isWeak) {
+  if (isUnattempted) {
+    badgeDot = "bg-muted-foreground/30";
+    borderClass = "border-border/60 hover:border-border";
+    scoreClass = "text-muted-foreground";
+  } else if (isWeak) {
     badgeDot = "bg-rose-500";
     borderClass =
       "border-rose-500/70 hover:border-rose-500 shadow-rose-500/10 shadow-md";
@@ -124,7 +132,11 @@ function CustomConceptNode({ data }: NodeProps<Node<ConceptNodeData>>) {
       {/* Bottom row: mastery score, depth */}
       <div className="flex items-center justify-between text-[11px] pt-1 border-t border-border/50">
         <span className={cn("font-mono font-medium", scoreClass)}>
-          {roundedMastery}% mastery
+          {isTeacher
+            ? isUnattempted
+              ? "0% class avg"
+              : `${roundedMastery}% class avg`
+            : `${roundedMastery}% mastery`}
         </span>
         <span className="text-[10px] text-muted-foreground font-medium">
           {depth > 0 ? `Depth ${depth}` : "Primary"}
@@ -153,6 +165,7 @@ export function InteractiveDagGraph({
   courseId,
   targetConceptId,
   className,
+  mode = "student",
   onSelectNode,
 }: InteractiveDagGraphProps) {
   const [selectedNodeId, setSelectedNodeId] = useState<string>(
@@ -203,6 +216,7 @@ export function InteractiveDagGraph({
             depth: node.depth,
             isTarget,
             isSelected,
+            mode,
           },
         });
       });
@@ -318,20 +332,27 @@ export function InteractiveDagGraph({
           <div className="flex items-center gap-3 text-[11px] text-muted-foreground flex-wrap">
             <span className="flex items-center gap-1">
               <span className="h-2 w-2 rounded-full bg-emerald-500" />
-              <span>Mastered (≥85%)</span>
+              <span>{mode === "teacher" ? "Class Avg ≥85%" : "Mastered (≥85%)"}</span>
             </span>
             <span className="flex items-center gap-1">
               <span className="h-2 w-2 rounded-full bg-amber-500" />
-              <span>Developing (40-84%)</span>
+              <span>{mode === "teacher" ? "Class Avg 40-84%" : "Developing (40-84%)"}</span>
             </span>
             <span className="flex items-center gap-1">
               <span className="h-2 w-2 rounded-full bg-rose-500 animate-pulse" />
-              <span>Root Cause Gap (&lt;40%)</span>
+              <span>{mode === "teacher" ? "At-Risk Bottleneck (<40%)" : "Root Cause Gap (<40%)"}</span>
             </span>
-            <span className="flex items-center gap-1">
-              <span className="h-2 w-2 rounded-full ring-2 ring-primary bg-primary/20" />
-              <span>Target</span>
-            </span>
+            {mode === "teacher" ? (
+              <span className="flex items-center gap-1">
+                <span className="h-2 w-2 rounded-full bg-muted-foreground/30" />
+                <span>Unattempted (0%)</span>
+              </span>
+            ) : (
+              <span className="flex items-center gap-1">
+                <span className="h-2 w-2 rounded-full ring-2 ring-primary bg-primary/20" />
+                <span>Target</span>
+              </span>
+            )}
           </div>
         </div>
 
@@ -359,8 +380,7 @@ export function InteractiveDagGraph({
         </div>
 
         <p className="text-[11px] text-muted-foreground text-center py-2 border-t border-border/40 bg-card/20">
-          💡 Drag or click any concept node to inspect root causes or start
-          targeted remediation.
+          💡 Drag or click any concept node to inspect {mode === "teacher" ? "curriculum dependencies and class performance" : "root causes or start targeted remediation"}.
         </p>
       </div>
 
@@ -375,7 +395,9 @@ export function InteractiveDagGraph({
                 roundedSelectedMastery >= 85
                   ? "bg-emerald-500"
                   : roundedSelectedMastery < 40
-                    ? "bg-rose-500 animate-pulse"
+                    ? mode === "teacher" && roundedSelectedMastery === 0
+                      ? "bg-muted text-muted-foreground"
+                      : "bg-rose-500 animate-pulse"
                     : "bg-amber-500",
               )}
             >
@@ -396,40 +418,56 @@ export function InteractiveDagGraph({
                 {roundedSelectedMastery < 40 && (
                   <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-400 font-semibold flex items-center gap-0.5">
                     <AlertTriangle className="h-2.5 w-2.5" />
-                    Root Cause Gap
+                    {mode === "teacher" ? "Class Bottleneck" : "Root Cause Gap"}
                   </span>
                 )}
               </div>
               <p className="text-xs text-muted-foreground mt-0.5">
                 Prerequisite Depth Level: {selectedNode.depth} •{" "}
-                {roundedSelectedMastery >= 85
-                  ? "Solid Foundation"
-                  : roundedSelectedMastery < 40
-                    ? "Identified bottleneck blocking downstream concepts"
-                    : "Developing understanding"}
+                {mode === "teacher"
+                  ? roundedSelectedMastery >= 85
+                    ? "Class has demonstrated strong mastery"
+                    : roundedSelectedMastery < 40
+                      ? roundedSelectedMastery === 0
+                        ? "No student attempts recorded in this concept yet"
+                        : "Class bottleneck — students need prerequisite reinforcement"
+                      : "Class has developing mastery"
+                  : roundedSelectedMastery >= 85
+                    ? "Solid Foundation"
+                    : roundedSelectedMastery < 40
+                      ? "Identified bottleneck blocking downstream concepts"
+                      : "Developing understanding"}
               </p>
             </div>
           </div>
 
           {/* Action Buttons */}
           <div className="flex items-center gap-2 shrink-0">
-            <Link
-              href={`/dashboard/gaps/${selectedNode.id}`}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium hover:bg-background transition-colors"
-            >
-              <Info className="h-3.5 w-3.5" />
-              Gap Analysis
-            </Link>
-            <Link
-              href={`/dashboard/practice?conceptId=${selectedNode.id}${
-                courseId ? `&courseId=${courseId}` : ""
-              }`}
-              className="inline-flex items-center gap-1.5 rounded-lg gradient-brand text-white px-3.5 py-1.5 text-xs font-semibold hover:opacity-90 transition-opacity"
-            >
-              <Zap className="h-3.5 w-3.5" />
-              Practice Concept
-              <ArrowRight className="h-3 w-3" />
-            </Link>
+            {mode === "teacher" ? (
+              <span className="text-xs text-muted-foreground bg-primary/10 border border-primary/20 px-3 py-1.5 rounded-lg font-medium">
+                Curriculum Node • Depth {selectedNode.depth}
+              </span>
+            ) : (
+              <>
+                <Link
+                  href={`/dashboard/gaps/${selectedNode.id}`}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium hover:bg-background transition-colors"
+                >
+                  <Info className="h-3.5 w-3.5" />
+                  Gap Analysis
+                </Link>
+                <Link
+                  href={`/dashboard/practice?conceptId=${selectedNode.id}${
+                    courseId ? `&courseId=${courseId}` : ""
+                  }`}
+                  className="inline-flex items-center gap-1.5 rounded-lg gradient-brand text-white px-3.5 py-1.5 text-xs font-semibold hover:opacity-90 transition-opacity"
+                >
+                  <Zap className="h-3.5 w-3.5" />
+                  Practice Concept
+                  <ArrowRight className="h-3 w-3" />
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}

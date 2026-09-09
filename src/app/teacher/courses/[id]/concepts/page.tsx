@@ -84,12 +84,39 @@ export default async function CourseAuthoringPage({ params }: PageProps) {
     difficulty: q.difficulty as "easy" | "medium" | "hard",
   }));
 
+  // Fetch class mastery for concepts in this course to populate the DAG graph with genuine class averages
+  const conceptIds = conceptList.map((c) => c.id);
+  const { data: courseMastery } = conceptIds.length > 0
+    ? await supabase
+        .from("mastery")
+        .select("concept_id, score, attempts_count")
+        .in("concept_id", conceptIds)
+    : { data: [] };
+
+  const masteryByConcept = new Map<string, number[]>();
+  for (const m of courseMastery ?? []) {
+    if (!masteryByConcept.has(m.concept_id)) {
+      masteryByConcept.set(m.concept_id, []);
+    }
+    masteryByConcept.get(m.concept_id)!.push(m.score);
+  }
+
+  const classAverageMasteryMap: Record<string, { average: number; studentCount: number }> = {};
+  for (const c of conceptList) {
+    const scores = masteryByConcept.get(c.id) ?? [];
+    classAverageMasteryMap[c.id] = {
+      average: scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0,
+      studentCount: scores.length,
+    };
+  }
+
   return (
     <CourseAuthoringClient
       course={course}
       initialConcepts={conceptList}
       initialEdges={edgeList}
       initialQuestions={questionList}
+      classAverageMasteryMap={classAverageMasteryMap}
     />
   );
 }

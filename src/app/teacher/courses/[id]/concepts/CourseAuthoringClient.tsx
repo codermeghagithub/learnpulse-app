@@ -65,6 +65,7 @@ interface CourseAuthoringClientProps {
   initialConcepts: Concept[];
   initialEdges: Edge[];
   initialQuestions: Question[];
+  classAverageMasteryMap?: Record<string, { average: number; studentCount: number }>;
 }
 
 export function CourseAuthoringClient({
@@ -72,6 +73,7 @@ export function CourseAuthoringClient({
   initialConcepts,
   initialEdges,
   initialQuestions,
+  classAverageMasteryMap = {},
 }: CourseAuthoringClientProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"concepts" | "prerequisites" | "questions">("concepts");
@@ -564,10 +566,11 @@ export function CourseAuthoringClient({
               <InteractiveDagGraph
                 nodes={concepts.map((c) => {
                   const prereqCount = edges.filter((e) => e.concept_id === c.id).length;
+                  const stat = classAverageMasteryMap[c.id];
                   return {
                     id: c.id,
                     name: c.name,
-                    mastery: 100,
+                    mastery: stat?.average ?? 0,
                     depth: prereqCount > 0 ? prereqCount : 0,
                     difficulty: c.difficulty,
                   };
@@ -578,6 +581,7 @@ export function CourseAuthoringClient({
                   weight: e.weight,
                 }))}
                 courseId={course.id}
+                mode="teacher"
               />
 
               {/* Add Prerequisite Edge Form */}
