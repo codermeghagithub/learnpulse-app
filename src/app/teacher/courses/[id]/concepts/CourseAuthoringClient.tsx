@@ -24,8 +24,13 @@ import {
   Loader2,
   Layers,
   ArrowRight,
+  Network,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SyllabusIngestionModal } from "@/components/teacher/SyllabusIngestionModal";
+import { InteractiveDagGraph } from "@/components/mastery/InteractiveDagGraph";
+
 
 interface Concept {
   id: string;
@@ -286,9 +291,16 @@ export function CourseAuthoringClient({
           Back to Class Overview
         </Link>
         <div className="flex items-center gap-2.5">
+          <SyllabusIngestionModal
+            courseId={course.id}
+            courseTitle={course.title}
+            courseSubject={course.subject}
+            onSuccess={() => router.refresh()}
+          />
           <span className="text-xs font-semibold px-3 py-1 rounded-full border border-primary/30 bg-primary/10 text-primary">
             {course.subject}
           </span>
+
           <button
             id="delete-course-btn"
             type="button"
@@ -548,6 +560,26 @@ export function CourseAuthoringClient({
             </div>
           ) : (
             <>
+              {/* Live Curriculum DAG Visualizer */}
+              <InteractiveDagGraph
+                nodes={concepts.map((c) => {
+                  const prereqCount = edges.filter((e) => e.concept_id === c.id).length;
+                  return {
+                    id: c.id,
+                    name: c.name,
+                    mastery: 100,
+                    depth: prereqCount > 0 ? prereqCount : 0,
+                    difficulty: c.difficulty,
+                  };
+                })}
+                edges={edges.map((e) => ({
+                  fromId: e.prerequisite_id,
+                  toId: e.concept_id,
+                  weight: e.weight,
+                }))}
+                courseId={course.id}
+              />
+
               {/* Add Prerequisite Edge Form */}
               <div className="glass-card rounded-2xl p-6 space-y-4">
                 <div className="space-y-1">
@@ -555,6 +587,7 @@ export function CourseAuthoringClient({
                     <GitFork className="h-4 w-4 text-primary" />
                     Define Prerequisite Relationship
                   </h2>
+
                   <p className="text-xs text-muted-foreground">
                     Declare which concept must be mastered prior to learning another. Cycles are automatically detected and rejected.
                   </p>

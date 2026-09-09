@@ -14,6 +14,8 @@ import {
   AlertCircle,
 } from "lucide-react";
 import type { DiagnosisOutput } from "@/lib/ai/schemas";
+import { ConceptBiteCard } from "@/components/remediation/ConceptBiteCard";
+
 
 interface DiagnosisInput {
   targetConceptId: string;
@@ -222,16 +224,25 @@ export function RunDiagnosisButton({
           diagnosisInput.targetConceptId;
 
         return (
-          <Link
-            id="start-recovery-plan-btn"
-            href={`/dashboard/practice?conceptId=${targetPracticeConceptId}${diagnosisInput.courseId ? `&courseId=${diagnosisInput.courseId}` : ""}`}
-            className="flex items-center justify-center gap-2 w-full rounded-xl gradient-brand glow-brand text-white py-4 font-semibold hover:opacity-90 transition-opacity"
-          >
-            <Zap className="h-4 w-4" />
-            Start Recovery Plan: Practice {result.blockingConcept}
-            <ChevronRight className="h-4 w-4" />
-          </Link>
+          <div className="space-y-4 pt-2">
+            {/* 60-Second Remediation Bite for the identified root-cause bottleneck */}
+            <ConceptBiteCard
+              conceptId={targetPracticeConceptId}
+              conceptName={result.blockingConcept}
+            />
+
+            <Link
+              id="start-recovery-plan-btn"
+              href={`/dashboard/practice?conceptId=${targetPracticeConceptId}${diagnosisInput.courseId ? `&courseId=${diagnosisInput.courseId}` : ""}`}
+              className="flex items-center justify-center gap-2 w-full rounded-xl gradient-brand glow-brand text-white py-4 font-semibold hover:opacity-90 transition-opacity"
+            >
+              <Zap className="h-4 w-4" />
+              Start Recovery Plan: Practice {result.blockingConcept}
+              <ChevronRight className="h-4 w-4" />
+            </Link>
+          </div>
         );
+
       })()}
     </div>
   );

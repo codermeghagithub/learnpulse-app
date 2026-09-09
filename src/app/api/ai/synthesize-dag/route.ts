@@ -25,12 +25,15 @@ const requestSchema = z
     edges: z.array(synthesizedEdgeSchema).optional(),
     /** Teacher-reviewed / edited practice questions */
     questions: z.array(synthesizedQuestionSchema).optional(),
+    /** Optional: if provided, adds synthesized DAG directly to an existing course */
+    targetCourseId: z.string().uuid().optional(),
     /**
      * If true, persist the synthesized course + concepts + edges + questions to the database.
      * If false (default), only return the preview without writing anything.
      */
     persist: z.boolean().default(false),
   })
+
   .refine(
     (data) =>
       (data.concepts && data.concepts.length > 0) ||
@@ -81,8 +84,10 @@ export async function POST(req: NextRequest) {
       concepts: clientConcepts,
       edges: clientEdges,
       questions: clientQuestions,
+      targetCourseId,
       persist,
     } = parsed.data;
+
 
     // If teacher already reviewed/edited the concepts in preview and sent them to persist,
     // use the teacher's exact reviewed version — NEVER re-call AI on persist!
@@ -150,34 +155,54 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Persist to Database ───────────────────────────────────────────────────
-    // 1. Insert course with the academic course title
-    const { data: course, error: courseError } = await supabase
-      .from("courses")
-      .insert({
-        teacher_id: user.id,
-        title: finalCourseTitle,
-        subject: finalCourseSubject,
-      })
-      .select("id")
-      .single();
+    let effectiveCourseId: string;
 
-    if (courseError || !course) {
-      console.error("[synthesize-dag] Course insert failed:", courseError);
-      return NextResponse.json({ error: "Failed to create course" }, { status: 500 });
+    if (!targetCourseId) {
+      // 1. Insert new course with the academic course title
+      const { data: newCourse, error: courseError } = await supabase
+        .from("courses")
+        .insert({
+          teacher_id: user.id,
+          title: finalCourseTitle,
+          subject: finalCourseSubject,
+        })
+        .select("id")
+        .single();
+
+      if (courseError || !newCourse) {
+        console.error("[synthesize-dag] Course insert failed:", courseError);
+        return NextResponse.json({ error: "Failed to create course" }, { status: 500 });
+      }
+      effectiveCourseId = newCourse.id;
+    } else {
+      // Verify teacher owns the target course
+      const { data: existingCourse } = await supabase
+        .from("courses")
+        .select("id")
+        .eq("id", targetCourseId)
+        .eq("teacher_id", user.id)
+        .single();
+
+      if (!existingCourse) {
+        return NextResponse.json({ error: "Target course not found or unauthorized" }, { status: 404 });
+      }
+      effectiveCourseId = targetCourseId;
     }
+
 
     // 2. Insert concepts (in topological order to satisfy any future FK ordering)
     const { data: insertedConcepts, error: conceptsError } = await supabase
       .from("concepts")
       .insert(
         effectiveConcepts.map((c) => ({
-          course_id: course.id,
+          course_id: effectiveCourseId,
           name: c.name,
           description: c.description,
           difficulty: c.difficulty,
         }))
       )
       .select("id, name");
+
 
     if (conceptsError || !insertedConcepts) {
       console.error("[synthesize-dag] Concepts insert failed:", conceptsError);
@@ -190,7 +215,7 @@ export async function POST(req: NextRequest) {
     // 4. Insert edges (skip any whose names didn't resolve to a DB ID)
     const edgesToInsert = effectiveEdges
       .map((e) => ({
-        course_id: course.id,
+        course_id: effectiveCourseId,
         prerequisite_id: nameToDbId.get(e.prerequisiteName),
         concept_id: nameToDbId.get(e.conceptName),
         weight: e.weight,
@@ -221,7 +246,7 @@ export async function POST(req: NextRequest) {
         const conceptId = nameToDbId.get(q.conceptName);
         if (conceptId) {
           questionsToInsert.push({
-            course_id: course.id,
+            course_id: effectiveCourseId,
             concept_id: conceptId,
             question_text: q.questionText,
             options: q.options,
@@ -246,10 +271,11 @@ export async function POST(req: NextRequest) {
       concepts: effectiveConcepts,
       edges: effectiveEdges,
       questions: effectiveQuestions,
-      courseId: course.id,
+      courseId: effectiveCourseId,
       cycleDetected: false,
       persisted: true,
     });
+
   } catch (err) {
     console.error("[/api/ai/synthesize-dag] Unexpected error:", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

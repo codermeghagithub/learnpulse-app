@@ -304,3 +304,27 @@ create policy "interventions: teachers read for their courses"
         and c.teacher_id = auth.uid()
     )
   );
+
+-- ─── concept_bites ────────────────────────────────────────────
+create table if not exists concept_bites (
+  id                  uuid primary key default uuid_generate_v4(),
+  concept_id          uuid not null references concepts(id) on delete cascade unique,
+  intuition           text not null,
+  analogy             text not null,
+  quick_check         jsonb not null,
+  vernacular_anchor   text,
+  created_at          timestamptz not null default now()
+);
+
+create index if not exists idx_concept_bites_concept_id on concept_bites(concept_id);
+
+alter table concept_bites enable row level security;
+
+create policy "concept_bites: authenticated read"
+  on concept_bites for select
+  using (auth.role() = 'authenticated');
+
+create policy "concept_bites: authenticated insert or update"
+  on concept_bites for all
+  using (auth.role() = 'authenticated');
+

@@ -96,6 +96,8 @@ export async function POST(req: NextRequest) {
         thoughtTrap:
           "A common misconception is treating this component as responsible for the final output rather than an intermediate phase.",
         mentalAnchor: "Rule of thumb: Check each phase's distinct input and output contract.",
+        vernacularAnchor:
+          "याद रखें: हर component का काम अलग होता है — नाम से भ्रमित न हों, उसके असली उद्देश्य (responsibility) पर ध्यान दें।",
         cognitiveDissonance: {
           paradoxScenario:
             "Imagine swapping the two options in a real system. If they were truly interchangeable, nothing would break — but in practice, one component prepares data while the other consumes it. Swapping them would produce incorrect or empty output.",
@@ -105,6 +107,7 @@ export async function POST(req: NextRequest) {
         isAiGenerated: false,
         cached: false,
       },
+
       { status: 200 }
     );
   }

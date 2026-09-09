@@ -42,11 +42,59 @@ export const misconceptionOutputSchema = z.object({
   thoughtTrap: z.string().min(1),
   /** A 10-second memorable rule-of-thumb contrast to prevent future errors. */
   mentalAnchor: z.string().min(1),
+  /** Vernacular (Hindi/Hinglish) rule of thumb for NEP 2020 mother-tongue conceptual reinforcement. */
+  vernacularAnchor: z.string().optional(),
   /** Counter-example that forces the student's false model to break down. */
   cognitiveDissonance: cognitiveDissonanceSchema,
 });
 
+// ─── Concept Bite Remediation Schemas ─────────────────────────────────────────
+
+export const quickCheckOptionSchema = z.object({
+  key: z.enum(["A", "B", "C", "D"]),
+  text: z.string().min(1),
+});
+
+export const quickCheckSchema = z.object({
+  question: z.string().min(1),
+  options: z.array(quickCheckOptionSchema).min(2).max(4),
+  correctAnswer: z.enum(["A", "B", "C", "D"]),
+  explanation: z.string().min(1),
+});
+
+export const conceptBiteSectionSchema = z.object({
+  intuition: z.string().min(1),
+  analogy: z.string().min(1),
+  anchor: z.string().min(1),
+  quickCheck: quickCheckSchema,
+});
+
+export const bilingualChallengeSchema = z.object({
+  en: quickCheckSchema,
+  hi: quickCheckSchema,
+});
+
+export const conceptBiteSchema = z.object({
+  conceptName: z.string().min(1),
+  intuition: z.string().min(1),
+  analogy: z.string().min(1),
+  quickCheck: quickCheckSchema,
+  vernacularAnchor: z.string().optional(),
+  anchorEn: z.string().optional(),
+  anchorHi: z.string().optional(),
+  en: conceptBiteSectionSchema.optional(),
+  hi: conceptBiteSectionSchema.optional(),
+  challengePool: z.array(bilingualChallengeSchema).optional(),
+});
+
+export type QuickCheckOption = z.infer<typeof quickCheckOptionSchema>;
+export type QuickCheck = z.infer<typeof quickCheckSchema>;
+export type ConceptBiteSection = z.infer<typeof conceptBiteSectionSchema>;
+export type BilingualChallenge = z.infer<typeof bilingualChallengeSchema>;
+export type ConceptBiteOutput = z.infer<typeof conceptBiteSchema>;
+
 // ─── DAG Synthesis Schemas ────────────────────────────────────────────────────
+
 
 /**
  * A single atomic concept extracted from free-form topic text.

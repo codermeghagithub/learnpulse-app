@@ -22,6 +22,7 @@ interface QuizOption {
 interface MisconceptionResult {
   thoughtTrap: string;
   mentalAnchor: string;
+  vernacularAnchor?: string;
   cognitiveDissonance: {
     paradoxScenario: string;
     counterQuestion: string;
@@ -61,6 +62,7 @@ function buildClientFallback(
   return {
     thoughtTrap: `You likely selected "${selectedOpt}" because both options play critical roles in ${conceptName || "this domain"}. However, "${selectedOpt}" handles a different phase of the operational lifecycle than "${correctOpt}".`,
     mentalAnchor: `Rule of thumb: Identify which component orchestrates or schedules work versus which component maintains state or runs nodes.`,
+    vernacularAnchor: `याद रखें: ${conceptName || "इस टॉपिक"} में दोनों विकल्पों का काम अलग है — एक तैयारी करता है और दूसरा उसे प्रोसेस करता है।`,
     cognitiveDissonance: {
       paradoxScenario: `Imagine swapping "${selectedOpt}" and "${correctOpt}" in a live system. If they were truly equivalent, the output would remain identical — but in practice one prepares data while the other consumes it. The system would produce incorrect results.`,
       counterQuestion: `What specific output or behaviour would change if you replaced "${correctOpt}" with "${selectedOpt}" in a real implementation?`,
@@ -68,6 +70,7 @@ function buildClientFallback(
     isAiGenerated: false,
   };
 }
+
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -95,8 +98,10 @@ export function QuizCard({
   const [misconception, setMisconception] =
     useState<MisconceptionResult | null>(null);
   const [loadingMisconception, setLoadingMisconception] = useState(false);
+  const [anchorLang, setAnchorLang] = useState<"en" | "hi">("en");
 
   const isBusy = loading || isSubmitting;
+
   const isCorrect = selected === correctAnswer;
 
   // ── Handlers ──────────────────────────────────────────────────────────────
@@ -349,16 +354,51 @@ export function QuizCard({
                   </div>
 
                   {/* Mental Anchor */}
-                  <div className="rounded-xl border border-primary/25 bg-primary/5 p-3.5 space-y-1.5">
-                    <div className="text-xs font-bold text-primary flex items-center gap-1.5">
-                      <Lightbulb className="h-3.5 w-3.5" />
-                      <span>💡 10-Second Mental Anchor:</span>
+                  <div className="rounded-xl border border-primary/25 bg-primary/5 p-3.5 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs font-bold text-primary flex items-center gap-1.5">
+                        <Lightbulb className="h-3.5 w-3.5" />
+                        <span>
+                          💡 {anchorLang === "en" ? "10-Second Mental Anchor:" : "१०-सेकंड याद रखने का सूत्र (NEP 2020):"}
+                        </span>
+                      </div>
+                      {misconception?.vernacularAnchor && (
+                        <div className="flex items-center bg-background/80 border border-primary/20 rounded-md p-0.5 text-[10px]">
+                          <button
+                            type="button"
+                            onClick={() => setAnchorLang("en")}
+                            className={cn(
+                              "px-2 py-0.5 rounded font-medium transition-all cursor-pointer",
+                              anchorLang === "en"
+                                ? "bg-primary text-white font-bold shadow-xs"
+                                : "text-muted-foreground hover:text-foreground"
+                            )}
+                          >
+                            English
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setAnchorLang("hi")}
+                            className={cn(
+                              "px-2 py-0.5 rounded font-medium transition-all cursor-pointer",
+                              anchorLang === "hi"
+                                ? "bg-primary text-white font-bold shadow-xs"
+                                : "text-muted-foreground hover:text-foreground"
+                            )}
+                          >
+                            हिंदी
+                          </button>
+                        </div>
+                      )}
                     </div>
                     <p className="text-xs text-foreground font-medium leading-relaxed">
-                      {misconception?.mentalAnchor ??
-                        `Rule of thumb: Clearly distinguish the component that makes decisions from the one that executes state.`}
+                      {anchorLang === "hi" && misconception?.vernacularAnchor
+                        ? misconception.vernacularAnchor
+                        : (misconception?.mentalAnchor ??
+                          `Rule of thumb: Clearly distinguish the component that makes decisions from the one that executes state.`)}
                     </p>
                   </div>
+
 
                   {/* ⚡ Reality Check — Cognitive Dissonance Counter-Example */}
                   {misconception?.cognitiveDissonance && (

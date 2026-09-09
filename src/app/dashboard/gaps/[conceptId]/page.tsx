@@ -2,7 +2,9 @@ import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import { ConceptChain } from "@/components/mastery/ConceptChain";
+import { GapKnowledgeView } from "./GapKnowledgeView";
 import { MasteryBar } from "@/components/mastery/MasteryBar";
+
 import { RiskBadge } from "@/components/risk/RiskBadge";
 import { computeRisk, inactivityScore } from "@/lib/algorithms/risk";
 import { buildAdjacencyList, bfsPrerequisites } from "@/lib/algorithms/graph";
@@ -205,25 +207,30 @@ export default async function GapPage({ params }: PageProps) {
         </div>
       </div>
 
-      {/* Prerequisite chain */}
+      {/* Prerequisite knowledge visualization & 60-Second Concept Bite */}
       <div className="animate-slide-up">
-        <h2 className="font-semibold text-base mb-4">
-          Prerequisite Chain
-          {prereqNodes.length > 0 && (
-            <span className="ml-2 text-sm font-normal text-muted-foreground">
-              ({prereqNodes.length} concept{prereqNodes.length > 1 ? "s" : ""})
-            </span>
-          )}
-        </h2>
-
-        {prereqNodes.length === 0 ? (
-          <div className="glass-card rounded-xl p-6 text-center text-muted-foreground text-sm">
-            This is a foundational concept — no prerequisites required.
-          </div>
-        ) : (
-          <ConceptChain nodes={chainNodes} />
-        )}
+        <GapKnowledgeView
+          nodes={chainNodes}
+          edges={(edges ?? [])
+            .filter(
+              (e) =>
+                chainNodes.some((n) => n.id === e.prerequisite_id) &&
+                chainNodes.some((n) => n.id === e.concept_id)
+            )
+            .map((e) => ({
+              fromId: e.prerequisite_id,
+              toId: e.concept_id,
+              weight: e.weight,
+            }))}
+          courseId={targetConcept.course_id}
+          targetConcept={{
+            id: targetConcept.id,
+            name: targetConcept.name,
+            description: targetConcept.description,
+          }}
+        />
       </div>
+
 
       {/* Actions */}
       <div className="flex gap-3 animate-slide-up">

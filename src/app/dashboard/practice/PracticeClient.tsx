@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { QuizCard } from "@/components/practice/QuizCard";
@@ -14,11 +15,21 @@ import {
   RotateCcw,
   Brain,
   CheckCircle2,
+  Wifi,
+  WifiOff,
+  RefreshCw,
 } from "lucide-react";
 import { CourseSelector } from "@/components/CourseSelector";
 import { MasteryExplainerModal } from "@/components/mastery/MasteryExplainerModal";
 import { getMasteryStage, getAccuracyText } from "@/lib/masteryLevels";
 import { cn } from "@/lib/utils";
+import {
+  enqueueOfflineAttempt,
+  getQueuedAttempts,
+  syncOfflineAttempts,
+  isBrowserOnline,
+} from "@/lib/offline/offlineQueue";
+import { computeScaledMastery } from "@/lib/algorithms/mastery";
 
 interface ConceptInfo {
   id: string;
@@ -83,6 +94,7 @@ export function PracticeClient({
   activeConcept,
   questions,
   allQuestions,
+  totalConceptQuestions,
   masteredCount = 0,
   isAlreadyMastered = false,
   initialMastery,
@@ -96,10 +108,58 @@ export function PracticeClient({
   const [lastUpdate, setLastUpdate] = useState<MasteryUpdate | null>(null);
   const [answeredCount, setAnsweredCount] = useState(0);
   const [isCompleted, setIsCompleted] = useState(isAlreadyMastered);
-  const [conceptAttempts, setConceptAttempts] = useState(activeConcept.attemptsCount ?? 0);
-  const [conceptCorrect, setConceptCorrect] = useState(activeConcept.correctCount ?? 0);
+  const [conceptAttempts, setConceptAttempts] = useState(
+    activeConcept.attemptsCount ?? 0,
+  );
+  const [conceptCorrect, setConceptCorrect] = useState(
+    activeConcept.correctCount ?? 0,
+  );
 
-  const currentConceptIdx = conceptList.findIndex((c) => c.id === activeConcept.id);
+  const [isOfflineMode, setIsOfflineMode] = useState(false);
+  const [pendingSyncCount, setPendingSyncCount] = useState(0);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  useEffect(() => {
+    setPendingSyncCount(getQueuedAttempts().length);
+    setIsOfflineMode(!isBrowserOnline());
+
+    function handleOnline() {
+      setIsOfflineMode(false);
+      const queue = getQueuedAttempts();
+      if (queue.length > 0) {
+        handleTriggerSync();
+      }
+    }
+
+    function handleOffline() {
+      setIsOfflineMode(true);
+    }
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
+
+  async function handleTriggerSync() {
+    setIsSyncing(true);
+    try {
+      const res = await syncOfflineAttempts();
+      setPendingSyncCount(getQueuedAttempts().length);
+      if (res.syncedCount > 0) {
+        router.refresh();
+      }
+    } finally {
+      setIsSyncing(false);
+    }
+  }
+
+  const currentConceptIdx = conceptList.findIndex(
+    (c) => c.id === activeConcept.id,
+  );
   const nextConcept =
     currentConceptIdx >= 0 && currentConceptIdx < conceptList.length - 1
       ? conceptList[currentConceptIdx + 1]
@@ -110,19 +170,25 @@ export function PracticeClient({
   async function handleSubmit(selectedAnswer: string) {
     if (!currentQ) return;
 
-    const res = await fetch("/api/submit-attempt", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        questionId: currentQ.id,
-        selectedAnswer,
-        conceptId: currentQ.concept_id ?? activeConcept.id,
-        isReviewQuestion: currentQ.isReviewQuestion,
-        originConceptId: currentQ.originConceptId,
-      }),
-    });
+    try {
+      if (!isBrowserOnline()) {
+        throw new Error("Browser reports offline");
+      }
 
-    if (res.ok) {
+      const res = await fetch("/api/submit-attempt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          questionId: currentQ.id,
+          selectedAnswer,
+          conceptId: currentQ.concept_id ?? activeConcept.id,
+          isReviewQuestion: currentQ.isReviewQuestion,
+          originConceptId: currentQ.originConceptId,
+        }),
+      });
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
       const data: MasteryUpdate = await res.json();
       setCurrentMastery(data.newScore);
       setLastUpdate(data);
@@ -131,7 +197,47 @@ export function PracticeClient({
       if (data.isCorrect) {
         setConceptCorrect((c) => c + 1);
       }
+      setIsOfflineMode(false);
       router.refresh();
+    } catch (err) {
+      // Offline fallback: enqueue attempt locally and compute optimistic scaled mastery
+      console.warn(
+        "[PracticeClient] Offline mode active, queuing attempt locally:",
+        err,
+      );
+      enqueueOfflineAttempt({
+        questionId: currentQ.id,
+        selectedAnswer,
+        conceptId: currentQ.concept_id ?? activeConcept.id,
+        isReviewQuestion: currentQ.isReviewQuestion,
+        originConceptId: currentQ.originConceptId,
+      });
+
+      const isCorrect = currentQ.correct_answer
+        ? selectedAnswer === currentQ.correct_answer
+        : true;
+      const newAttempts = conceptAttempts + 1;
+      const newCorrect = isCorrect ? conceptCorrect + 1 : conceptCorrect;
+      const newScore = computeScaledMastery({
+        totalConceptQuestions: totalConceptQuestions || activeQuestions.length,
+        uniqueQuestionsCorrect: masteredCount + (isCorrect ? 1 : 0),
+        totalAttempts: newAttempts,
+        totalCorrect: newCorrect,
+      });
+
+      setCurrentMastery(newScore);
+      setLastUpdate({
+        previousScore: currentMastery,
+        newScore,
+        gain: newScore - currentMastery,
+        isCorrect,
+        decayDiagnosis: null,
+      });
+      setAnsweredCount((c) => c + 1);
+      setConceptAttempts(newAttempts);
+      setConceptCorrect(newCorrect);
+      setIsOfflineMode(true);
+      setPendingSyncCount(getQueuedAttempts().length);
     }
   }
 
@@ -151,15 +257,47 @@ export function PracticeClient({
       {/* Header */}
       <div className="animate-slide-up flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Zap className="h-5 w-5 text-primary" />
-            Practice
-          </h1>
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="text-2xl font-bold flex items-center gap-2">
+              <Zap className="h-5 w-5 text-primary" />
+              Practice
+            </h1>
+            {(isOfflineMode || pendingSyncCount > 0) && (
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-300 text-xs font-medium animate-fade-in">
+                {isOfflineMode ? (
+                  <WifiOff className="h-3.5 w-3.5 text-amber-400" />
+                ) : (
+                  <Wifi className="h-3.5 w-3.5 text-emerald-400" />
+                )}
+                <span>
+                  {pendingSyncCount > 0
+                    ? `${pendingSyncCount} cached offline`
+                    : "Offline Practice"}
+                </span>
+                {pendingSyncCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleTriggerSync}
+                    disabled={isSyncing}
+                    className="ml-1 inline-flex items-center gap-1 font-bold underline hover:text-amber-200 cursor-pointer disabled:opacity-50"
+                  >
+                    <RefreshCw
+                      className={cn("h-3 w-3", isSyncing && "animate-spin")}
+                    />
+                    Sync
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
           <p className="text-muted-foreground text-sm mt-1">
             Answer questions to improve your mastery scores
           </p>
         </div>
-        <MasteryExplainerModal buttonText="How is Mastery calculated?" variant="button" />
+        <MasteryExplainerModal
+          buttonText="How is Mastery calculated?"
+          variant="button"
+        />
       </div>
 
       {/* Course selector tabs */}
@@ -192,7 +330,12 @@ export function PracticeClient({
             >
               <span>{c.name}</span>
               {c.isDue && (
-                <span className="text-xs text-amber-500 font-semibold" title="Review Due">⏳</span>
+                <span
+                  className="text-xs text-amber-500 font-semibold"
+                  title="Review Due"
+                >
+                  ⏳
+                </span>
               )}
               <span
                 className={cn(
@@ -226,7 +369,7 @@ export function PracticeClient({
               <span
                 className={cn(
                   "text-xs px-2.5 py-0.5 rounded-full border font-medium",
-                  getMasteryStage(currentMastery, conceptAttempts).badgeClass
+                  getMasteryStage(currentMastery, conceptAttempts).badgeClass,
                 )}
               >
                 {getMasteryStage(currentMastery, conceptAttempts).stageBadge}
@@ -239,10 +382,14 @@ export function PracticeClient({
               <div
                 className={cn(
                   "flex items-center gap-1 text-sm font-semibold animate-slide-up",
-                  lastUpdate.isCorrect ? "text-mastery-high" : "text-mastery-low",
+                  lastUpdate.isCorrect
+                    ? "text-mastery-high"
+                    : "text-mastery-low",
                 )}
               >
-                {lastUpdate.gain > 0 ? <TrendingUp className="h-4 w-4" /> : null}
+                {lastUpdate.gain > 0 ? (
+                  <TrendingUp className="h-4 w-4" />
+                ) : null}
                 {lastUpdate.previousScore}% → {lastUpdate.newScore}%
                 {lastUpdate.gain > 0 && (
                   <span className="text-xs text-mastery-high">
@@ -271,11 +418,14 @@ export function PracticeClient({
           </span>
           <span className="text-muted-foreground">
             {isCompleted ? (
-              <span className="text-emerald-500 font-medium">All questions completed ✓</span>
+              <span className="text-emerald-500 font-medium">
+                All questions completed ✓
+              </span>
             ) : (
               <>
-                {masteredCount > 0 ? `${masteredCount} already solved • ` : ""}
-                Q {Math.min(currentIdx + 1, activeQuestions.length)} of {activeQuestions.length}
+                {masteredCount > 0 ? `${masteredCount} already solved • ` : ""}Q{" "}
+                {Math.min(currentIdx + 1, activeQuestions.length)} of{" "}
+                {activeQuestions.length}
               </>
             )}
           </span>
@@ -298,7 +448,9 @@ export function PracticeClient({
 
           <div className="space-y-2">
             <h2 className="text-xl font-bold">
-              {currentMastery >= 85 ? "Concept Fully Mastered! 🏆" : "Concept Practice Completed!"}
+              {currentMastery >= 85
+                ? "Concept Fully Mastered! 🏆"
+                : "Concept Practice Completed!"}
             </h2>
             <p className="text-sm text-muted-foreground max-w-md mx-auto">
               {currentMastery >= 85
@@ -309,8 +461,12 @@ export function PracticeClient({
 
           <div className="p-4 rounded-xl bg-card border border-border max-w-md mx-auto text-left space-y-2.5">
             <div className="flex items-center justify-between text-xs">
-              <span className="font-medium text-muted-foreground">Concept Mastery Score</span>
-              <span className="font-bold text-foreground">{currentMastery.toFixed(0)}%</span>
+              <span className="font-medium text-muted-foreground">
+                Concept Mastery Score
+              </span>
+              <span className="font-bold text-foreground">
+                {currentMastery.toFixed(0)}%
+              </span>
             </div>
             <MasteryBar
               score={currentMastery}
@@ -323,7 +479,8 @@ export function PracticeClient({
               {getAccuracyText(conceptCorrect, conceptAttempts, currentMastery)}
             </p>
             <p className="text-[11px] text-muted-foreground pt-1 border-t border-border/50">
-              Mastery scales directly with question completion and accuracy. No repetitive grinding required.
+              Mastery scales directly with question completion and accuracy. No
+              repetitive grinding required.
             </p>
           </div>
 
@@ -366,19 +523,23 @@ export function PracticeClient({
       ) : (
         <div className="animate-slide-up space-y-3">
           {currentQ?.isReviewQuestion && (
-            <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-medium">
+            <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 text-xs font-medium">
               <span className="text-base">⏳</span>
               <div>
-                <strong>Forgetting-Curve Review Question</strong>: Testing long-term retention of prerequisite concept knowledge.
+                <strong>Forgetting-Curve Review Question</strong>: Testing
+                long-term retention of prerequisite concept knowledge.
               </div>
             </div>
           )}
 
           {lastUpdate?.decayDiagnosis && (
             <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/25 space-y-1.5 animate-slide-up text-xs">
-              <div className="font-semibold text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+              <div className="font-semibold text-amber-600 flex items-center gap-1.5">
                 <span>⚠️</span>
-                <span>Root-Cause Trace: Decayed retention on {lastUpdate.decayDiagnosis.conceptName}</span>
+                <span>
+                  Root-Cause Trace: Decayed retention on{" "}
+                  {lastUpdate.decayDiagnosis.conceptName}
+                </span>
               </div>
               <p className="text-muted-foreground leading-relaxed">
                 {lastUpdate.decayDiagnosis.explanation}
@@ -438,7 +599,9 @@ export function PracticeClient({
               onClick={handleNext}
               className="flex items-center gap-2 rounded-xl gradient-brand text-white px-4 py-2.5 text-sm font-medium hover:opacity-90 transition-opacity"
             >
-              {currentIdx < activeQuestions.length - 1 ? "Next" : "Finish Concept Practice"}
+              {currentIdx < activeQuestions.length - 1
+                ? "Next"
+                : "Finish Concept Practice"}
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>

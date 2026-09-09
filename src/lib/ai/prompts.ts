@@ -104,18 +104,108 @@ ${reasoningSection}
 Your goal is to:
 1. "thoughtTrap": In 1-2 clear, compassionate sentences, explain WHY their brain fell for that specific choice. Start with "You likely selected this because..."
 2. "mentalAnchor": In 1 punchy, memorable sentence, give a contrast rule-of-thumb or analogy they will never forget.
-3. "cognitiveDissonance": Deliver a CONCRETE counter-example — a specific scenario or mini-paradox where the student's wrong assumption visibly breaks. This should be a 2-3 sentence thought experiment, NOT a generic explanation. Then ask a single targeted follow-up question.
+3. "vernacularAnchor": Provide a punchy contrast rule-of-thumb in natural, friendly Hinglish / Hindi for Indian engineering students (NEP 2020 cognitive reinforcement), starting with "याद रखें: ".
+4. "cognitiveDissonance": Deliver a CONCRETE counter-example — a specific scenario or mini-paradox where the student's wrong assumption visibly breaks. This should be a 2-3 sentence thought experiment, NOT a generic explanation. Then ask a single targeted follow-up question.
 
 Respond with ONLY a JSON object in this exact format (no markdown, no extra text):
 {
   "thoughtTrap": "You likely selected this because...",
   "mentalAnchor": "Rule of thumb: X does A, while Y does B.",
+  "vernacularAnchor": "याद रखें: X A करता है, जबकि Y B संभालता है।",
   "cognitiveDissonance": {
     "paradoxScenario": "Imagine you apply your assumption here: [specific 2-3 sentence mini-scenario that breaks the student's false rule].",
     "counterQuestion": "If your assumption held, what would happen when [targeted follow-up question]?"
   }
+}
+`;
+}
+
+// ─── Concept Bite Prompt ──────────────────────────────────────────────────────
+
+/**
+ * Builds a prompt for a bilingual 60-Second Concept Bite (English + Hindi/Hinglish)
+ * with a pool of challenging, tricky real-world scenario questions.
+ */
+export function buildConceptBitePrompt(conceptName: string, description?: string): string {
+  return `You are a world-class STEM educator, senior systems architect, and cognitive psychologist.
+Create an advanced bilingual "60-Second Concept Bite" for Indian engineering students (NEP 2020 aligned) to master the concept: "${conceptName}".
+${description ? `Context: "${description}"` : ""}
+
+CRITICAL REQUIREMENTS:
+1. "en" (English Version):
+   - "intuition": 2 vivid sentences explaining WHY this concept exists in real production systems and what architectural or engineering pain point it solves.
+   - "analogy": A relatable physical real-world metaphor (e.g., postal hub sorting, flight altitude separation, library indexing).
+   - "anchor": A memorable 1-sentence rule-of-thumb starting with "Remember: ...".
+   - "quickCheck": A VERY TRICKY, conceptual real-world scenario question that challenges students on subtle failure modes or trade-offs.
+
+2. "hi" (Hindi / Hinglish Version for NEP 2020 mother-tongue reinforcement):
+   - "intuition": 2 natural, clear sentences in Hindi / Hinglish explaining the core idea.
+   - "analogy": Relatable physical metaphor in Hindi / Hinglish.
+   - "anchor": Memorable 1-sentence rule-of-thumb starting with "याद रखें: ...".
+   - "quickCheck": The tricky scenario question translated into clear, natural Hindi / Hinglish.
+
+3. "challengePool": Exactly 2 or 3 TRICKY, conceptual questions testing real-world engineering edge cases (not rote definitions):
+   - Each item must have "en" and "hi" versions with:
+     - "question": Concrete failure scenario or counter-intuitive dilemma.
+     - "options": 3 options with "key" ("A", "B", "C") and "text".
+     - "correctAnswer": "A", "B", or "C".
+     - "explanation": 1-2 sentences explaining why this option is correct and exposing the common misconception.
+
+Respond with ONLY a JSON object in this exact format (no markdown, no backticks, no extra text):
+{
+  "conceptName": "${conceptName}",
+  "intuition": "...",
+  "analogy": "...",
+  "anchorEn": "Remember: ...",
+  "anchorHi": "याद रखें: ...",
+  "vernacularAnchor": "याद रखें: ...",
+  "en": {
+    "intuition": "...",
+    "analogy": "...",
+    "anchor": "Remember: ...",
+    "quickCheck": {
+      "question": "...",
+      "options": [{ "key": "A", "text": "..." }, { "key": "B", "text": "..." }, { "key": "C", "text": "..." }],
+      "correctAnswer": "A",
+      "explanation": "..."
+    }
+  },
+  "hi": {
+    "intuition": "...",
+    "analogy": "...",
+    "anchor": "याद रखें: ...",
+    "quickCheck": {
+      "question": "...",
+      "options": [{ "key": "A", "text": "..." }, { "key": "B", "text": "..." }, { "key": "C", "text": "..." }],
+      "correctAnswer": "A",
+      "explanation": "..."
+    }
+  },
+  "quickCheck": {
+    "question": "...",
+    "options": [{ "key": "A", "text": "..." }, { "key": "B", "text": "..." }, { "key": "C", "text": "..." }],
+    "correctAnswer": "A",
+    "explanation": "..."
+  },
+  "challengePool": [
+    {
+      "en": {
+        "question": "...",
+        "options": [{ "key": "A", "text": "..." }, { "key": "B", "text": "..." }, { "key": "C", "text": "..." }],
+        "correctAnswer": "A",
+        "explanation": "..."
+      },
+      "hi": {
+        "question": "...",
+        "options": [{ "key": "A", "text": "..." }, { "key": "B", "text": "..." }, { "key": "C", "text": "..." }],
+        "correctAnswer": "A",
+        "explanation": "..."
+      }
+    }
+  ]
 }`;
 }
+
 
 // ─── DAG Synthesis Prompt ─────────────────────────────────────────────────────
 
