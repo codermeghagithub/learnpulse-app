@@ -84,16 +84,16 @@ export function MasteryExplainerModal({
           <div
             role="dialog"
             aria-modal="true"
-            className="fixed inset-0 z-9999 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md animate-fade-in"
+            className="fixed inset-0 z-9999 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm animate-fade-in"
             onClick={(e) => {
               if (e.target === e.currentTarget) setIsOpen(false);
             }}
           >
-            <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-[#0d121f] rounded-2xl border border-border/80 p-6 sm:p-8 space-y-6 shadow-2xl animate-scale-up z-10000 text-foreground">
+            <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-card rounded-2xl border border-border p-6 sm:p-8 space-y-6 shadow-2xl animate-scale-up z-10000 text-card-foreground">
               {/* Close Button */}
               <button
                 onClick={() => setIsOpen(false)}
-                className="absolute top-5 right-5 p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors z-10"
+                className="absolute top-5 right-5 p-2 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-colors z-10"
                 aria-label="Close dialog"
               >
                 <X className="h-5 w-5" />
@@ -188,7 +188,7 @@ export function MasteryExplainerModal({
                   {/* Stage 4 */}
                   <div className="p-3.5 rounded-xl border border-emerald-500/30 bg-emerald-500/5 space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <span className="font-bold text-emerald-400">
+                      <span className="font-bold text-emerald-600 dark:text-emerald-400">
                         🏆 Level 4 • Mastered
                       </span>
                       <span className="font-semibold text-muted-foreground">

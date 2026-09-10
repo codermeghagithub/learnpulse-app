@@ -353,7 +353,7 @@ export function QuickCourseSynthesizer({ isModal = false, onClose }: QuickCourse
               placeholder="e.g. Artificial Intelligence: State Space Search, Heuristic Search, Minimax, Logic, Planning, Neural Networks..."
               rows={4}
               maxLength={3000}
-              className="w-full rounded-xl border border-border bg-background/50 px-3.5 py-2.5 text-sm text-foreground focus:outline-none resize-none transition-colors"
+              className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none transition-colors"
             />
             <p className="text-xs text-muted-foreground text-right">
               {topicText.length}/3000 characters
@@ -386,7 +386,7 @@ export function QuickCourseSynthesizer({ isModal = false, onClose }: QuickCourse
           </div>
 
           {status === "error" && (
-            <div className="flex items-start gap-2 rounded-xl border border-amber-500/30 bg-amber-500/5 px-3.5 py-3 text-xs text-amber-300">
+            <div className="flex items-start gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3.5 py-3 text-xs text-amber-800 dark:text-amber-300">
               <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
               <span>{errorMessage}</span>
             </div>
@@ -430,9 +430,9 @@ export function QuickCourseSynthesizer({ isModal = false, onClose }: QuickCourse
         result && (
           <div className="space-y-5 animate-slide-up">
             {/* Zero-trust banner */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-200">
-              <span className="flex items-center gap-1.5 font-semibold text-amber-100">
-                <ShieldCheck className="h-4 w-4 text-amber-400" />
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-800 dark:text-amber-200">
+              <span className="flex items-center gap-1.5 font-semibold text-amber-900 dark:text-amber-100">
+                <ShieldCheck className="h-4 w-4 text-amber-600 dark:text-amber-400" />
                 Draft Mode — Not Saved to Database
               </span>
               <span>
@@ -495,14 +495,14 @@ export function QuickCourseSynthesizer({ isModal = false, onClose }: QuickCourse
               </div>
 
               {!result.isAiGenerated && (
-                <span className="text-xs text-amber-400 font-medium px-2 py-0.5 rounded border border-amber-500/20 bg-amber-500/10 shrink-0">
+                <span className="text-xs text-amber-800 dark:text-amber-400 font-medium px-2 py-0.5 rounded border border-amber-500/30 bg-amber-500/10 shrink-0">
                   Fallback Mode
                 </span>
               )}
             </div>
 
             {/* Review Navigation Tabs */}
-            <div className="flex items-center gap-1 p-1 rounded-xl bg-background/60 border border-border">
+            <div className="flex items-center gap-1 p-1 rounded-xl bg-muted/60 border border-border">
               <button
                 type="button"
                 onClick={() => setReviewTab("concepts")}
@@ -621,7 +621,7 @@ export function QuickCourseSynthesizer({ isModal = false, onClose }: QuickCourse
                   {result.concepts.map((concept, i) => (
                     <div
                       key={i}
-                      className="group rounded-xl border border-border bg-background/40 px-3.5 py-3 space-y-1 relative transition-colors hover:border-border/80"
+                      className="group rounded-xl border border-border bg-card px-3.5 py-3 space-y-1 relative transition-colors hover:border-border/80 shadow-xs"
                     >
                       <div className="flex items-center justify-between gap-2 pr-6">
                         <span className="text-sm font-medium truncate text-foreground">
@@ -674,7 +674,7 @@ export function QuickCourseSynthesizer({ isModal = false, onClose }: QuickCourse
                     {result.edges.map((edge, i) => (
                       <div
                         key={i}
-                        className="group flex items-center gap-2 text-xs text-foreground/80 rounded-lg border border-border bg-background/30 px-3 py-2"
+                        className="group flex items-center gap-2 text-xs text-foreground rounded-lg border border-border bg-card px-3 py-2 shadow-xs"
                       >
                         <span className="font-medium text-primary">
                           {edge.prerequisiteName}
@@ -723,7 +723,7 @@ export function QuickCourseSynthesizer({ isModal = false, onClose }: QuickCourse
                     {result.questions.map((q, i) => (
                       <div
                         key={i}
-                        className="group rounded-xl border border-border bg-background/40 p-3.5 space-y-2 relative"
+                        className="group rounded-xl border border-border bg-card p-3.5 space-y-2 relative shadow-xs"
                       >
                         <div className="flex items-center justify-between gap-2 pr-6">
                           <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
@@ -746,7 +746,7 @@ export function QuickCourseSynthesizer({ isModal = false, onClose }: QuickCourse
                                 "text-xs rounded-lg px-2.5 py-1.5 border flex items-start gap-2",
                                 opt.key === q.correctAnswer
                                   ? "border-(--mastery-high)/40 bg-(--mastery-high)/10 text-foreground font-medium"
-                                  : "border-border/60 bg-background/30 text-muted-foreground",
+                                  : "border-border bg-muted/30 text-muted-foreground",
                               )}
                             >
                               <span
@@ -811,7 +811,7 @@ export function QuickCourseSynthesizer({ isModal = false, onClose }: QuickCourse
                 <button
                   id="discard-synthesis-btn"
                   onClick={handleReset}
-                  className="flex-1 py-2.5 rounded-xl border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-all"
+                  className="flex-1 py-2.5 rounded-xl border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:border-foreground/30 transition-all"
                 >
                   Discard Draft
                 </button>
