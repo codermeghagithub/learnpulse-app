@@ -13,6 +13,7 @@ import {
   Zap,
   Menu,
   X,
+  Compass,
 } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 
@@ -26,6 +27,7 @@ interface NavItem {
 
 const STUDENT_NAV: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, id: "nav-dashboard" },
+  { href: "/dashboard/courses", label: "Course Catalog", icon: Compass, id: "nav-courses" },
   { href: "/dashboard/practice", label: "Practice", icon: Zap, id: "nav-practice", badge: "AI" },
 ];
 

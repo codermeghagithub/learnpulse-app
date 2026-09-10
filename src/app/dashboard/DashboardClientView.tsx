@@ -18,6 +18,8 @@ import {
   Award,
   ChevronRight,
   Flame,
+  Compass,
+  Plus,
 } from "lucide-react";
 import { CourseSelector } from "@/components/CourseSelector";
 import type { RiskResult } from "@/lib/algorithms/risk";
@@ -46,12 +48,18 @@ interface DashboardClientViewProps {
   validCourses: Course[];
   selectedCourseId: string | null;
   selectedCourse: Course | null;
-  validConcepts: { id: string; name: string; difficulty: string; created_at: string }[];
+  validConcepts: {
+    id: string;
+    name: string;
+    difficulty: string;
+    created_at: string;
+  }[];
   conceptsWithRisk: ConceptItem[];
   attemptedConcepts: ConceptItem[];
   weakConcepts: ConceptItem[];
   learningHealth: number;
   atRiskCount: number;
+  totalPlatformCoursesCount?: number;
 }
 
 // Orchestrated spring transitions (Framer / Linear style)
@@ -90,6 +98,7 @@ export function DashboardClientView({
   weakConcepts,
   learningHealth,
   atRiskCount,
+  totalPlatformCoursesCount = 0,
 }: DashboardClientViewProps) {
   const firstName = fullName.split(" ")[0] || "Student";
   const completedCount = conceptsWithRisk.filter((c) => c.score >= 80).length;
@@ -111,19 +120,25 @@ export function DashboardClientView({
             <span className="h-2 w-2 rounded-full bg-primary" />
             <span>Bayesian Knowledge Tracing active</span>
             <span className="text-muted-foreground/60">&bull;</span>
-            <span className="text-[11px] text-muted-foreground font-mono">Spaced decay enabled</span>
+            <span className="text-[11px] text-muted-foreground font-mono">
+              Spaced decay enabled
+            </span>
           </div>
 
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
             Good day, {firstName}
           </h1>
           <p className="text-muted-foreground text-xs sm:text-sm max-w-2xl leading-relaxed">
-            Continuous prerequisite gap diagnosis and AI-guided spaced retention recovery.
+            Continuous prerequisite gap diagnosis and AI-guided spaced retention
+            recovery.
           </p>
         </div>
 
         <div className="flex items-center gap-3 self-start sm:self-auto shrink-0">
-          <MasteryExplainerModal buttonText="How is Mastery calculated?" variant="button" />
+          <MasteryExplainerModal
+            buttonText="How is Mastery calculated?"
+            variant="button"
+          />
         </div>
       </motion.div>
 
@@ -138,7 +153,59 @@ export function DashboardClientView({
         </motion.div>
       )}
 
-      {validConcepts.length === 0 ? (
+      {validCourses.length === 0 ? (
+        totalPlatformCoursesCount > 0 ? (
+          /* ── Empty State: Student has not enrolled in any course yet ── */
+          <motion.div
+            variants={itemVariants}
+            className="glass-card rounded-2xl p-10 sm:p-14 text-center space-y-6 border-dashed border-2 border-primary/30 bg-primary/2"
+          >
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 mx-auto shadow-sm">
+              <Compass className="h-8 w-8" />
+            </div>
+            <div className="space-y-2 max-w-md mx-auto">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
+                Choose Your Courses to Get Started
+              </h2>
+              <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
+                You have the freedom to enroll in courses of your choice. Once
+                you enroll, LearnPulse will begin tracking your concept mastery
+                and retention.
+              </p>
+            </div>
+            <div className="pt-2">
+              <Link
+                href="/dashboard/courses"
+                id="empty-state-browse-catalog-btn"
+                className="inline-flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-6 py-3 text-xs sm:text-sm font-semibold hover:bg-primary/90 transition-colors shadow-sm cursor-pointer"
+              >
+                <Plus className="h-4 w-4" />
+                Browse Course Catalog ({totalPlatformCoursesCount} available)
+              </Link>
+            </div>
+          </motion.div>
+        ) : (
+          /* ── Empty State: No courses published on platform yet ── */
+          <motion.div
+            variants={itemVariants}
+            className="glass-card rounded-2xl p-12 text-center space-y-5 border-dashed border-2 border-border/80"
+          >
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 mx-auto shadow-sm">
+              <BookOpen className="h-7 w-7" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-foreground">
+                No courses available yet
+              </h2>
+              <p className="text-muted-foreground text-sm mt-2 max-w-sm mx-auto">
+                Your instructor has not created or published any courses yet.
+                Once courses are created, you will see them in the course
+                catalog.
+              </p>
+            </div>
+          </motion.div>
+        )
+      ) : validConcepts.length === 0 ? (
         /* ── Empty State: Course empty ── */
         <motion.div
           variants={itemVariants}
@@ -148,9 +215,12 @@ export function DashboardClientView({
             <BookOpen className="h-7 w-7" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-foreground">No concepts added yet</h2>
+            <h2 className="text-xl font-bold text-foreground">
+              No concepts added yet
+            </h2>
             <p className="text-muted-foreground text-sm mt-2 max-w-sm mx-auto">
-              This course does not have any concepts authored yet. Check back soon or switch course.
+              This course does not have any concepts authored yet. Check back
+              soon or switch course.
             </p>
           </div>
         </motion.div>
@@ -171,7 +241,9 @@ export function DashboardClientView({
                   Ready to baseline {selectedCourse?.title}?
                 </h3>
                 <p className="text-xs sm:text-sm text-muted-foreground max-w-xl leading-relaxed">
-                  Start your first diagnostic practice session to baseline your knowledge graph, detect foundational gaps, and unlock 60-second AI remediation bites.
+                  Start your first diagnostic practice session to baseline your
+                  knowledge graph, detect foundational gaps, and unlock
+                  60-second AI remediation bites.
                 </p>
               </div>
               <Link
@@ -209,7 +281,9 @@ export function DashboardClientView({
                 <div className="text-3xl sm:text-4xl font-display font-semibold tracking-tight text-foreground tabular-nums">
                   {learningHealth.toFixed(0)}%
                 </div>
-                <span className="text-[11px] text-muted-foreground font-medium">overall course mastery</span>
+                <span className="text-[11px] text-muted-foreground font-medium">
+                  overall course mastery
+                </span>
               </div>
 
               <MasteryBar score={learningHealth} showLabel={false} size="sm" />
@@ -246,7 +320,9 @@ export function DashboardClientView({
                 <div className="text-3xl sm:text-4xl font-display font-semibold tracking-tight text-foreground tabular-nums">
                   {conceptsWithRisk.length}
                 </div>
-                <span className="text-[11px] text-muted-foreground font-medium">curriculum nodes</span>
+                <span className="text-[11px] text-muted-foreground font-medium">
+                  curriculum nodes
+                </span>
               </div>
 
               {/* Mini visual ratio bar */}
@@ -256,7 +332,8 @@ export function DashboardClientView({
                   style={{
                     width: `${
                       conceptsWithRisk.length > 0
-                        ? (attemptedConcepts.length / conceptsWithRisk.length) * 100
+                        ? (attemptedConcepts.length / conceptsWithRisk.length) *
+                          100
                         : 0
                     }%`,
                   }}
@@ -266,7 +343,9 @@ export function DashboardClientView({
               <div className="text-xs text-muted-foreground pt-1 flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
                   <span className="h-2 w-2 rounded-full bg-success" />
-                  <span><strong>{attemptedConcepts.length}</strong> practiced</span>
+                  <span>
+                    <strong>{attemptedConcepts.length}</strong> practiced
+                  </span>
                 </span>
                 <span className="text-[11px] text-muted-foreground">
                   {conceptsWithRisk.length - attemptedConcepts.length} remaining
@@ -281,7 +360,7 @@ export function DashboardClientView({
                 "glass-card rounded-2xl p-5 sm:p-6 space-y-3.5 relative overflow-hidden border",
                 atRiskCount > 0
                   ? "border-warning/30 bg-warning/[0.03]"
-                  : "border-success/30 bg-success/[0.03]"
+                  : "border-success/30 bg-success/[0.03]",
               )}
             >
               <div className="flex items-center justify-between text-muted-foreground text-xs sm:text-sm font-medium">
@@ -291,7 +370,7 @@ export function DashboardClientView({
                       "p-2 rounded-xl",
                       atRiskCount > 0
                         ? "bg-warning/10 text-warning"
-                        : "bg-success/10 text-success"
+                        : "bg-success/10 text-success",
                     )}
                   >
                     {atRiskCount > 0 ? (
@@ -308,7 +387,7 @@ export function DashboardClientView({
                     "text-[10px] font-medium px-2 py-0.5 rounded-md border",
                     atRiskCount > 0
                       ? "bg-warning/15 text-warning border-warning/30"
-                      : "bg-success/15 text-success border-success/30"
+                      : "bg-success/15 text-success border-success/30",
                   )}
                 >
                   {atRiskCount > 0 ? "Requires review" : "Optimal health"}
@@ -319,19 +398,23 @@ export function DashboardClientView({
                 <div
                   className={cn(
                     "text-3xl sm:text-4xl font-display font-semibold tracking-tight tabular-nums",
-                    atRiskCount > 0 ? "text-warning" : "text-success"
+                    atRiskCount > 0 ? "text-warning" : "text-success",
                   )}
                 >
                   {atRiskCount}
                 </div>
                 <span className="text-[11px] text-muted-foreground font-medium">
-                  {atRiskCount === 1 ? "vulnerable concept" : "vulnerable concepts"}
+                  {atRiskCount === 1
+                    ? "vulnerable concept"
+                    : "vulnerable concepts"}
                 </span>
               </div>
 
               <div className="text-xs text-muted-foreground pt-1 flex items-center justify-between">
                 <span>
-                  {atRiskCount > 0 ? "High error rate or forgetting decay" : "All nodes in safe retention"}
+                  {atRiskCount > 0
+                    ? "High error rate or forgetting decay"
+                    : "All nodes in safe retention"}
                 </span>
                 {atRiskCount > 0 && (
                   <span className="text-warning text-[11px] font-medium flex items-center gap-0.5">
@@ -353,7 +436,8 @@ export function DashboardClientView({
                   </h2>
                 </div>
                 <span className="text-xs px-2.5 py-0.5 rounded-md bg-warning/10 text-warning border border-warning/20 font-medium">
-                  {weakConcepts.length} concept{weakConcepts.length > 1 ? "s" : ""} below 60%
+                  {weakConcepts.length} concept
+                  {weakConcepts.length > 1 ? "s" : ""} below 60%
                 </span>
               </div>
 
@@ -400,7 +484,13 @@ export function DashboardClientView({
                       />
 
                       <div className="text-[11px] text-muted-foreground font-medium pt-2 border-t border-border/40 flex items-center justify-between">
-                        <span>{getAccuracyText(concept.correctCount, concept.attemptsCount, concept.score)}</span>
+                        <span>
+                          {getAccuracyText(
+                            concept.correctCount,
+                            concept.attemptsCount,
+                            concept.score,
+                          )}
+                        </span>
                         <span className="text-primary font-semibold group-hover:underline flex items-center gap-1">
                           Diagnose gap
                           <ChevronRight className="h-3.5 w-3.5" />
@@ -417,7 +507,9 @@ export function DashboardClientView({
           <motion.div variants={itemVariants} className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <h2 className="font-semibold text-base sm:text-lg tracking-tight text-foreground">All curriculum concepts</h2>
+                <h2 className="font-semibold text-base sm:text-lg tracking-tight text-foreground">
+                  All curriculum concepts
+                </h2>
               </div>
               <span className="text-xs text-muted-foreground font-medium bg-muted/50 px-2.5 py-0.5 rounded-md border border-border/40 font-mono">
                 {conceptsWithRisk.length} concepts
@@ -426,10 +518,7 @@ export function DashboardClientView({
 
             <motion.div variants={containerVariants} className="space-y-3">
               {conceptsWithRisk.map((concept, idx) => (
-                <motion.div
-                  key={concept.id}
-                  variants={itemVariants}
-                >
+                <motion.div key={concept.id} variants={itemVariants}>
                   <Link
                     href={`/dashboard/gaps/${concept.id}`}
                     id={`all-concept-${idx}`}
@@ -461,7 +550,13 @@ export function DashboardClientView({
                     />
 
                     <div className="text-[11px] text-muted-foreground font-medium flex items-center justify-between pt-0.5">
-                      <span>{getAccuracyText(concept.correctCount, concept.attemptsCount, concept.score)}</span>
+                      <span>
+                        {getAccuracyText(
+                          concept.correctCount,
+                          concept.attemptsCount,
+                          concept.score,
+                        )}
+                      </span>
                       <span className="text-muted-foreground group-hover:text-primary transition-colors text-[10px] flex items-center gap-1">
                         Analyze prerequisite tree
                         <ChevronRight className="h-3 w-3" />

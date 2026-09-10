@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
 import { createClient } from "@/utils/supabase/server";
 import { computeRisk, inactivityScore, declineScore } from "@/lib/algorithms/risk";
 import { getDaysSince } from "@/lib/utils";
 import { calculateRetention } from "@/lib/algorithms/decay";
+import { getStudentEnrolledCourseIds } from "@/lib/enrollment";
 import { DashboardClientView } from "./DashboardClientView";
 
 export const dynamic = "force-dynamic";
@@ -32,26 +32,34 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
   if (profile?.role !== "student") redirect("/login");
 
-  // Fetch available courses
-  const { data: courses } = await supabase
+  // Fetch student's enrolled course IDs
+  const enrolledCourseIds = await getStudentEnrolledCourseIds(
+    supabase,
+    user.id,
+    user.user_metadata
+  );
+
+  // Fetch all published courses on the platform
+  const { data: allCourses } = await supabase
     .from("courses")
     .select("id, title, subject")
     .order("title");
 
-  const validCourses = courses ?? [];
+  const totalPlatformCourses = allCourses ?? [];
 
-  // Determine selected course with database persistence and session cookie fallback
+  // Only track and display courses the student has chosen to enroll in
+  const validCourses = totalPlatformCourses.filter((c) =>
+    enrolledCourseIds.includes(c.id)
+  );
+
+  // Determine selected course from URL parameter or user metadata
   const dbCourseId = (user.user_metadata?.selectedCourseId as string) || null;
-  const cookieStore = await cookies();
-  const cookieCourseId = cookieStore.get("selectedCourseId")?.value;
   const activeCourseId =
     paramCourseId && validCourses.some((c) => c.id === paramCourseId)
       ? paramCourseId
       : dbCourseId && validCourses.some((c) => c.id === dbCourseId)
         ? dbCourseId
-        : cookieCourseId && validCourses.some((c) => c.id === cookieCourseId)
-          ? cookieCourseId
-          : null;
+        : null;
 
   const selectedCourse = validCourses.find((c) => c.id === activeCourseId) ?? validCourses[0] ?? null;
   const selectedCourseId = selectedCourse?.id ?? null;
@@ -189,6 +197,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
       weakConcepts={weakConcepts}
       learningHealth={learningHealth}
       atRiskCount={atRiskCount}
+      totalPlatformCoursesCount={totalPlatformCourses.length}
     />
   );
 }

@@ -94,7 +94,7 @@ export default function SignupPage() {
             maxLength={60}
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
-            placeholder="Priya Sharma"
+            placeholder="Rebortak Roy"
             className={cn(
               "w-full rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-foreground",
               "placeholder:text-muted-foreground/60",

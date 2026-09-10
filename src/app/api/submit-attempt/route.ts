@@ -60,70 +60,121 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Concept mismatch" }, { status: 400 });
     }
 
-    const isCorrect = selectedAnswer.trim() === question.correct_answer.trim();
+    // ACID Transaction Execution: Call PostgreSQL atomic stored procedure
+    let isCorrect: boolean;
+    let previousScore = 0;
+    let newScore = 0;
+    let totalConceptQuestions = 1;
+    let uniqueQuestionsCorrect = 0;
 
-    // Insert attempt
-    await supabase.from("attempts").insert({
-      user_id: user.id,
-      question_id: questionId,
-      selected_answer: selectedAnswer,
-      is_correct: isCorrect,
-    });
-
-    // Fetch all questions for this concept to determine total bank size
-    const { data: conceptQuestions } = await supabase
-      .from("questions")
-      .select("id")
-      .eq("concept_id", conceptId);
-
-    const totalConceptQuestions = conceptQuestions?.length ?? 1;
-    const questionIds = (conceptQuestions ?? []).map((q) => q.id);
-
-    // Fetch all attempts by this user for this concept's questions
-    const { data: userAttempts } = await supabase
-      .from("attempts")
-      .select("question_id, is_correct")
-      .eq("user_id", user.id)
-      .in("question_id", questionIds);
-
-    const attemptsList = userAttempts ?? [];
-    const totalAttempts = attemptsList.length;
-    const totalCorrect = attemptsList.filter((a) => a.is_correct).length;
-    const uniqueCorrectIds = new Set(
-      attemptsList.filter((a) => a.is_correct).map((a) => a.question_id)
-    );
-    const uniqueQuestionsCorrect = uniqueCorrectIds.size;
-
-    // Fetch previous mastery score
-    const { data: currentMastery } = await supabase
-      .from("mastery")
-      .select("score, attempts_count, correct_count")
-      .eq("user_id", user.id)
-      .eq("concept_id", conceptId)
-      .maybeSingle();
-
-    const previousScore = currentMastery?.score ?? 0;
-
-    // Compute scaled mastery score
-    const newScore = computeScaledMastery({
-      totalConceptQuestions,
-      uniqueQuestionsCorrect,
-      totalAttempts,
-      totalCorrect,
-    });
-
-    // Upsert mastery
-    await supabase.from("mastery").upsert(
+    const { data: atomicResult, error: rpcError } = await supabase.rpc(
+      "submit_attempt_atomic",
       {
-        user_id: user.id,
-        concept_id: conceptId,
-        score: newScore,
-        attempts_count: totalAttempts,
-        correct_count: totalCorrect,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "user_id,concept_id" }
+        p_user_id: user.id,
+        p_question_id: questionId,
+        p_selected_answer: selectedAnswer,
+        p_concept_id: conceptId,
+      }
     );
+
+    if (!rpcError && atomicResult) {
+      // Successfully processed in a single atomic database transaction
+      isCorrect = atomicResult.is_correct;
+      previousScore = atomicResult.previous_score ?? 0;
+      newScore = atomicResult.new_score ?? 0;
+      totalConceptQuestions = atomicResult.total_concept_questions ?? 1;
+      uniqueQuestionsCorrect = atomicResult.unique_questions_correct ?? 0;
+    } else {
+      // Fallback: If RPC not present in DB, enforce transactional Atomicity in application layer
+      if (rpcError) {
+        console.warn("[/api/submit-attempt] RPC submit_attempt_atomic failed or missing, falling back with rollback guard:", rpcError.message);
+      }
+
+      isCorrect = selectedAnswer.trim() === question.correct_answer.trim();
+
+      // Step 1: Insert attempt and capture ID for potential rollback
+      const { data: insertedAttempt, error: attemptError } = await supabase
+        .from("attempts")
+        .insert({
+          user_id: user.id,
+          question_id: questionId,
+          selected_answer: selectedAnswer,
+          is_correct: isCorrect,
+        })
+        .select("id")
+        .single();
+
+      if (attemptError || !insertedAttempt) {
+        console.error("[/api/submit-attempt] Failed to insert attempt:", attemptError);
+        return NextResponse.json({ error: "Failed to record attempt" }, { status: 500 });
+      }
+
+      try {
+        // Step 2: Fetch all questions for this concept to determine total bank size
+        const { data: conceptQuestions } = await supabase
+          .from("questions")
+          .select("id")
+          .eq("concept_id", conceptId);
+
+        totalConceptQuestions = conceptQuestions?.length ?? 1;
+        const questionIds = (conceptQuestions ?? []).map((q) => q.id);
+
+        // Step 3: Fetch all attempts by this user for this concept
+        const { data: userAttempts } = await supabase
+          .from("attempts")
+          .select("question_id, is_correct")
+          .eq("user_id", user.id)
+          .in("question_id", questionIds);
+
+        const attemptsList = userAttempts ?? [];
+        const totalAttempts = attemptsList.length;
+        const totalCorrect = attemptsList.filter((a) => a.is_correct).length;
+        const uniqueCorrectIds = new Set(
+          attemptsList.filter((a) => a.is_correct).map((a) => a.question_id)
+        );
+        uniqueQuestionsCorrect = uniqueCorrectIds.size;
+
+        // Step 4: Fetch previous mastery score
+        const { data: currentMastery } = await supabase
+          .from("mastery")
+          .select("score")
+          .eq("user_id", user.id)
+          .eq("concept_id", conceptId)
+          .maybeSingle();
+
+        previousScore = currentMastery?.score ?? 0;
+
+        // Step 5: Compute scaled mastery score
+        newScore = computeScaledMastery({
+          totalConceptQuestions,
+          uniqueQuestionsCorrect,
+          totalAttempts,
+          totalCorrect,
+        });
+
+        // Step 6: Upsert mastery
+        const { error: masteryError } = await supabase.from("mastery").upsert(
+          {
+            user_id: user.id,
+            concept_id: conceptId,
+            score: newScore,
+            attempts_count: totalAttempts,
+            correct_count: totalCorrect,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: "user_id,concept_id" }
+        );
+
+        if (masteryError) {
+          throw masteryError;
+        }
+      } catch (upsertErr) {
+        // ATOMICITY ROLLBACK: If mastery upsert failed, delete the inserted attempt
+        console.error("[/api/submit-attempt] Mastery calculation/upsert failed. Executing atomic rollback on attempt:", upsertErr);
+        await supabase.from("attempts").delete().eq("id", insertedAttempt.id);
+        return NextResponse.json({ error: "Atomic transaction failed: rolled back attempt" }, { status: 500 });
+      }
+    }
 
     // Revalidate cached paths so updated mastery reflects immediately across views
     revalidatePath("/dashboard");

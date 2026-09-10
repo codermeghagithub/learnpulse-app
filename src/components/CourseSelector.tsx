@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { BookOpen, Cpu, Database, Network, Box } from "lucide-react";
+import { BookOpen, Cpu, Database, Network, Box, Compass, Plus } from "lucide-react";
 
 import { useCourseStore } from "@/lib/store";
 import { createClient } from "@/utils/supabase/client";
@@ -18,6 +18,7 @@ interface CourseSelectorProps {
   courses: Course[];
   selectedCourseId: string;
   basePath: string;
+  showExploreLink?: boolean;
 }
 
 function getCourseIcon(title: string) {
@@ -34,8 +35,11 @@ export function CourseSelector({
   courses,
   selectedCourseId,
   basePath,
+  showExploreLink,
 }: CourseSelectorProps) {
   const setSelectedCourseId = useCourseStore((state) => state.setSelectedCourseId);
+  const isStudentArea = basePath.startsWith("/dashboard");
+  const shouldShowExplore = showExploreLink ?? isStudentArea;
 
   useEffect(() => {
     if (selectedCourseId) {
@@ -49,8 +53,17 @@ export function CourseSelector({
     <div className="w-full space-y-1.5">
       <div className="flex items-center justify-between">
         <span className="text-[11px] font-medium text-muted-foreground">
-          Enrolled courses
+          {isStudentArea ? "Enrolled courses" : "Courses"}
         </span>
+        {shouldShowExplore && (
+          <Link
+            href="/dashboard/courses"
+            className="text-[11px] font-medium text-primary hover:underline inline-flex items-center gap-1"
+          >
+            <Compass className="h-3 w-3" />
+            Explore Courses
+          </Link>
+        )}
       </div>
 
       {/* Tabs container */}
@@ -93,7 +106,19 @@ export function CourseSelector({
             </Link>
           );
         })}
+
+        {shouldShowExplore && (
+          <Link
+            href="/dashboard/courses"
+            id="explore-courses-tab-pill"
+            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium border border-dashed border-primary/35 text-primary hover:bg-primary/5 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            <span>Explore Courses</span>
+          </Link>
+        )}
       </div>
     </div>
   );
 }
+

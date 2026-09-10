@@ -6,12 +6,14 @@ import { z } from "zod";
 // ─── Request Validation ───────────────────────────────────────────────────────
 
 const requestSchema = z.object({
-  questionId: z.string().trim().min(1).max(2000),
-  questionText: z.string().trim().min(1).max(2000),
-  selectedOptionText: z.string().trim().min(1).max(1000),
-  selectedKey: z.string().trim().min(1).max(50),
-  correctOptionText: z.string().trim().min(1).max(1000),
-  conceptName: z.string().trim().min(1).max(200),
+  questionId: z.string().trim().min(1, "Question ID is required").max(100),
+  questionText: z.string().trim().min(5, "Question text must be at least 5 characters").max(2000),
+  selectedOptionText: z.string().trim().min(1, "Selected option text is required").max(1000),
+  selectedKey: z.enum(["A", "B", "C", "D"], {
+    message: "Selected option key must be one of A, B, C, or D.",
+  }),
+  correctOptionText: z.string().trim().min(1, "Correct option text is required").max(1000),
+  conceptName: z.string().trim().min(1, "Concept name is required").max(200),
   /** Optional: the student's self-reported reasoning for their answer. */
   studentReasoning: z.string().trim().max(500).optional(),
 });

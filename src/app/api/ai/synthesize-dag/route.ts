@@ -207,7 +207,12 @@ export async function POST(req: NextRequest) {
 
     if (conceptsError || !insertedConcepts) {
       console.error("[synthesize-dag] Concepts insert failed:", conceptsError);
-      return NextResponse.json({ error: "Failed to insert concepts" }, { status: 500 });
+      // ACID Rollback: Remove the orphan course created in step 1
+      if (!targetCourseId) {
+        console.warn("[synthesize-dag] Rolling back newly created course:", effectiveCourseId);
+        await supabase.from("courses").delete().eq("id", effectiveCourseId);
+      }
+      return NextResponse.json({ error: "Failed to insert concepts: rolled back course" }, { status: 500 });
     }
 
     // 3. Build name → real DB UUID map

@@ -36,6 +36,7 @@
    - 4.5 Ebbinghaus Retention Decay & Review Selection
    - 4.6 Teacher Course Authoring & AI Syllabus Ingestion
    - 4.7 Offline Practice Queue & Synchronizer
+   - 4.8 Student Course Discovery & Self-Enrollment
 5. [Other Non-Functional Requirements](#5-other-non-functional-requirements)
    - 5.1 Performance Requirements
    - 5.2 Safety Requirements
@@ -96,6 +97,7 @@ LearnPulse is a cloud-native, responsive web application operating on a decouple
 6. **Decay-Aware Review Spacing:** Calculating retention probability and scheduling forward-dependent review questions for decayed concepts.
 7. **Teacher 1-Click AI Syllabus Ingestion:** Auto-generating concepts, edges, and questions from unstructured course outlines with cycle rejection.
 8. **Offline Resilience & Auto-Sync:** Queueing practice attempts during network drops and syncing idempotently upon reconnection.
+9. **Student Course Discovery & Autonomous Self-Enrollment:** Full course catalog exploration with 1-click enroll/unenroll, isolating student diagnostic tracking and preserving pure cohort roster metrics for teachers.
 
 ### 2.3 User Classes and Characteristics
 - **Student User:** Accesses learning dashboard, practice sessions, visual knowledge graphs, gap diagnoses, and 60-second recovery bites.
@@ -123,6 +125,7 @@ LearnPulse is a cloud-native, responsive web application operating on a decouple
 - **UI-3 Quiz Practice Interface:** Dynamic MCQ card rendering LaTeX/code snippets, instant feedback state, Mental Mirror drawer, and progress bar.
 - **UI-4 Concept Bite Drawer:** Accordion card displaying Core Intuition, Real-World Analogy, Dual-Language Anchors, and interactive Quick-Check.
 - **UI-5 Teacher Ingestion Modal:** Markdown/text input modal with real-time status spinners and DAG preview before commit.
+- **UI-6 Course Catalog Interface:** Grid-based course exploration with real-time search, subject filter chips, live enrollment status badges, and 1-click enroll/drop triggers.
 
 ### 3.2 Hardware Interfaces
 No specialized hardware required; runs standard WebGL/Canvas 2D on client GPUs for smooth node rendering.
@@ -237,6 +240,17 @@ graph TD
 
 ---
 
+### 4.8 Student Course Discovery & Self-Enrollment
+
+#### Functional Requirements
+- **FR-ENR-01:** The system SHALL provide a dedicated Course Catalog interface (`/dashboard/courses`) displaying all available published courses with metadata: title, description, subject category, and total concept count.
+- **FR-ENR-02:** The system SHALL allow authenticated students to self-enroll in any course via Server Action `enrollInCourseAction` and drop/unenroll via `unenrollFromCourseAction`.
+- **FR-ENR-03:** The database SHALL persist enrollments in an `enrollments` table with a composite unique constraint `UNIQUE(user_id, course_id)` and timestamp `enrolled_at`.
+- **FR-ENR-04:** The student dashboard and practice routes SHALL enforce enrollment boundaries. Diagnostic tracking, attempts, and mastery scores SHALL be isolated exclusively to enrolled courses. Practice sessions for unenrolled courses SHALL guard access and prompt the student to enroll first.
+- **FR-ENR-05:** Teacher cohort analytics SHALL filter student counts, active rosters, and class-wide bottleneck aggregations strictly to students actively enrolled in the selected course, ensuring unskewed cohort metrics.
+
+---
+
 ## 5. Other Non-Functional Requirements
 
 ### 5.1 Performance Requirements
@@ -256,7 +270,7 @@ graph TD
 
 ### 5.4 Software Quality Attributes
 - **Maintainability:** 100% clean ESLint report (0 errors, 0 warnings) and 0 TypeScript type errors.
-- **Testability:** 100% test pass rate across 101 unit and algorithmic tests in Vitest.
+- **Testability:** 100% test pass rate across 105 unit and algorithmic tests in Vitest across 12 test suites.
 
 ---
 
@@ -267,6 +281,8 @@ graph TD
 ```mermaid
 erDiagram
     PROFILES ||--o{ COURSES : "authors"
+    PROFILES ||--o{ ENROLLMENTS : "registers"
+    COURSES ||--o{ ENROLLMENTS : "receives"
     PROFILES ||--o{ ATTEMPTS : "submits"
     PROFILES ||--o{ MASTERY : "achieves"
     PROFILES ||--o{ INTERVENTIONS : "receives"
@@ -383,12 +399,22 @@ CREATE TABLE concept_bites (
     quick_check JSONB NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- 10. Enrollments Table
+CREATE TABLE enrollments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+    course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
+    enrolled_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(user_id, course_id)
+);
 ```
 
 ### 6.3 Row-Level Security (RLS) Policies
 - **`profiles`:** Users can read their own profile; admins/teachers can view student profiles in their courses.
 - **`courses`, `concepts`, `concept_edges`, `questions`, `concept_bites`:** Globally readable by authenticated users; insert/update/delete restricted to teachers and admins.
 - **`attempts`, `mastery`, `interventions`:** Strict user isolation: `USING (auth.uid() = user_id)`.
+- **`enrollments`:** Students can select, insert, and delete their own enrollments (`USING (auth.uid() = user_id)`); teachers can view student enrollments for courses they author.
 
 ---
 
@@ -403,9 +429,10 @@ CREATE TABLE concept_bites (
 | **FR-REM-01..04** | 60-Sec Recovery Bites & Tricky Quick-Check Pools | `src/lib/ai/__tests__/conceptBite.test.ts` | 5 tests | **PASS** |
 | **FR-TCH-01..02** | AI Syllabus Ingestion & DAG Edge Synthesis | `src/lib/ai/__tests__/dagSynthesis.test.ts` | 7 tests | **PASS** |
 | **FR-OFF-01..03** | Offline Attempt Queue & Background Synchronizer | `src/lib/offline/__tests__/offlineQueue.test.ts` | 5 tests | **PASS** |
+| **FR-ENR-01..05** | Course Discovery, 1-Click Enrollment & Cohort Isolation | `src/lib/__tests__/enrollment.test.ts` | 4 tests | **PASS** |
 | **FR-RSK-01..03** | Risk Calculation & Inactivity Scoring | `src/lib/algorithms/__tests__/risk.test.ts` | 15 tests | **PASS** |
 | **FR-RTC-01..03** | Multi-Factor Root Cause Candidate Ranking | `src/lib/algorithms/__tests__/rootCause.test.ts` | 9 tests | **PASS** |
-| **Total Automated Coverage** | **All Core Algorithmic & Integration Surfaces** | **11 Test Files** | **101 Tests** | **100% PASS** |
+| **Total Automated Coverage** | **All Core Algorithmic & Integration Surfaces** | **12 Test Files** | **105 Tests** | **100% PASS** |
 
 ---
 **End of Software Requirements Specification (SRS)**

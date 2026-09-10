@@ -8,7 +8,7 @@
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL_15_%2B_RLS-emerald?logo=supabase)](https://supabase.com/)
 [![Google Gemini](https://img.shields.io/badge/Google_Gemini-2.5_Flash-orange?logo=google)](https://ai.google.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4_Modern_Design-38bdf8?logo=tailwindcss)](https://tailwindcss.com/)
-[![Vitest](https://img.shields.io/badge/Tests-101%2F101_Passing_(11_Suites)-brightgreen?logo=vitest)](https://vitest.dev/)
+[![Vitest](https://img.shields.io/badge/Tests-105%2F105_Passing_(12_Suites)-brightgreen?logo=vitest)](https://vitest.dev/)
 [![ESLint](https://img.shields.io/badge/ESLint-0_Errors_%7C_0_Warnings-purple?logo=eslint)](https://eslint.org/)
 [![Security](https://img.shields.io/badge/Security-Audit_0_Vulnerabilities-success)](#-security-privacy--acid-integrity)
 
@@ -110,6 +110,11 @@ flowchart TD
 ### 6. Offline Resilience & Auto-Sync
 * Local storage queue records attempts and timestamped responses when internet connectivity drops.
 * Seamless background reconciliation automatically updates mastery upon reconnection with zero duplicate attempts.
+
+### 7. Student Course Discovery & Self-Enrollment (Freedom of Choice)
+* **Course Catalog (`/dashboard/courses`):** Dedicated discovery hub allowing students to explore all available courses with live search, subject filters, and concept count tags.
+* **1-Click Self-Enrollment & Drops:** Complete student autonomy to join or leave courses. Diagnostic tracking, attempts, and mastery are isolated strictly to enrolled courses.
+* **Cohort Roster Isolation:** Teacher dashboard metrics, student counts, and class-wide bottleneck heatmaps automatically filter to students who are actively enrolled in that specific course.
 
 ---
 
@@ -238,10 +243,10 @@ GEMINI_API_KEY=your-gemini-api-key
 2. Run the migration script located at `supabase/schema.sql` to create all tables, indexes, triggers, and Row-Level Security policies.
 3. *(Optional)* Run `supabase/fix_rls.sql` if you need to refresh policies.
 
-### 5. Idempotent Data Seeding
-Populate the database with complete computer science course graphs (DSA, OS, DBMS, CN, System Design), 190+ high-quality MCQs, and realistic student attempt histories:
+### 5. Idempotent Data Reset & Cohort Baseline
+Initialize the database with a clean 0% baseline, official demo accounts, and synchronized student profiles:
 ```bash
-node --env-file=.env.local scripts/seed.mjs
+node --env-file=.env.local scripts/reset_demo_data.mjs
 ```
 
 ### 6. Launch Development Server
@@ -254,17 +259,20 @@ Navigate to [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## 👥 Demo Accounts for Evaluators
 
-The database seeder provisions realistic demo accounts with diverse learning trajectories:
+All demo accounts feature simple, memorable credentials. The workspace starts with a clean **0% baseline** across all courses with full ACID transactional integrity:
 
 | Role | Email | Password | Persona & Pedagogical State |
 | :--- | :--- | :--- | :--- |
-| **Teacher** | `teacher@demo.learnpulse.dev` | `Demo@12345` | Course author, cohort analytics, class-wide bottleneck visualizer |
-| **Student (Priya)** | `priya@demo.learnpulse.dev` | `Demo@12345` | High achiever with targeted gap in *Database Normalization* & *Indexing* |
-| **Student (Rohit)** | `rohit@demo.learnpulse.dev` | `Demo@12345` | Struggling learner with bottleneck in foundational *Arrays & Pointers* |
-| **Student (Ananya)** | `ananya@demo.learnpulse.dev` | `Demo@12345` | Solid fundamentals across OS and Networks |
-| **Student (Karthik)** | `karthik@demo.learnpulse.dev` | `Demo@12345` | At-risk student requiring memory management intervention |
-| **Student (Divya)** | `divya@demo.learnpulse.dev` | `Demo@12345` | Consistent mid-tier student progressing across multiple courses |
-| **Student (Siddharth)** | `siddharth@demo.learnpulse.dev` | `Demo@12345` | Advanced student reviewing Cloud & Distributed Systems |
+| **Teacher (Prof Sandip Ghosal)** | `sandip@gmail.com` | `sandip123` | Course author, cohort analytics, class-wide bottleneck visualizer |
+| **Student (Rebortak Roy)** | `rebortak@gmail.com` | `rebortak123` | CS undergraduate cohort member exploring core subjects |
+| **Student (Arnab Roy)** | `arnab@gmail.com` | `arnab123` | CS undergraduate cohort member engaging with diagnostic practice |
+| **Student (Megha De)** | `megha@gmail.com` | `megha123` | CS undergraduate cohort member testing knowledge graph mastery |
+
+### Database Reset & Clean Sync Command
+To reset the platform to a clean 0% mastery baseline and synchronize student profiles at any time:
+```bash
+node --env-file=.env.local scripts/reset_demo_data.mjs
+```
 
 ---
 
@@ -290,30 +298,38 @@ Retrieves or generates a 60-second recovery bite with a tricky interactive conce
 * **Payload:** `{ conceptId: UUID, conceptName: string, description?: string, challengeIndex?: number }`
 * **Response:** `{ intuition: string, analogy: string, anchorEn: string, anchorHi: string, quickCheck: Object, challengePool: Array }`
 
+### `enrollInCourseAction` & `unenrollFromCourseAction` (Server Actions)
+Course enrollment mutations empowering students with freedom of choice and cohort isolation.
+* **Location:** `src/app/actions/enrollment.ts`
+* **Payload:** `courseId: string` (UUID)
+* **Response:** `{ success: boolean, message?: string }`
+* **Behavior:** Validates user session, atomically updates the PostgreSQL `enrollments` table with composite key `(user_id, course_id)`, and revalidates dashboard and catalog routes.
+
 ---
 
 ## 🧪 Automated Testing & Quality Assurance
 
-LearnPulse maintains 100% test pass rates across 11 test suites:
+LearnPulse maintains 100% test pass rates across 12 test suites:
 
 ```bash
 npm run test:run
 ```
 
 ```
-Test Files  11 passed (11)
-     Tests  101 passed (101)
-  Duration  538ms
+Test Files  12 passed (12)
+     Tests  105 passed (105)
+  Duration  524ms
 
  ✓ src/lib/offline/__tests__/offlineQueue.test.ts (5 tests)
- ✓ src/lib/algorithms/__tests__/graph.test.ts (15 tests)
  ✓ src/lib/algorithms/__tests__/mastery.test.ts (15 tests)
- ✓ src/lib/algorithms/__tests__/decay.test.ts (11 tests)
- ✓ src/lib/algorithms/__tests__/risk.test.ts (15 tests)
  ✓ src/lib/algorithms/__tests__/rootCause.test.ts (9 tests)
+ ✓ src/lib/__tests__/enrollment.test.ts (4 tests)
+ ✓ src/lib/algorithms/__tests__/graph.test.ts (15 tests)
+ ✓ src/lib/algorithms/__tests__/decay.test.ts (11 tests)
  ✓ src/lib/ai/__tests__/misconception.test.ts (5 tests)
  ✓ src/lib/ai/__tests__/dagSynthesis.test.ts (7 tests)
  ✓ src/lib/ai/__tests__/conceptBite.test.ts (5 tests)
+ ✓ src/lib/algorithms/__tests__/risk.test.ts (15 tests)
  ✓ src/lib/__tests__/masteryLevels.test.ts (9 tests)
  ✓ src/lib/algorithms/__tests__/reviewSelection.test.ts (5 tests)
 ```
@@ -347,19 +363,19 @@ npm run build
 learnpulse-app/
 ├── public/                       # Static visual assets, brand icons
 ├── scripts/                      # Verified database utility scripts
-│   ├── seed.mjs                  # Idempotent database seeder (5 courses, 190+ questions)
+│   ├── reset_demo_data.mjs       # Database reset & cohort profile synchronization (0% baseline)
 │   ├── sync_mastery_scores.mjs   # Mastery score database synchronization
 │   ├── test_misconception_api.mjs# Mental Mirror endpoint test
 │   └── test_teacher_authoring_loop.mjs # Authoring lifecycle verification
 ├── src/
 │   ├── app/                      # Next.js 16 App Router
 │   │   ├── (auth)/               # Login & Signup flows
-│   │   ├── actions/authoring.ts  # Server Actions for Course, Concept & Question authoring
+│   │   ├── actions/              # Server Actions (authoring.ts, enrollment.ts)
 │   │   ├── api/                  # RESTful endpoints (diagnose, submit-attempt, ai/*)
-│   │   ├── dashboard/            # Student learning portal (Gaps, Practice, Overview)
+│   │   ├── dashboard/            # Student learning portal (Gaps, Practice, Courses catalog, Overview)
 │   │   └── teacher/              # Teacher portal (Cohort analytics, DAG authoring)
 │   ├── components/               # Modular UI architecture
-│   │   ├── layout/               # Header, Sidebar, Application Shell
+│   │   ├── layout/               # Header, Sidebar, CourseSelector, App Shell
 │   │   ├── mastery/              # InteractiveDagGraph, ConceptChain, MasteryBar
 │   │   ├── practice/             # QuizCard (Mental Mirror, Cognitive Dissonance)
 │   │   ├── remediation/          # ConceptBiteCard (60-Sec bilingual bites)
@@ -367,6 +383,7 @@ learnpulse-app/
 │   ├── lib/
 │   │   ├── ai/                   # Gemini client, prompt templates, Zod schemas
 │   │   ├── algorithms/           # Graph BFS, Kahn's TopoSort, Scaled Mastery, Decay
+│   │   ├── enrollment.ts         # Student course enrollment & cohort roster queries
 │   │   └── offline/              # Offline queue & automatic sync engine
 │   └── utils/
 │       └── supabase/             # Server & browser SSR client creators

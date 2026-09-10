@@ -1,12 +1,13 @@
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
+import Link from "next/link";
 import { createClient } from "@/utils/supabase/server";
 import { PracticeClient } from "./PracticeClient";
 import { CourseSelector } from "@/components/CourseSelector";
-import { Zap } from "lucide-react";
+import { Zap, Compass, Plus } from "lucide-react";
 import { calculateRetention } from "@/lib/algorithms/decay";
 import { buildAdjacencyList } from "@/lib/algorithms/graph";
 import { selectReviewQuestion } from "@/lib/algorithms/reviewSelection";
+import { getStudentEnrolledCourseIds } from "@/lib/enrollment";
 
 export const dynamic = "force-dynamic";
 
@@ -33,13 +34,52 @@ export default async function PracticePage({ searchParams }: PageProps) {
 
   const { conceptId, courseId: paramCourseId } = (await searchParams) ?? {};
 
+  // Fetch student's enrolled course IDs
+  const enrolledCourseIds = await getStudentEnrolledCourseIds(
+    supabase,
+    user.id,
+    user.user_metadata
+  );
+
   // Fetch available courses
   const { data: courses } = await supabase
     .from("courses")
     .select("id, title, subject")
     .order("title");
 
-  const validCourses = courses ?? [];
+  const allCourses = courses ?? [];
+  const validCourses = allCourses.filter((c) => enrolledCourseIds.includes(c.id));
+
+  if (validCourses.length === 0) {
+    return (
+      <div className="px-8 py-16 max-w-2xl mx-auto text-center space-y-6">
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20 text-primary mx-auto shadow-sm">
+          <Compass className="h-8 w-8" />
+        </div>
+        <div className="space-y-2">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            {allCourses.length > 0 ? "Enroll in a Course to Practice" : "No Courses Available Yet"}
+          </h1>
+          <p className="text-muted-foreground text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
+            {allCourses.length > 0
+              ? "You haven't enrolled in any courses yet. Browse the course catalog to enroll in subjects of your choice and begin practice sessions."
+              : "Your instructor hasn't created any courses yet. Check back soon!"}
+          </p>
+        </div>
+        {allCourses.length > 0 && (
+          <div className="pt-2">
+            <Link
+              href="/dashboard/courses"
+              className="inline-flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-6 py-3 text-xs sm:text-sm font-semibold hover:bg-primary/90 transition-colors shadow-sm"
+            >
+              <Plus className="h-4 w-4" />
+              Browse Course Catalog ({allCourses.length} available)
+            </Link>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   // Determine selected course:
   // 1. Explicit paramCourseId if valid
@@ -67,14 +107,6 @@ export default async function PracticePage({ searchParams }: PageProps) {
 
   if (!selectedCourseId && dbCourseId && validCourses.some((c) => c.id === dbCourseId)) {
     selectedCourseId = dbCourseId;
-  }
-
-  if (!selectedCourseId) {
-    const cookieStore = await cookies();
-    const cookieCourseId = cookieStore.get("selectedCourseId")?.value;
-    if (cookieCourseId && validCourses.some((c) => c.id === cookieCourseId)) {
-      selectedCourseId = cookieCourseId;
-    }
   }
 
   if (!selectedCourseId) {

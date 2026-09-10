@@ -74,8 +74,11 @@ Traditional computer-based testing (CBT) and Learning Management Systems (LMS) s
 ```mermaid
 journey
     title Student Remediation & Mastery Journey
+    section Course Discovery & Enrollment
+      Browses Course Catalog (/dashboard/courses): 5: Student
+      Self-enrolls in target course with 1-click freedom: 5: Student
     section Practice
-      Selects course & concept: 5: Student
+      Selects enrolled course & concept: 5: Student
       Answers diagnostic MCQ: 4: Student
       Selects wrong distractor: 2: Student
     section Cognitive Reflection
@@ -154,6 +157,12 @@ journey
 - **FR-7.2:** The UI must display an offline indicator with pending sync counters.
 - **FR-7.3:** Upon network reconnection, queued attempts must synchronize sequentially with Postgres, preserving ACID properties and updating mastery scores idempotently.
 
+### Epic 8: Student Course Discovery & Self-Enrollment (Freedom of Choice)
+- **FR-8.1:** The system shall provide a dedicated Course Catalog (`/dashboard/courses`) where students can discover all active courses, search by title or keywords, filter by subject, and view total concept counts.
+- **FR-8.2:** Students shall have complete autonomy to self-enroll in or drop any course with 1-click actions, recorded with timestamped entries in the database.
+- **FR-8.3:** Course isolation: The platform shall track diagnostic scores, practice attempts, and cognitive mastery exclusively for courses in which the student is actively enrolled. Unenrolled courses shall display an enrollment prompt and block unguided practice.
+- **FR-8.4:** Roster-isolated cohort metrics: Teacher dashboards and class-wide bottleneck heatmaps shall calculate aggregations solely across students actively enrolled in that course, ensuring precise, unskewed cohort metrics.
+
 ---
 
 ## 6. Non-Functional Requirements (NFRs)
@@ -181,10 +190,10 @@ journey
 ## 7. Product Release Plan & Milestones
 
 | Phase | Milestone | Scope / Deliverables | Status |
-| :---: | :--- | :--- | :---: |
+| :---: | :--- | :--- | :--- |
 | **Phase 1** | **Core Graph & Diagnostic Engine** | Next.js App Router, Supabase RLS, BFS graph backtracking, scaled mastery algorithm | **Completed** |
 | **Phase 2** | **Cognitive Misconception & Mental Mirror** | Gemini 2.5 Flash integration, Thought Trap deconstruction, sub-ms cache, NEP 2020 bilingual support | **Completed** |
 | **Phase 3** | **Interactive DAG & Remediation Bites** | `@xyflow/react` interactive canvas, 60-sec concept bites, tricky conceptual quick-check challenge pools | **Completed** |
 | **Phase 4** | **Teacher Authoring & Decay Review** | 1-Click AI syllabus ingestion, Kahn's cycle prevention, Ebbinghaus decay model, forward-dependent review | **Completed** |
-| **Phase 5** | **Offline Resilience & Full Audit** | Offline attempt queue, zero-vulnerability audit, 101/101 passing tests, strict Zod schema validation | **Completed** |
+| **Phase 5** | **Offline Resilience, Course Freedom & Full Audit** | Offline attempt queue, student course catalog & self-enrollment freedom, zero-vulnerability audit, 105/105 passing tests, strict Zod schema validation | **Completed** |
 | **Phase 6** | **Institutional Pilot** | LMS integrations (LTI 1.3, Canvas, Moodle), multi-institution tenancy, automated grading sync | *Post-Hackathon* |
