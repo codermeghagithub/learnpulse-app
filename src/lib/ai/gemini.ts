@@ -33,7 +33,7 @@ import {
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
-const MODEL_NAME = "gemini-2.5-flash";
+const MODEL_NAME = process.env.GEMINI_MODEL || "gemini-3.6-flash";
 /** If mastery hasn't shifted by this many points, skip AI regen and use cache. */
 const CACHE_THRESHOLD = 5;
 
@@ -50,22 +50,69 @@ function getClient(): GoogleGenerativeAI {
  * Get a configured Gemini model instance.
  * Centralising this avoids repeating generation config across every function.
  */
-function getModel(temperature = 0.3, maxOutputTokens = 1500): GenerativeModel {
+function getModel(temperature = 0.3, maxOutputTokens = 4000): GenerativeModel {
   return getClient().getGenerativeModel({
     model: MODEL_NAME,
     generationConfig: {
       responseMimeType: "application/json",
       temperature,
       maxOutputTokens,
-      // @ts-expect-error - Gemini 2.5 Flash thinking budget optimisation
-      thinkingConfig: { thinkingBudget: 0 },
     },
   });
 }
 
 /**
+ * Repairs JSON truncated by token limits by closing unclosed strings,
+ * removing trailing commas, and matching open braces and brackets.
+ */
+function repairTruncatedJson(jsonStr: string): string {
+  let inString = false;
+  let isEscaped = false;
+  const stack: string[] = [];
+
+  for (let i = 0; i < jsonStr.length; i++) {
+    const char = jsonStr[i];
+    if (inString) {
+      if (isEscaped) {
+        isEscaped = false;
+      } else if (char === "\\") {
+        isEscaped = true;
+      } else if (char === '"') {
+        inString = false;
+      }
+    } else {
+      if (char === '"') {
+        inString = true;
+      } else if (char === "{" || char === "[") {
+        stack.push(char);
+      } else if (char === "}" && stack[stack.length - 1] === "{") {
+        stack.pop();
+      } else if (char === "]" && stack[stack.length - 1] === "[") {
+        stack.pop();
+      }
+    }
+  }
+
+  let repaired = jsonStr.trim();
+  if (inString) {
+    repaired += '"';
+  }
+
+  // Remove trailing dangling commas e.g. {"key": "val",
+  repaired = repaired.replace(/,\s*$/, "");
+
+  while (stack.length > 0) {
+    const last = stack.pop();
+    if (last === "{") repaired += "}";
+    else if (last === "[") repaired += "]";
+  }
+
+  return repaired;
+}
+
+/**
  * Call Gemini and return raw parsed JSON, or null on any failure.
- * Strips accidental markdown fences before parsing.
+ * Strips accidental markdown fences and repairs truncated JSON if output token bounds were hit.
  */
 async function callGeminiRaw(
   prompt: string,
@@ -82,7 +129,14 @@ async function callGeminiRaw(
       .replace(/^```\s*/i, "")
       .replace(/\s*```$/i, "")
       .trim();
-    return JSON.parse(text);
+
+    try {
+      return JSON.parse(text);
+    } catch {
+      // Attempt repair if response was cut off mid-string or mid-structure
+      const repaired = repairTruncatedJson(text);
+      return JSON.parse(repaired);
+    }
   } catch (err) {
     console.error("[gemini] Raw call failed:", err instanceof Error ? err.message : err);
     return null;
@@ -220,7 +274,7 @@ export async function diagnoseMisconception(input: {
   studentReasoning?: string;
 }): Promise<MisconceptionOutput & { isAiGenerated: boolean }> {
   try {
-    const raw = await callGeminiRaw(buildMisconceptionPrompt(input), 0.2, 1200);
+    const raw = await callGeminiRaw(buildMisconceptionPrompt(input), 0.2, 3000);
     const validated = raw ? misconceptionOutputSchema.safeParse(raw) : null;
 
     if (validated?.success) {
@@ -1200,7 +1254,7 @@ export function buildDeterministicConceptBiteFallback(
 
 /**
  * Generate a 60-Second Concept Bite (Bilingual Intuition + Analogy + Tricky Challenge Pool)
- * using Gemini 2.5 Flash, with deterministic zero-downtime fallback.
+ * using Gemini 3.6 Flash, with deterministic zero-downtime fallback.
  */
 export async function generateConceptBite(
   conceptName: string,
@@ -1208,7 +1262,7 @@ export async function generateConceptBite(
   preferredIndex?: number
 ): Promise<ConceptBiteOutput & { isAiGenerated: boolean }> {
   try {
-    const raw = await callGeminiRaw(buildConceptBitePrompt(conceptName, description), 0.3, 2000);
+    const raw = await callGeminiRaw(buildConceptBitePrompt(conceptName, description), 0.3, 4000);
     const validated = raw ? conceptBiteSchema.safeParse(raw) : null;
 
     if (validated?.success) {

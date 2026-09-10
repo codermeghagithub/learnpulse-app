@@ -63,7 +63,12 @@ export async function enrollInCourseAction(courseId: string) {
       course_id: validCourseId,
     });
 
-    if (dbError && dbError.code !== "23505" && !dbError.message.includes("does not exist")) {
+    const isTableMissing =
+      dbError?.code === "PGRST205" ||
+      dbError?.message?.includes("does not exist") ||
+      dbError?.message?.includes("schema cache");
+
+    if (dbError && dbError.code !== "23505" && !isTableMissing) {
       console.warn("[enrollInCourseAction] Database enrollments insert note:", dbError.message);
     }
 
