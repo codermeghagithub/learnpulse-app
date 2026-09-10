@@ -30,21 +30,19 @@ function buildCacheKey(questionId: string, selectedKey: string, studentReasoning
 
 export async function POST(req: NextRequest) {
   try {
-    // Auth: optional — allow session-cookie OR Bearer token.
-    // We never hard-block here; a missing session degrades gracefully.
+    // Optional auth check: verifies session cookie or Bearer token if present
     try {
       const supabase = await createClient();
-      let user = (await supabase.auth.getUser()).data.user;
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         const authHeader = req.headers.get("authorization");
         if (authHeader?.startsWith("Bearer ")) {
           const token = authHeader.split(" ")[1];
-          const { data: tokenUser } = await supabase.auth.getUser(token);
-          user = tokenUser?.user ?? null;
+          await supabase.auth.getUser(token);
         }
       }
     } catch {
-      // Intentionally allow the request through even if the session is refreshing.
+      // Degrades gracefully if session is refreshing or absent
     }
 
     // Validate request body

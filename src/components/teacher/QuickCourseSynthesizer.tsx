@@ -64,10 +64,9 @@ interface ExampleSubject {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const DIFFICULTY_COLOR: Record<SynthesizedConcept["difficulty"], string> = {
-  easy: "text-[var(--mastery-high)] bg-[var(--mastery-high)]/10 border-[var(--mastery-high)]/20",
-  medium:
-    "text-[var(--mastery-mid)] bg-[var(--mastery-mid)]/10 border-[var(--mastery-mid)]/20",
-  hard: "text-[var(--mastery-low)] bg-[var(--mastery-low)]/10 border-[var(--mastery-low)]/20",
+  easy: "text-success bg-success/10 border-success/20",
+  medium: "text-warning bg-warning/10 border-warning/20",
+  hard: "text-destructive bg-destructive/10 border-destructive/20",
 };
 
 const EXAMPLE_SUBJECTS: ExampleSubject[] = [
@@ -397,9 +396,9 @@ export function QuickCourseSynthesizer({ isModal = false, onClose }: QuickCourse
             disabled={topicText.trim().length < 5}
             onClick={handleSynthesize}
             className={cn(
-              "w-full py-3 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2",
+              "w-full py-3 rounded-xl font-semibold text-sm transition-colors flex items-center justify-center gap-2",
               topicText.trim().length >= 5
-                ? "gradient-brand text-white glow-brand hover:opacity-90"
+                ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm cursor-pointer"
                 : "bg-muted text-muted-foreground cursor-not-allowed",
             )}
           >
@@ -819,7 +818,7 @@ export function QuickCourseSynthesizer({ isModal = false, onClose }: QuickCourse
                   id="save-synthesis-btn"
                   disabled={status === "saving" || result.concepts.length === 0}
                   onClick={handleConfirmAndSave}
-                  className="flex-2 py-2.5 px-4 rounded-xl gradient-brand text-white text-sm font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-60"
+                  className="flex-2 py-2.5 px-4 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-60 shadow-sm cursor-pointer"
                 >
                   {status === "saving" ? (
                     <>

@@ -207,6 +207,16 @@ export function CourseAuthoringClient({
       return;
     }
 
+    if (qText.trim().length < 5) {
+      setQError("Question text must be at least 5 characters.");
+      return;
+    }
+
+    if (!optA.trim() || !optB.trim() || !optC.trim() || !optD.trim()) {
+      setQError("All four options (A, B, C, D) are required.");
+      return;
+    }
+
     setQLoading(true);
     const res = await createQuestionAction(course.id, {
       concept_id: activeConceptTarget,
@@ -379,11 +389,11 @@ export function CourseAuthoringClient({
       {/* Header */}
       <div className="glass-card rounded-2xl p-6 sm:p-8 space-y-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl gradient-brand text-white shadow-sm">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
             <BookOpen className="h-6 w-6" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold">{course.title}</h1>
+            <h1 className="text-2xl font-bold text-foreground">{course.title}</h1>
             <p className="text-sm text-muted-foreground">
               Author course curriculum, prerequisite dependencies with cycle check, and practice MCQs.
             </p>
@@ -523,7 +533,7 @@ export function CourseAuthoringClient({
                 type="submit"
                 id="add-concept-btn"
                 disabled={conceptLoading}
-                className="inline-flex items-center gap-2 rounded-xl gradient-brand glow-brand text-white px-5 py-2.5 text-sm font-semibold hover:opacity-90 disabled:opacity-50 transition-opacity"
+                className="inline-flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 transition-colors shadow-sm cursor-pointer"
               >
                 {conceptLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
                 Add Concept
@@ -752,7 +762,7 @@ export function CourseAuthoringClient({
                       type="submit"
                       id="save-prerequisite-btn"
                       disabled={edgeLoading || !prereqA || !prereqB}
-                      className="inline-flex items-center gap-2 rounded-xl gradient-brand glow-brand text-white px-5 py-2.5 text-sm font-semibold hover:opacity-90 disabled:opacity-50 transition-opacity"
+                      className="inline-flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 transition-colors shadow-sm cursor-pointer"
                     >
                       {edgeLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
                       Add Prerequisite
@@ -961,7 +971,7 @@ export function CourseAuthoringClient({
                     type="submit"
                     id="add-question-btn"
                     disabled={qLoading}
-                    className="inline-flex items-center gap-2 rounded-xl gradient-brand glow-brand text-white px-5 py-2.5 text-sm font-semibold hover:opacity-90 disabled:opacity-50 transition-opacity"
+                    className="inline-flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 transition-colors shadow-sm cursor-pointer"
                   >
                     {qLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
                     Save Question

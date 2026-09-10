@@ -11,7 +11,7 @@ async function run() {
     },
     body: JSON.stringify({
       email: process.env.TEST_STUDENT_EMAIL || "priya@demo.learnpulse.dev",
-      password: process.env.TEST_STUDENT_PASSWORD || "Demo@12345",
+      password: process.env.TEST_STUDENT_PASSWORD || process.env.DEMO_STUDENT_PASSWORD || "Demo@12345",
     }),
   });
 
@@ -20,6 +20,7 @@ async function run() {
     console.error("Auth failed:", authData);
     process.exit(1);
   }
+  
   const token = authData.access_token;
   console.log("✓ Authenticated successfully! User ID:", authData.user?.id);
 

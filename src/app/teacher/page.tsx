@@ -7,7 +7,7 @@ import { RiskBadge } from "@/components/risk/RiskBadge";
 import { computeRisk, inactivityScore } from "@/lib/algorithms/risk";
 import { getMasteryStage } from "@/lib/masteryLevels";
 import { MasteryExplainerModal } from "@/components/mastery/MasteryExplainerModal";
-import { getDaysSince } from "@/lib/utils";
+import { cn, getDaysSince } from "@/lib/utils";
 import {
   Users,
   TrendingUp,
@@ -60,10 +60,10 @@ export default async function TeacherPage({ searchParams }: PageProps) {
   if (validCourses.length === 0) {
     return (
       <div className="px-8 py-16 max-w-3xl mx-auto text-center space-y-4">
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl gradient-brand mx-auto">
-          <GraduationCap className="h-7 w-7 text-white" />
+        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 border border-primary/20 text-primary mx-auto">
+          <GraduationCap className="h-6 w-6" />
         </div>
-        <h1 className="text-2xl font-bold">No courses yet</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">No courses yet</h1>
         <p className="text-muted-foreground text-sm max-w-md mx-auto">
           Create your first course to begin tracking student risk, concept mastery, and prerequisite diagnostics.
         </p>
@@ -294,11 +294,11 @@ export default async function TeacherPage({ searchParams }: PageProps) {
   return (
     <div className="px-8 py-8 max-w-5xl mx-auto space-y-8">
       {/* Header */}
-      <div className="animate-slide-up flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Class Overview</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">Class Overview</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Read-only view of your class learning health
+            Read-only analytical view of class mastery, retention, and student risk
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -308,7 +308,7 @@ export default async function TeacherPage({ searchParams }: PageProps) {
       </div>
 
       {/* Course selector tabs + management link */}
-      <div className="animate-slide-up space-y-3">
+      <div className="space-y-3">
         <div className="flex items-center justify-between">
           <CourseSelector
             courses={validCourses}
@@ -333,18 +333,18 @@ export default async function TeacherPage({ searchParams }: PageProps) {
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-3 gap-4 animate-slide-up">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Card 1: Class Average */}
         <div className="glass-card rounded-2xl p-5 space-y-2">
           <div className="flex items-center justify-between text-muted-foreground text-sm">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
+            <div className="flex items-center gap-2 font-medium text-foreground">
+              <TrendingUp className="h-4 w-4 text-primary" />
               Class Average
             </div>
             <MasteryExplainerModal variant="icon" />
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-4xl font-bold gradient-text">
+            <span className="text-3xl sm:text-4xl font-display font-semibold tracking-tight text-foreground tabular-nums">
               {displayClassAvg.toFixed(0)}%
             </span>
             <span className="text-xs text-muted-foreground font-medium">
@@ -366,30 +366,33 @@ export default async function TeacherPage({ searchParams }: PageProps) {
 
         {/* Card 2: Total Students */}
         <div className="glass-card rounded-2xl p-5 space-y-1">
-          <div className="flex items-center gap-2 text-muted-foreground text-sm">
-            <Users className="h-4 w-4" />
-            Students
+          <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium text-foreground">
+            <Users className="h-4 w-4 text-primary" />
+            Enrolled Students
           </div>
-          <div className="text-4xl font-bold">{classStudents.length}</div>
+          <div className="text-3xl sm:text-4xl font-display font-semibold tracking-tight text-foreground tabular-nums pt-1">
+            {classStudents.length}
+          </div>
           <p className="text-xs text-muted-foreground">
-            enrolled students
+            total class cohort
           </p>
         </div>
 
         {/* Card 3: At Risk */}
         <div className="glass-card rounded-2xl p-5 space-y-1">
-          <div className="flex items-center gap-2 text-muted-foreground text-sm">
-            <AlertTriangle className="h-4 w-4" />
-            At Risk
+          <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium text-foreground">
+            <AlertTriangle className="h-4 w-4 text-warning" />
+            At-Risk Students
           </div>
           <div
-            className={`text-4xl font-bold ${
+            className={cn(
+              "text-3xl sm:text-4xl font-display font-semibold tracking-tight tabular-nums pt-1",
               atRiskStudentsInCourse.length > 0
-                ? "text-mastery-low"
+                ? "text-destructive"
                 : activeStudentsInCourse.length === 0 && allAttemptedStudents.length > 0
                   ? "text-foreground"
-                  : "text-mastery-high"
-            }`}
+                  : "text-success"
+            )}
           >
             {activeStudentsInCourse.length > 0
               ? atRiskStudentsInCourse.length
@@ -484,7 +487,7 @@ export default async function TeacherPage({ searchParams }: PageProps) {
               className="group flex items-center justify-between glass-card rounded-xl p-4 hover:border-primary/40 hover:bg-card/80 transition-all duration-200"
             >
               <div className="flex items-center gap-4 min-w-0 flex-1 pr-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full gradient-brand text-white font-semibold text-sm shadow-sm">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary border border-primary/20 font-semibold text-sm font-display">
                   {student.name.charAt(0).toUpperCase()}
                 </div>
                 <div className="min-w-0 flex-1 space-y-1">

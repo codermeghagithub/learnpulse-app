@@ -24,10 +24,10 @@ function getNodeState(mastery: number, isTarget?: boolean) {
 }
 
 const STATE_STYLES = {
-  target: "border-primary/50 bg-primary/10",
-  weak: "border-[var(--mastery-low)]/50 bg-[var(--mastery-low)]/10",
-  partial: "border-[var(--mastery-mid)]/50 bg-[var(--mastery-mid)]/10",
-  strong: "border-[var(--mastery-high)]/50 bg-[var(--mastery-high)]/10",
+  target: "border-primary/40 bg-primary/5",
+  weak: "border-destructive/30 bg-destructive/5",
+  partial: "border-warning/30 bg-warning/5",
+  strong: "border-success/30 bg-success/5",
 };
 
 export function ConceptChain({ nodes, className }: ConceptChainProps) {
@@ -47,9 +47,9 @@ export function ConceptChain({ nodes, className }: ConceptChainProps) {
               <div
                 className={cn(
                   "h-2 w-2 rounded-full shrink-0",
-                  state === "weak" && "bg-mastery-low",
-                  state === "partial" && "bg-mastery-mid",
-                  state === "strong" && "bg-mastery-high",
+                  state === "weak" && "bg-destructive",
+                  state === "partial" && "bg-warning",
+                  state === "strong" && "bg-success",
                   state === "target" && "bg-primary",
                 )}
               />
@@ -61,31 +61,31 @@ export function ConceptChain({ nodes, className }: ConceptChainProps) {
             {/* Node card */}
             <div
               className={cn(
-                "flex-1 rounded-xl border p-3 mb-2 transition-all duration-200",
+                "flex-1 rounded-xl border p-3 mb-2 transition-colors",
                 STATE_STYLES[state],
               )}
             >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2 flex-wrap">
                   {state === "weak" && (
-                    <AlertTriangle className="h-3.5 w-3.5 text-mastery-low shrink-0" />
+                    <AlertTriangle className="h-3.5 w-3.5 text-destructive shrink-0" />
                   )}
                   {state === "strong" && (
-                    <CheckCircle2 className="h-3.5 w-3.5 text-mastery-high shrink-0" />
+                    <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0" />
                   )}
-                  <span className="font-medium text-sm">{node.name}</span>
+                  <span className="font-medium text-sm text-foreground">{node.name}</span>
                   {node.isTarget && (
-                    <span className="text-xs px-1.5 py-0.5 rounded-md bg-primary/20 text-primary font-medium">
-                       Target
+                    <span className="text-xs px-1.5 py-0.5 rounded-md bg-primary/15 text-primary font-medium">
+                      Target
                     </span>
                   )}
                   {node.isDue && (
-                    <span className="text-xs px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-500 font-medium flex items-center gap-1">
+                    <span className="text-xs px-1.5 py-0.5 rounded-md bg-warning/15 text-warning font-medium flex items-center gap-1">
                       ⏳ Fading
                     </span>
                   )}
                 </div>
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs text-muted-foreground font-mono">
                   Depth {node.depth}
                 </span>
               </div>

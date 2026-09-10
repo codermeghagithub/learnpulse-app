@@ -108,7 +108,7 @@ export function SyllabusIngestionModal({
         type="button"
         id="open-syllabus-ingest-btn"
         onClick={() => setIsOpen(true)}
-        className="inline-flex items-center gap-2 rounded-xl gradient-brand glow-brand text-white px-3.5 py-2 text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer shadow-sm"
+        className="inline-flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-3.5 py-2 text-xs font-semibold hover:bg-primary/90 transition-colors cursor-pointer shadow-sm"
       >
         <Sparkles className="h-4 w-4" />
         <span>1-Click AI Ingestion</span>
@@ -220,7 +220,7 @@ export function SyllabusIngestionModal({
                 id="confirm-ingest-syllabus-btn"
                 onClick={() => handleIngest()}
                 disabled={loading || !topicText.trim()}
-                className="inline-flex items-center gap-2 rounded-xl gradient-brand text-white px-5 py-2.5 text-xs font-bold hover:opacity-90 transition-opacity disabled:opacity-50 cursor-pointer shadow-sm"
+                className="inline-flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-5 py-2.5 text-xs font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50 cursor-pointer shadow-sm"
               >
                 {loading ? (
                   <>

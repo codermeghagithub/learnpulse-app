@@ -101,31 +101,21 @@ export function DashboardClientView({
       animate="show"
       className="px-4 py-6 sm:px-8 sm:py-8 max-w-6xl mx-auto space-y-8"
     >
-      {/* ── Top Hero Banner (Linear / Vercel style header + Duolingo engaging flair) ── */}
+      {/* ── Top Hero Banner ── */}
       <motion.div
         variants={itemVariants}
         className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-border/60 relative"
       >
         <div className="space-y-1.5">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/25 backdrop-blur-md shadow-2xs">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
-            </span>
-            <span>Adaptive Bayesian Engine Active</span>
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md text-xs font-medium bg-primary/10 text-primary border border-primary/20">
+            <span className="h-2 w-2 rounded-full bg-primary" />
+            <span>Bayesian Knowledge Tracing active</span>
             <span className="text-muted-foreground/60">&bull;</span>
-            <span className="text-[11px] text-primary/80 font-mono">BKT + Spaced Decay</span>
+            <span className="text-[11px] text-muted-foreground font-mono">Spaced decay enabled</span>
           </div>
 
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight flex items-center gap-2.5">
-            <span>Good day, {firstName}</span>
-            <motion.span
-              animate={{ rotate: [0, 14, -10, 14, -4, 10, 0] }}
-              transition={{ duration: 1.8, repeat: Infinity, repeatDelay: 3.5 }}
-              className="inline-block origin-bottom-right select-none"
-            >
-              👋
-            </motion.span>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+            Good day, {firstName}
           </h1>
           <p className="text-muted-foreground text-xs sm:text-sm max-w-2xl leading-relaxed">
             Continuous prerequisite gap diagnosis and AI-guided spaced retention recovery.
@@ -137,7 +127,7 @@ export function DashboardClientView({
         </div>
       </motion.div>
 
-      {/* ── Course Selector Tabs (Framer style segmented navigation) ── */}
+      {/* ── Course Selector Tabs ── */}
       {validCourses.length > 0 && (
         <motion.div variants={itemVariants}>
           <CourseSelector
@@ -154,11 +144,11 @@ export function DashboardClientView({
           variants={itemVariants}
           className="glass-card rounded-2xl p-12 text-center space-y-5 border-dashed border-2 border-border/80"
         >
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl gradient-brand glow-brand mx-auto shadow-lg">
-            <BookOpen className="h-8 w-8 text-white" />
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 mx-auto shadow-sm">
+            <BookOpen className="h-7 w-7" />
           </div>
           <div>
-            <h2 className="text-xl font-bold">No Concepts Added Yet</h2>
+            <h2 className="text-xl font-bold text-foreground">No concepts added yet</h2>
             <p className="text-muted-foreground text-sm mt-2 max-w-sm mx-auto">
               This course does not have any concepts authored yet. Check back soon or switch course.
             </p>
@@ -166,19 +156,18 @@ export function DashboardClientView({
         </motion.div>
       ) : (
         <>
-          {/* ── First-time Onboarding Card (Duolingo-inspired friendly motivation) ── */}
+          {/* ── First-time Onboarding Card ── */}
           {attemptedConcepts.length === 0 && (
             <motion.div
               variants={itemVariants}
-              whileHover={{ scale: 1.006 }}
-              className="glass-card rounded-2xl p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 border-primary/35 bg-gradient-to-r from-primary/15 via-primary/5 to-transparent relative overflow-hidden shadow-lg shadow-primary/5"
+              className="glass-card rounded-2xl p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 border-primary/25 bg-primary/5 relative overflow-hidden shadow-sm"
             >
               <div className="space-y-1.5 relative z-10">
-                <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-primary">
-                  <Sparkles className="h-4 w-4 fill-primary" />
-                  Diagnostic Ready
+                <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary">
+                  <Sparkles className="h-4 w-4" />
+                  Diagnostic ready
                 </div>
-                <h3 className="font-bold text-base sm:text-lg text-foreground">
+                <h3 className="font-semibold text-base sm:text-lg text-foreground">
                   Ready to baseline {selectedCourse?.title}?
                 </h3>
                 <p className="text-xs sm:text-sm text-muted-foreground max-w-xl leading-relaxed">
@@ -188,7 +177,7 @@ export function DashboardClientView({
               <Link
                 href={`/dashboard/practice${selectedCourseId ? `?courseId=${selectedCourseId}` : ""}`}
                 id="empty-state-cta"
-                className="relative z-10 inline-flex items-center justify-center gap-2 rounded-xl gradient-brand glow-brand text-white px-6 py-3 text-xs sm:text-sm font-semibold hover:opacity-95 transition-all shadow-md active:scale-95 shrink-0 cursor-pointer"
+                className="relative z-10 inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground px-6 py-3 text-xs sm:text-sm font-semibold hover:bg-primary/90 transition-colors shadow-sm shrink-0 cursor-pointer"
               >
                 <Zap className="h-4 w-4" />
                 Start Diagnostic Session
@@ -196,7 +185,7 @@ export function DashboardClientView({
             </motion.div>
           )}
 
-          {/* ── Three Key KPI Cards (Linear / Vercel modern metric cards) ── */}
+          {/* ── Three Key KPI Cards ── */}
           <motion.div
             variants={containerVariants}
             className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5"
@@ -204,14 +193,12 @@ export function DashboardClientView({
             {/* 1. Learning Health */}
             <motion.div
               variants={itemVariants}
-              whileHover={{ y: -3, transition: { duration: 0.2 } }}
-              className="glass-card card-hover rounded-2xl p-5 sm:p-6 space-y-3.5 relative overflow-hidden group"
+              className="glass-card rounded-2xl p-5 sm:p-6 space-y-3.5 relative overflow-hidden"
             >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-colors pointer-events-none" />
               <div className="flex items-center justify-between text-muted-foreground text-xs sm:text-sm font-medium">
-                <span className="flex items-center gap-2.5 text-foreground/90 font-semibold">
-                  <div className="p-2 rounded-xl bg-primary/10 text-primary shadow-2xs">
-                    <TrendingUp className="h-4.5 w-4.5" />
+                <span className="flex items-center gap-2.5 text-foreground font-semibold">
+                  <div className="p-2 rounded-xl bg-primary/10 text-primary">
+                    <TrendingUp className="h-4 w-4" />
                   </div>
                   Learning Health
                 </span>
@@ -219,7 +206,7 @@ export function DashboardClientView({
               </div>
 
               <div className="flex items-baseline gap-2.5 pt-1">
-                <div className="text-3xl sm:text-4xl font-extrabold gradient-text tracking-tight">
+                <div className="text-3xl sm:text-4xl font-display font-semibold tracking-tight text-foreground tabular-nums">
                   {learningHealth.toFixed(0)}%
                 </div>
                 <span className="text-[11px] text-muted-foreground font-medium">overall course mastery</span>
@@ -232,7 +219,7 @@ export function DashboardClientView({
                   <Flame className="h-3.5 w-3.5 text-orange-500" />
                   <span>{completedCount} mastered (&ge;80%)</span>
                 </span>
-                <span className="font-mono text-[11px] text-primary font-medium">
+                <span className="font-display tabular-nums text-[11px] text-primary font-semibold">
                   {((learningHealth / 100) * 5.0).toFixed(1)}/5.0 GPA
                 </span>
               </div>
@@ -241,24 +228,22 @@ export function DashboardClientView({
             {/* 2. Concepts Tracked */}
             <motion.div
               variants={itemVariants}
-              whileHover={{ y: -3, transition: { duration: 0.2 } }}
-              className="glass-card card-hover rounded-2xl p-5 sm:p-6 space-y-3.5 relative overflow-hidden group"
+              className="glass-card rounded-2xl p-5 sm:p-6 space-y-3.5 relative overflow-hidden"
             >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl group-hover:bg-indigo-500/20 transition-colors pointer-events-none" />
               <div className="flex items-center justify-between text-muted-foreground text-xs sm:text-sm font-medium">
-                <span className="flex items-center gap-2.5 text-foreground/90 font-semibold">
-                  <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-500 shadow-2xs">
-                    <Target className="h-4.5 w-4.5" />
+                <span className="flex items-center gap-2.5 text-foreground font-semibold">
+                  <div className="p-2 rounded-xl bg-muted text-foreground">
+                    <Target className="h-4 w-4" />
                   </div>
                   Concepts Tracked
                 </span>
-                <div className="text-[10px] font-bold tracking-wider uppercase text-muted-foreground bg-muted/60 px-2.5 py-0.5 rounded-full border border-border/40">
-                  DAG Graph
+                <div className="text-[10px] font-medium tracking-wide text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-md border border-border/40">
+                  Prerequisite Graph
                 </div>
               </div>
 
               <div className="flex items-baseline gap-2.5 pt-1">
-                <div className="text-3xl sm:text-4xl font-extrabold tracking-tight">
+                <div className="text-3xl sm:text-4xl font-display font-semibold tracking-tight text-foreground tabular-nums">
                   {conceptsWithRisk.length}
                 </div>
                 <span className="text-[11px] text-muted-foreground font-medium">curriculum nodes</span>
@@ -267,7 +252,7 @@ export function DashboardClientView({
               {/* Mini visual ratio bar */}
               <div className="w-full h-1.5 rounded-full bg-muted/60 overflow-hidden flex">
                 <div
-                  className="h-full bg-indigo-500 transition-all duration-700"
+                  className="h-full bg-primary transition-all duration-500"
                   style={{
                     width: `${
                       conceptsWithRisk.length > 0
@@ -280,7 +265,7 @@ export function DashboardClientView({
 
               <div className="text-xs text-muted-foreground pt-1 flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="h-2 w-2 rounded-full bg-success" />
                   <span><strong>{attemptedConcepts.length}</strong> practiced</span>
                 </span>
                 <span className="text-[11px] text-muted-foreground">
@@ -292,28 +277,27 @@ export function DashboardClientView({
             {/* 3. At Risk Metric */}
             <motion.div
               variants={itemVariants}
-              whileHover={{ y: -3, transition: { duration: 0.2 } }}
               className={cn(
-                "glass-card card-hover rounded-2xl p-5 sm:p-6 space-y-3.5 relative overflow-hidden group border",
+                "glass-card rounded-2xl p-5 sm:p-6 space-y-3.5 relative overflow-hidden border",
                 atRiskCount > 0
-                  ? "border-amber-500/40 bg-amber-500/[0.03]"
-                  : "border-emerald-500/40 bg-emerald-500/[0.03]"
+                  ? "border-warning/30 bg-warning/[0.03]"
+                  : "border-success/30 bg-success/[0.03]"
               )}
             >
               <div className="flex items-center justify-between text-muted-foreground text-xs sm:text-sm font-medium">
-                <span className="flex items-center gap-2.5 text-foreground/90 font-semibold">
+                <span className="flex items-center gap-2.5 text-foreground font-semibold">
                   <div
                     className={cn(
-                      "p-2 rounded-xl shadow-2xs",
+                      "p-2 rounded-xl",
                       atRiskCount > 0
-                        ? "bg-amber-500/10 text-amber-500"
-                        : "bg-emerald-500/10 text-emerald-500"
+                        ? "bg-warning/10 text-warning"
+                        : "bg-success/10 text-success"
                     )}
                   >
                     {atRiskCount > 0 ? (
-                      <AlertTriangle className="h-4.5 w-4.5" />
+                      <AlertTriangle className="h-4 w-4" />
                     ) : (
-                      <Award className="h-4.5 w-4.5" />
+                      <Award className="h-4 w-4" />
                     )}
                   </div>
                   Risk Status
@@ -321,23 +305,21 @@ export function DashboardClientView({
 
                 <span
                   className={cn(
-                    "text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border",
+                    "text-[10px] font-medium px-2 py-0.5 rounded-md border",
                     atRiskCount > 0
-                      ? "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30"
-                      : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
+                      ? "bg-warning/15 text-warning border-warning/30"
+                      : "bg-success/15 text-success border-success/30"
                   )}
                 >
-                  {atRiskCount > 0 ? "Requires Review" : "Optimal Health"}
+                  {atRiskCount > 0 ? "Requires review" : "Optimal health"}
                 </span>
               </div>
 
               <div className="flex items-baseline gap-2.5 pt-1">
                 <div
                   className={cn(
-                    "text-3xl sm:text-4xl font-extrabold tracking-tight",
-                    atRiskCount > 0
-                      ? "text-amber-500 dark:text-amber-400"
-                      : "text-emerald-500 dark:text-emerald-400"
+                    "text-3xl sm:text-4xl font-display font-semibold tracking-tight tabular-nums",
+                    atRiskCount > 0 ? "text-warning" : "text-success"
                   )}
                 >
                   {atRiskCount}
@@ -349,10 +331,10 @@ export function DashboardClientView({
 
               <div className="text-xs text-muted-foreground pt-1 flex items-center justify-between">
                 <span>
-                  {atRiskCount > 0 ? "High error rate / forgetting decay" : "All nodes in safe retention"}
+                  {atRiskCount > 0 ? "High error rate or forgetting decay" : "All nodes in safe retention"}
                 </span>
                 {atRiskCount > 0 && (
-                  <span className="text-amber-500 text-[11px] font-semibold flex items-center gap-0.5">
+                  <span className="text-warning text-[11px] font-medium flex items-center gap-0.5">
                     Action recommended
                   </span>
                 )}
@@ -360,20 +342,17 @@ export function DashboardClientView({
             </motion.div>
           </motion.div>
 
-          {/* ── Weak Concepts: Needing Attention Grid (Linear / Duolingo focus cards) ── */}
+          {/* ── Weak Concepts: Needing Attention Grid ── */}
           {weakConcepts.length > 0 && (
             <motion.div variants={itemVariants} className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <span className="relative flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500" />
-                  </span>
-                  <h2 className="font-bold text-base sm:text-lg tracking-tight">
-                    Concepts Needing Attention
+                  <span className="h-2 w-2 rounded-full bg-warning" />
+                  <h2 className="font-semibold text-base sm:text-lg tracking-tight text-foreground">
+                    Concepts needing attention
                   </h2>
                 </div>
-                <span className="text-xs px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/25 font-semibold shadow-2xs">
+                <span className="text-xs px-2.5 py-0.5 rounded-md bg-warning/10 text-warning border border-warning/20 font-medium">
                   {weakConcepts.length} concept{weakConcepts.length > 1 ? "s" : ""} below 60%
                 </span>
               </div>
@@ -434,14 +413,14 @@ export function DashboardClientView({
             </motion.div>
           )}
 
-          {/* ── All Concepts List (Linear table-card rows with micro-interactions) ── */}
+          {/* ── All Concepts List ── */}
           <motion.div variants={itemVariants} className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <h2 className="font-bold text-base sm:text-lg tracking-tight">All Concepts</h2>
+                <h2 className="font-semibold text-base sm:text-lg tracking-tight text-foreground">All curriculum concepts</h2>
               </div>
-              <span className="text-xs text-muted-foreground font-medium bg-muted/50 px-2.5 py-1 rounded-full border border-border/40">
-                {conceptsWithRisk.length} concepts total
+              <span className="text-xs text-muted-foreground font-medium bg-muted/50 px-2.5 py-0.5 rounded-md border border-border/40 font-mono">
+                {conceptsWithRisk.length} concepts
               </span>
             </div>
 
@@ -450,18 +429,16 @@ export function DashboardClientView({
                 <motion.div
                   key={concept.id}
                   variants={itemVariants}
-                  whileHover={{ x: 4, transition: { duration: 0.15 } }}
-                  whileTap={{ scale: 0.995 }}
                 >
                   <Link
                     href={`/dashboard/gaps/${concept.id}`}
                     id={`all-concept-${idx}`}
-                    className="group block glass-card rounded-xl p-4 sm:p-4.5 border border-border/80 hover:border-primary/50 transition-all duration-200 space-y-2.5 shadow-2xs hover:shadow-xs cursor-pointer"
+                    className="group block glass-card rounded-xl p-4 sm:p-4.5 border border-border hover:border-primary/50 transition-colors space-y-2.5 shadow-xs cursor-pointer"
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="h-2 w-2 rounded-full bg-primary/40 group-hover:bg-primary group-hover:scale-125 transition-all shrink-0" />
-                        <span className="font-medium text-sm sm:text-base group-hover:text-primary transition-colors truncate">
+                        <div className="h-2 w-2 rounded-full bg-primary/40 group-hover:bg-primary transition-colors shrink-0" />
+                        <span className="font-medium text-sm sm:text-base group-hover:text-primary transition-colors truncate text-foreground">
                           {concept.name}
                         </span>
                         <span className="hidden sm:inline-block text-[10px] uppercase tracking-wider text-muted-foreground font-mono px-2 py-0.5 rounded bg-muted/70 border border-border/40">
@@ -470,7 +447,7 @@ export function DashboardClientView({
                       </div>
                       <div className="flex items-center gap-2.5 shrink-0">
                         <RiskBadge bucket={concept.risk.bucket} />
-                        <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-200" />
+                        <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-transform" />
                       </div>
                     </div>
 

@@ -55,13 +55,10 @@ export interface QuizCardProps {
   isSubmitting?: boolean;
 }
 
-// ─── Constants ────────────────────────────────────────────────────────────────
-
 const DIFFICULTY_BADGE: Record<QuizCardProps["difficulty"], string> = {
-  easy: "text-[var(--mastery-high)] bg-[var(--mastery-high)]/10 border-[var(--mastery-high)]/20",
-  medium:
-    "text-[var(--mastery-mid)] bg-[var(--mastery-mid)]/10 border-[var(--mastery-mid)]/20",
-  hard: "text-[var(--mastery-low)] bg-[var(--mastery-low)]/10 border-[var(--mastery-low)]/20",
+  easy: "text-success bg-success/10 border-success/20",
+  medium: "text-warning bg-warning/10 border-warning/20",
+  hard: "text-destructive bg-destructive/10 border-destructive/20",
 };
 
 /** Inline fallback when the API is offline — keeps the UI from being empty. */
@@ -313,18 +310,18 @@ export function QuizCard({
             className={cn(
               "rounded-xl border p-4 text-sm flex items-start gap-3",
               isCorrect
-                ? "border-(--mastery-high)/40 bg-(--mastery-high)/10 text-mastery-high"
-                : "border-(--mastery-low)/40 bg-(--mastery-low)/10 text-mastery-low",
+                ? "border-success/30 bg-success/10 text-success"
+                : "border-destructive/30 bg-destructive/10 text-destructive",
             )}
           >
             {isCorrect ? (
-              <CheckCircle2 className="h-5 w-5 shrink-0 text-mastery-high mt-0.5" />
+              <CheckCircle2 className="h-5 w-5 shrink-0 text-success mt-0.5" />
             ) : (
-              <XCircle className="h-5 w-5 shrink-0 text-mastery-low mt-0.5" />
+              <XCircle className="h-5 w-5 shrink-0 text-destructive mt-0.5" />
             )}
             <div className="space-y-1">
-              <p className="font-bold text-sm">
-                {isCorrect ? "✓ Correct Answer!" : "✗ Incorrect Selection"}
+              <p className="font-semibold text-sm">
+                {isCorrect ? "Correct answer" : "Incorrect selection"}
               </p>
               {explanation && (
                 <p className="text-xs text-foreground/80 leading-relaxed">
@@ -336,7 +333,7 @@ export function QuizCard({
 
           {/* Mental Mirror + Cognitive Dissonance (shown only on wrong answers) */}
           {!isCorrect && (
-            <div className="rounded-2xl border border-primary/30 bg-primary/5 p-5 space-y-4 animate-slide-up shadow-lg">
+            <div className="rounded-2xl border border-primary/20 bg-primary/5 p-5 space-y-4 shadow-md">
               {/* Header with Dual Language Switcher */}
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div className="flex items-center gap-2">
@@ -489,9 +486,9 @@ export function QuizCard({
           disabled={!selected || isBusy}
           onClick={handleSubmit}
           className={cn(
-            "w-full py-3 rounded-xl font-semibold text-sm transition-all duration-200",
+            "w-full py-3 rounded-xl font-semibold text-sm transition-colors",
             selected && !isBusy
-              ? "gradient-brand text-white glow-brand hover:opacity-90"
+              ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm cursor-pointer"
               : "bg-muted text-muted-foreground cursor-not-allowed",
           )}
         >
@@ -499,7 +496,7 @@ export function QuizCard({
         </button>
       ) : (
         <div className="text-center text-sm text-muted-foreground pt-1">
-          Answer recorded — see your mastery update below ↓
+          Answer recorded — see your updated mastery status below
         </div>
       )}
     </div>

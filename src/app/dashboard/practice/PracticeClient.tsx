@@ -495,7 +495,7 @@ export function PracticeClient({
               <Link
                 href={`/dashboard/practice?conceptId=${nextConcept.id}${selectedCourseId ? `&courseId=${selectedCourseId}` : ""}`}
                 id="next-concept-btn"
-                className="inline-flex items-center gap-2 rounded-xl gradient-brand glow-brand text-white px-5 py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity"
+                className="inline-flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 transition-colors shadow-sm"
               >
                 Next Concept: {nextConcept.name}
                 <ArrowRight className="h-4 w-4" />
@@ -603,7 +603,7 @@ export function PracticeClient({
             <button
               id="next-question-btn"
               onClick={handleNext}
-              className="flex items-center gap-2 rounded-xl gradient-brand text-white px-4 py-2.5 text-sm font-medium hover:opacity-90 transition-opacity"
+              className="flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-4 py-2.5 text-sm font-medium hover:bg-primary/90 transition-colors shadow-sm cursor-pointer"
             >
               {currentIdx < activeQuestions.length - 1
                 ? "Next"

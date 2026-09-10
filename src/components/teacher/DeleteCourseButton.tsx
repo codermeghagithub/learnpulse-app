@@ -45,8 +45,9 @@ export function DeleteCourseButton({
         router.refresh();
       }
     } catch (err) {
+      console.error("Delete course error:", err);
       toast.update(toastId, {
-        render: err instanceof Error ? err.message : "Failed to delete course",
+        render: "Failed to delete course. Please try again.",
         type: "error",
         isLoading: false,
         autoClose: 4000,

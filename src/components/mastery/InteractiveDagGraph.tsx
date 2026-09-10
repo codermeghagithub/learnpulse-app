@@ -458,7 +458,7 @@ export function InteractiveDagGraph({
                   href={`/dashboard/practice?conceptId=${selectedNode.id}${
                     courseId ? `&courseId=${courseId}` : ""
                   }`}
-                  className="inline-flex items-center gap-1.5 rounded-lg gradient-brand text-white px-3.5 py-1.5 text-xs font-semibold hover:opacity-90 transition-opacity"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-primary text-primary-foreground px-3.5 py-1.5 text-xs font-semibold hover:bg-primary/90 transition-colors shadow-sm"
                 >
                   <Zap className="h-3.5 w-3.5" />
                   Practice Concept

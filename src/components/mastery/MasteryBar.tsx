@@ -43,7 +43,7 @@ export function MasteryBar({
   const gain =
     previousScore !== undefined ? clampedScore - previousScore : null;
 
-  const heightClass = size === "sm" ? "h-1.5" : size === "lg" ? "h-3" : "h-2";
+  const heightClass = size === "sm" ? "h-1.5" : size === "lg" ? "h-2.5" : "h-2";
 
   return (
     <div className={cn("space-y-1.5", className)}>
@@ -52,7 +52,7 @@ export function MasteryBar({
           <span
             className={cn(
               "font-medium flex items-center gap-1.5",
-              isDue ? "text-amber-500 font-semibold" : "text-muted-foreground"
+              isDue ? "text-warning font-semibold" : "text-muted-foreground"
             )}
           >
             <span>{emoji}</span>
@@ -62,15 +62,15 @@ export function MasteryBar({
             {gain !== null && gain !== 0 && (
               <span
                 className={cn(
-                  "text-xs font-semibold",
-                  gain > 0 ? "text-mastery-high" : "text-mastery-low",
+                  "text-xs font-semibold tabular-nums font-display",
+                  gain > 0 ? "text-success" : "text-destructive",
                 )}
               >
                 {gain > 0 ? "+" : ""}
                 {gain.toFixed(0)}%
               </span>
             )}
-            <span className="font-bold text-foreground">
+            <span className="font-display font-semibold tracking-tight text-foreground tabular-nums">
               {clampedScore.toFixed(0)}%
             </span>
           </div>
@@ -78,7 +78,7 @@ export function MasteryBar({
       )}
       <div
         className={cn(
-          "w-full rounded-full bg-muted/70 dark:bg-muted/50 overflow-hidden relative",
+          "w-full rounded-full bg-muted/60 dark:bg-muted/40 overflow-hidden relative",
           heightClass,
         )}
         role="progressbar"
@@ -88,13 +88,11 @@ export function MasteryBar({
       >
         <div
           className={cn(
-            "h-full rounded-full transition-all duration-700 ease-out relative overflow-hidden",
+            "h-full rounded-full transition-[width] duration-500 ease-out relative",
             colorClass,
           )}
           style={{ width: `${clampedScore}%` }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_2.5s_infinite] w-full" />
-        </div>
+        />
       </div>
 
       {showAccuracySubtitle && attemptsCount !== undefined && (

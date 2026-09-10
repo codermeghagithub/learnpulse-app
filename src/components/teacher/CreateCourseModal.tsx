@@ -57,7 +57,7 @@ export function CreateCourseModal() {
         type="button"
         id="create-course-header-btn"
         onClick={handleOpen}
-        className="inline-flex items-center gap-2 rounded-xl gradient-brand glow-brand text-white px-4 py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity self-start sm:self-auto shadow-sm cursor-pointer"
+        className="inline-flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-4 py-2.5 text-sm font-semibold hover:bg-primary/90 transition-colors self-start sm:self-auto shadow-sm cursor-pointer"
       >
         <GraduationCap className="h-4 w-4" />
         Create Course
@@ -136,10 +136,10 @@ export function CreateCourseModal() {
                     >
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-brand text-white shadow-xs">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
                             <Sparkles className="h-5 w-5" />
                           </div>
-                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary text-primary-foreground">
+                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-primary/15 text-primary">
                             Recommended
                           </span>
                         </div>
@@ -173,7 +173,7 @@ export function CreateCourseModal() {
                         <button
                           type="button"
                           tabIndex={-1}
-                          className="w-full py-2.5 px-3 rounded-xl gradient-brand text-white text-xs font-semibold inline-flex items-center justify-center gap-1.5 shadow-xs group-hover:opacity-95 pointer-events-none"
+                          className="w-full py-2.5 px-3 rounded-xl bg-primary text-primary-foreground text-xs font-semibold inline-flex items-center justify-center gap-1.5 shadow-xs group-hover:bg-primary/90 pointer-events-none transition-colors"
                         >
                           Synthesize with AI
                           <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
