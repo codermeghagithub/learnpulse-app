@@ -20,6 +20,12 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Select } from "@/components/ui/select";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -110,7 +116,10 @@ interface QuickCourseSynthesizerProps {
   onClose?: () => void;
 }
 
-export function QuickCourseSynthesizer({ isModal = false, onClose }: QuickCourseSynthesizerProps = {}) {
+export function QuickCourseSynthesizer({
+  isModal = false,
+  onClose,
+}: QuickCourseSynthesizerProps = {}) {
   const router = useRouter();
   const [topicText, setTopicText] = useState("");
   const [status, setStatus] = useState<
@@ -313,7 +322,11 @@ export function QuickCourseSynthesizer({ isModal = false, onClose }: QuickCourse
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className={cn(isModal ? "space-y-5" : "glass-card rounded-2xl p-6 space-y-5")}>
+    <div
+      className={cn(
+        isModal ? "space-y-5" : "glass-card rounded-2xl p-6 space-y-5",
+      )}
+    >
       {/* Header */}
       <div className="flex items-start gap-3">
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary mt-0.5">
@@ -322,10 +335,13 @@ export function QuickCourseSynthesizer({ isModal = false, onClose }: QuickCourse
         <div>
           <h2 className="font-bold text-base flex items-center gap-2">
             AI Course Synthesizer
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-primary/20 bg-primary/10 text-[10px] font-semibold text-primary">
-              <Sparkles className="h-3 w-3" />
+            <Badge
+              variant="outline"
+              className="border-primary/20 bg-primary/10 text-[10px] font-semibold text-primary"
+            >
+              <Sparkles className="h-3 w-3 mr-1" />
               Zero Authoring
-            </span>
+            </Badge>
           </h2>
           <p className="text-sm text-muted-foreground mt-0.5">
             Paste any subject syllabus — AI extracts concepts, prerequisite
@@ -339,20 +355,20 @@ export function QuickCourseSynthesizer({ isModal = false, onClose }: QuickCourse
       {(status === "idle" || status === "error") && (
         <div className="space-y-3">
           <div className="space-y-1.5">
-            <label
+            <Label
               htmlFor="topic-text"
               className="text-xs font-medium text-muted-foreground"
             >
               Subject / Syllabus Text
-            </label>
-            <textarea
+            </Label>
+            <Textarea
               id="topic-text"
               value={topicText}
               onChange={(e) => setTopicText(e.target.value)}
               placeholder="e.g. Artificial Intelligence: State Space Search, Heuristic Search, Minimax, Logic, Planning, Neural Networks..."
               rows={4}
               maxLength={3000}
-              className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none transition-colors"
+              className="resize-none"
             />
             <p className="text-xs text-muted-foreground text-right">
               {topicText.length}/3000 characters
@@ -366,45 +382,44 @@ export function QuickCourseSynthesizer({ isModal = false, onClose }: QuickCourse
             </p>
             <div className="flex flex-wrap gap-2">
               {EXAMPLE_SUBJECTS.map((sub, i) => (
-                <button
+                <Button
                   key={i}
                   id={`example-subject-${i}`}
                   type="button"
+                  variant={
+                    topicText.startsWith(sub.name) ? "secondary" : "outline"
+                  }
+                  size="xs"
                   onClick={() => setTopicText(sub.text)}
                   className={cn(
-                    "text-xs px-2.5 py-1 rounded-lg border transition-all text-left",
-                    topicText.startsWith(sub.name)
-                      ? "border-primary bg-primary/10 text-primary font-medium"
-                      : "border-border hover:border-primary/40 hover:bg-primary/5 text-muted-foreground hover:text-foreground",
+                    "text-xs text-left",
+                    topicText.startsWith(sub.name) &&
+                      "border-primary font-medium",
                   )}
                 >
                   {sub.name}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
 
           {status === "error" && (
-            <div className="flex items-start gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3.5 py-3 text-xs text-amber-800 dark:text-amber-300">
+            <div className="flex items-start gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3.5 py-3 text-xs text-amber-800">
               <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
               <span>{errorMessage}</span>
             </div>
           )}
 
-          <button
+          <Button
             id="synthesize-btn"
             disabled={topicText.trim().length < 5}
             onClick={handleSynthesize}
-            className={cn(
-              "w-full py-3 rounded-xl font-semibold text-sm transition-colors flex items-center justify-center gap-2",
-              topicText.trim().length >= 5
-                ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm cursor-pointer"
-                : "bg-muted text-muted-foreground cursor-not-allowed",
-            )}
+            size="lg"
+            className="w-full font-semibold"
           >
             <Sparkles className="h-4 w-4" />
             Synthesize Prerequisite Graph with AI
-          </button>
+          </Button>
         </div>
       )}
 
@@ -429,9 +444,9 @@ export function QuickCourseSynthesizer({ isModal = false, onClose }: QuickCourse
         result && (
           <div className="space-y-5 animate-slide-up">
             {/* Zero-trust banner */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-800 dark:text-amber-200">
-              <span className="flex items-center gap-1.5 font-semibold text-amber-900 dark:text-amber-100">
-                <ShieldCheck className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-800">
+              <span className="flex items-center gap-1.5 font-semibold text-amber-900">
+                <ShieldCheck className="h-4 w-4 dark:text-amber-400" />
                 Draft Mode — Not Saved to Database
               </span>
               <span>
@@ -494,7 +509,7 @@ export function QuickCourseSynthesizer({ isModal = false, onClose }: QuickCourse
               </div>
 
               {!result.isAiGenerated && (
-                <span className="text-xs text-amber-800 dark:text-amber-400 font-medium px-2 py-0.5 rounded border border-amber-500/30 bg-amber-500/10 shrink-0">
+                <span className="text-xs text-amber-800 font-medium px-2 py-0.5 rounded border border-amber-500/30 bg-amber-500/10 shrink-0">
                   Fallback Mode
                 </span>
               )}
@@ -502,47 +517,38 @@ export function QuickCourseSynthesizer({ isModal = false, onClose }: QuickCourse
 
             {/* Review Navigation Tabs */}
             <div className="flex items-center gap-1 p-1 rounded-xl bg-muted/60 border border-border">
-              <button
+              <Button
                 type="button"
+                variant={reviewTab === "concepts" ? "default" : "ghost"}
+                size="sm"
                 onClick={() => setReviewTab("concepts")}
-                className={cn(
-                  "flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold transition-all",
-                  reviewTab === "concepts"
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
+                className="flex-1 text-xs font-semibold"
               >
                 <Layers className="h-3.5 w-3.5" />
                 Concepts ({result.concepts.length})
-              </button>
+              </Button>
 
-              <button
+              <Button
                 type="button"
+                variant={reviewTab === "edges" ? "default" : "ghost"}
+                size="sm"
                 onClick={() => setReviewTab("edges")}
-                className={cn(
-                  "flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold transition-all",
-                  reviewTab === "edges"
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
+                className="flex-1 text-xs font-semibold"
               >
                 <Network className="h-3.5 w-3.5" />
                 Prerequisites ({result.edges.length})
-              </button>
+              </Button>
 
-              <button
+              <Button
                 type="button"
+                variant={reviewTab === "questions" ? "default" : "ghost"}
+                size="sm"
                 onClick={() => setReviewTab("questions")}
-                className={cn(
-                  "flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold transition-all",
-                  reviewTab === "questions"
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground",
-                )}
+                className="flex-1 text-xs font-semibold"
               >
                 <HelpCircle className="h-3.5 w-3.5" />
                 Practice Questions ({result.questions?.length ?? 0})
-              </button>
+              </Button>
             </div>
 
             {/* Tab 1: Concepts */}
@@ -553,13 +559,15 @@ export function QuickCourseSynthesizer({ isModal = false, onClose }: QuickCourse
                     {result.concepts.length} Concepts in Knowledge Graph
                   </p>
                   {status !== "saved" && (
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="xs"
                       onClick={() => setShowAddConcept(!showAddConcept)}
                       className="text-xs text-primary font-medium flex items-center gap-1 hover:underline"
                     >
                       <Plus className="h-3.5 w-3.5" />
                       {showAddConcept ? "Cancel" : "Add Concept"}
-                    </button>
+                    </Button>
                   )}
                 </div>
 
@@ -570,48 +578,49 @@ export function QuickCourseSynthesizer({ isModal = false, onClose }: QuickCourse
                       Add Custom Concept
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                      <input
+                      <Input
                         type="text"
                         placeholder="Concept name (e.g. Heuristic Search)"
                         value={newConceptName}
                         onChange={(e) => setNewConceptName(e.target.value)}
-                        className="sm:col-span-2 text-xs rounded-lg border border-border bg-background px-3 py-2 text-foreground focus:outline-none"
+                        className="sm:col-span-2 text-xs"
                       />
-                      <select
+                      <Select
                         value={newConceptDiff}
                         onChange={(e) =>
                           setNewConceptDiff(
                             e.target.value as "easy" | "medium" | "hard",
                           )
                         }
-                        className="text-xs rounded-lg border border-border bg-background px-2.5 py-2 text-foreground focus:outline-none"
+                        className="text-xs h-9"
                       >
                         <option value="easy">Easy</option>
                         <option value="medium">Medium</option>
                         <option value="hard">Hard</option>
-                      </select>
+                      </Select>
                     </div>
-                    <input
+                    <Input
                       type="text"
                       placeholder="Brief description (optional)"
                       value={newConceptDesc}
                       onChange={(e) => setNewConceptDesc(e.target.value)}
-                      className="w-full text-xs rounded-lg border border-border bg-background px-3 py-2 text-foreground focus:outline-none"
+                      className="w-full text-xs"
                     />
                     <div className="flex justify-end gap-2">
-                      <button
+                      <Button
+                        variant="outline"
+                        size="xs"
                         onClick={() => setShowAddConcept(false)}
-                        className="text-xs px-2.5 py-1 rounded border border-border text-muted-foreground hover:text-foreground"
                       >
                         Cancel
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        size="xs"
                         onClick={handleAddConcept}
                         disabled={!newConceptName.trim()}
-                        className="text-xs px-3 py-1 rounded bg-primary text-primary-foreground font-medium disabled:opacity-50"
                       >
                         Add to Graph
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 )}
@@ -807,18 +816,19 @@ export function QuickCourseSynthesizer({ isModal = false, onClose }: QuickCourse
               </div>
             ) : (
               <div className="flex gap-3 pt-2">
-                <button
+                <Button
                   id="discard-synthesis-btn"
+                  variant="outline"
                   onClick={handleReset}
-                  className="flex-1 py-2.5 rounded-xl border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 hover:border-foreground/30 transition-all"
+                  className="flex-1"
                 >
                   Discard Draft
-                </button>
-                <button
+                </Button>
+                <Button
                   id="save-synthesis-btn"
                   disabled={status === "saving" || result.concepts.length === 0}
                   onClick={handleConfirmAndSave}
-                  className="flex-2 py-2.5 px-4 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-60 shadow-sm cursor-pointer"
+                  className="flex-2 cursor-pointer font-semibold"
                 >
                   {status === "saving" ? (
                     <>
@@ -833,7 +843,7 @@ export function QuickCourseSynthesizer({ isModal = false, onClose }: QuickCourse
                       {result.questions?.length ?? 0} Questions)
                     </>
                   )}
-                </button>
+                </Button>
               </div>
             )}
           </div>

@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { MasteryBar } from "@/components/mastery/MasteryBar";
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface ConceptNode {
   id: string;
@@ -75,14 +76,14 @@ export function ConceptChain({ nodes, className }: ConceptChainProps) {
                   )}
                   <span className="font-medium text-sm text-foreground">{node.name}</span>
                   {node.isTarget && (
-                    <span className="text-xs px-1.5 py-0.5 rounded-md bg-primary/15 text-primary font-medium">
+                    <Badge variant="default" className="text-xs">
                       Target
-                    </span>
+                    </Badge>
                   )}
                   {node.isDue && (
-                    <span className="text-xs px-1.5 py-0.5 rounded-md bg-warning/15 text-warning font-medium flex items-center gap-1">
+                    <Badge variant="warning" className="text-xs flex items-center gap-1">
                       ⏳ Fading
-                    </span>
+                    </Badge>
                   )}
                 </div>
                 <span className="text-xs text-muted-foreground font-mono">

@@ -32,6 +32,8 @@ function getCourseIcon(title: string) {
   return BookOpen;
 }
 
+import { buttonVariants } from "@/components/ui/button";
+
 export function CourseSelector({
   courses,
   selectedCourseId,
@@ -83,10 +85,8 @@ export function CourseSelector({
           return (
             <Link
               key={course.id}
-              href={`${basePath}?courseId=${course.id}`}
               id={`course-tab-${slug}`}
-              role="tab"
-              aria-selected={isSelected}
+              href={`${basePath}?courseId=${course.id}`}
               onClick={() => {
                 setSelectedCourseId(course.id);
                 try {
@@ -97,7 +97,8 @@ export function CourseSelector({
                 } catch {}
               }}
               className={cn(
-                "inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-medium transition-colors whitespace-nowrap shrink-0 border cursor-pointer",
+                buttonVariants({ variant: isSelected ? "default" : "outline", size: "sm" }),
+                "gap-2 rounded-lg px-3.5 py-2 text-xs font-medium whitespace-nowrap shrink-0 cursor-pointer h-8",
                 isSelected
                   ? "bg-primary text-primary-foreground border-primary shadow-xs"
                   : "bg-card text-muted-foreground border-border hover:text-foreground hover:bg-muted/60"
@@ -113,7 +114,10 @@ export function CourseSelector({
           <Link
             href="/dashboard/courses"
             id="explore-courses-tab-pill"
-            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium border border-dashed border-primary/35 text-primary hover:bg-primary/5 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+            className={cn(
+              buttonVariants({ variant: "outline", size: "sm" }),
+              "gap-1.5 rounded-lg px-3 py-2 text-xs font-medium border-dashed border-primary/35 text-primary hover:bg-primary/5 hover:text-primary whitespace-nowrap shrink-0 cursor-pointer h-8"
+            )}
           >
             <Plus className="h-3.5 w-3.5" />
             <span>Explore Courses</span>
@@ -123,4 +127,3 @@ export function CourseSelector({
     </div>
   );
 }
-

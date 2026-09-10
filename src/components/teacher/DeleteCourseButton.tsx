@@ -6,6 +6,8 @@ import { Trash2, Loader2, AlertTriangle } from "lucide-react";
 import { toast } from "react-toastify";
 import { deleteCourseAction } from "@/app/actions/authoring";
 
+import { Button } from "@/components/ui/button";
+
 interface DeleteCourseButtonProps {
   courseId: string;
   courseTitle: string;
@@ -76,24 +78,28 @@ export function DeleteCourseButton({
           </div>
 
           <div className="flex items-center justify-end gap-2 pt-2 border-t border-border/60">
-            <button
+            <Button
               type="button"
+              variant="outline"
+              size="sm"
               onClick={closeToast}
-              className="px-3 py-1.5 text-xs rounded-lg border border-border bg-background hover:bg-muted text-foreground transition-colors font-medium cursor-pointer"
+              className="text-xs rounded-lg cursor-pointer h-8"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="destructive"
+              size="sm"
               onClick={async () => {
                 closeToast();
                 await performDelete();
               }}
-              className="px-3.5 py-1.5 text-xs rounded-lg bg-destructive text-white hover:bg-destructive/90 transition-colors font-semibold shadow-xs cursor-pointer inline-flex items-center gap-1.5"
+              className="text-xs rounded-lg font-semibold shadow-xs cursor-pointer inline-flex items-center gap-1.5 h-8"
             >
               <Trash2 className="h-3.5 w-3.5" />
               Yes, Delete Course
-            </button>
+            </Button>
           </div>
         </div>
       ),
@@ -108,12 +114,14 @@ export function DeleteCourseButton({
   }
 
   return (
-    <button
+    <Button
       id={`delete-course-btn-${courseId}`}
       type="button"
+      variant="outline"
+      size="sm"
       onClick={handleTriggerToast}
       disabled={loading}
-      className="inline-flex items-center gap-1.5 text-xs text-destructive hover:text-destructive/90 font-medium bg-destructive/10 hover:bg-destructive/15 border border-destructive/20 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
+      className="inline-flex items-center gap-1.5 text-xs text-destructive hover:text-destructive font-medium bg-destructive/10 hover:bg-destructive/15 border-destructive/20 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50 cursor-pointer h-8"
       title="Delete this course"
     >
       {loading ? (
@@ -122,6 +130,6 @@ export function DeleteCourseButton({
         <Trash2 className="h-3.5 w-3.5" />
       )}
       Delete Course
-    </button>
+    </Button>
   );
 }

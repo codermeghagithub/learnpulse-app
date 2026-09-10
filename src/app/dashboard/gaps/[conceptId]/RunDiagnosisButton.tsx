@@ -16,6 +16,9 @@ import {
 import type { DiagnosisOutput } from "@/lib/ai/schemas";
 
 
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
 interface DiagnosisInput {
   targetConceptId: string;
   targetConceptName: string;
@@ -80,14 +83,14 @@ export function RunDiagnosisButton({
 
   if (state.status === "idle") {
     return (
-      <button
+      <Button
         id="run-diagnosis-btn"
         onClick={runDiagnosis}
-        className="flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-5 py-3 text-sm font-semibold hover:bg-primary/90 transition-colors shadow-sm cursor-pointer"
+        className="gap-2 rounded-xl px-5 py-3 text-sm font-semibold shadow-sm cursor-pointer h-11"
       >
         <Brain className="h-4 w-4" />
         Run AI Diagnosis
-      </button>
+      </Button>
     );
   }
 
@@ -118,12 +121,13 @@ export function RunDiagnosisButton({
           <span className="font-semibold text-sm">Diagnosis failed</span>
         </div>
         <p className="text-sm text-muted-foreground">{state.message}</p>
-        <button
+        <Button
+          variant="link"
           onClick={() => setState({ status: "idle" })}
-          className="text-sm text-primary hover:underline cursor-pointer"
+          className="text-sm text-primary p-0 h-auto cursor-pointer"
         >
           Try again
-        </button>
+        </Button>
       </div>
     );
   }
@@ -228,7 +232,10 @@ export function RunDiagnosisButton({
             <Link
               id="start-recovery-plan-btn"
               href={`/dashboard/practice?conceptId=${targetPracticeConceptId}${diagnosisInput.courseId ? `&courseId=${diagnosisInput.courseId}` : ""}`}
-              className="flex items-center justify-center gap-2 w-full rounded-xl bg-primary text-primary-foreground py-3.5 font-semibold hover:bg-primary/90 transition-colors shadow-sm"
+              className={cn(
+                buttonVariants(),
+                "gap-2 w-full rounded-xl py-3.5 h-12 font-semibold shadow-sm cursor-pointer"
+              )}
             >
               <Zap className="h-4 w-4" />
               Start Recovery Plan: Practice {result.blockingConcept}

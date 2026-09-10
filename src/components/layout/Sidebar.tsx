@@ -17,6 +17,10 @@ import {
 } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+
 interface NavItem {
   href: string;
   label: string;
@@ -73,14 +77,16 @@ export function Sidebar({ role, fullName }: SidebarProps) {
         </Link>
 
         {/* Mobile close button */}
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon-xs"
           onClick={() => setMobileOpen(false)}
           className="md:hidden p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent cursor-pointer"
           aria-label="Close sidebar"
         >
           <X className="h-5 w-5" />
-        </button>
+        </Button>
       </div>
 
       {/* Nav List */}
@@ -119,9 +125,9 @@ export function Sidebar({ role, fullName }: SidebarProps) {
 
               <div className="flex items-center gap-1.5">
                 {item.badge && (
-                  <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-primary/20 text-primary border border-primary/30 tracking-tight">
+                  <Badge variant="outline" className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-primary/20 text-primary border-primary/30 tracking-tight h-auto">
                     {item.badge}
-                  </span>
+                  </Badge>
                 )}
                 {isActive && (
                   <motion.span
@@ -135,8 +141,10 @@ export function Sidebar({ role, fullName }: SidebarProps) {
         })}
       </nav>
 
+      <Separator />
+
       {/* User info & Signout */}
-      <div className="border-t border-border/80 p-3">
+      <div className="p-3">
         <div className="flex items-center justify-between rounded-xl p-2.5 glass-card border border-border/70 hover:border-primary/30 transition-all shadow-xs">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary border border-primary/20 font-display font-semibold text-xs uppercase shadow-xs shrink-0">
@@ -147,15 +155,18 @@ export function Sidebar({ role, fullName }: SidebarProps) {
               <p className="text-[10px] text-muted-foreground capitalize leading-tight mt-0.5">{role}</p>
             </div>
           </div>
-          <button
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-xs"
             id="sidebar-signout-btn"
             onClick={handleSignOut}
-            className="rounded-lg p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
+            className="rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
             title="Sign out"
             aria-label="Sign out"
           >
             <LogOut className="h-4 w-4" />
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -165,14 +176,16 @@ export function Sidebar({ role, fullName }: SidebarProps) {
     <>
       {/* Mobile Top Bar with Hamburger */}
       <div className="md:hidden fixed top-0 left-0 right-0 h-14 bg-sidebar/90 backdrop-blur-xl border-b border-border/70 z-40 flex items-center justify-between px-4">
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon-sm"
           onClick={() => setMobileOpen(true)}
           className="p-2 -ml-1 rounded-xl text-foreground hover:bg-accent transition-colors cursor-pointer"
           aria-label="Open menu"
         >
           <Menu className="h-5 w-5" />
-        </button>
+        </Button>
 
         <Link href={role === "teacher" ? "/teacher" : "/dashboard"} className="flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">

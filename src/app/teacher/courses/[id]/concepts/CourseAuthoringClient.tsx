@@ -30,7 +30,12 @@ import { toast } from "react-toastify";
 import { cn } from "@/lib/utils";
 import { SyllabusIngestionModal } from "@/components/teacher/SyllabusIngestionModal";
 import { InteractiveDagGraph } from "@/components/mastery/InteractiveDagGraph";
-
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Select } from "@/components/ui/select";
 
 interface Concept {
   id: string;
@@ -364,16 +369,18 @@ export function CourseAuthoringClient({
             courseSubject={course.subject}
             onSuccess={() => router.refresh()}
           />
-          <span className="text-xs font-semibold px-3 py-1 rounded-full border border-primary/30 bg-primary/10 text-primary">
+          <Badge variant="outline" className="text-xs font-semibold px-3 py-1 rounded-full border-primary/30 bg-primary/10 text-primary">
             {course.subject}
-          </span>
+          </Badge>
 
-          <button
+          <Button
             id="delete-course-btn"
             type="button"
+            variant="outline"
+            size="sm"
             onClick={handleDeleteCourse}
             disabled={deletingCourse}
-            className="inline-flex items-center gap-1.5 text-xs text-destructive hover:text-destructive/90 font-medium bg-destructive/10 hover:bg-destructive/15 border border-destructive/20 px-3 py-1 rounded-lg transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 text-xs text-destructive hover:text-destructive font-medium bg-destructive/10 hover:bg-destructive/15 border-destructive/20 h-8 px-3 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
             title="Delete this course"
           >
             {deletingCourse ? (
@@ -382,7 +389,7 @@ export function CourseAuthoringClient({
               <Trash2 className="h-3.5 w-3.5" />
             )}
             Delete Course
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -419,11 +426,13 @@ export function CourseAuthoringClient({
 
       {/* Authoring Tabs */}
       <div className="flex border-b border-border gap-2">
-        <button
+        <Button
+          type="button"
+          variant="ghost"
           onClick={() => setActiveTab("concepts")}
           id="tab-concepts"
           className={cn(
-            "flex items-center gap-2 px-5 py-3 text-sm font-semibold border-b-2 transition-all",
+            "flex items-center gap-2 px-5 py-3 text-sm font-semibold rounded-none border-b-2 transition-all cursor-pointer h-auto",
             activeTab === "concepts"
               ? "border-primary text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
@@ -431,13 +440,15 @@ export function CourseAuthoringClient({
         >
           <Layers className="h-4 w-4" />
           1. Concepts ({concepts.length})
-        </button>
+        </Button>
 
-        <button
+        <Button
+          type="button"
+          variant="ghost"
           onClick={() => setActiveTab("prerequisites")}
           id="tab-prerequisites"
           className={cn(
-            "flex items-center gap-2 px-5 py-3 text-sm font-semibold border-b-2 transition-all",
+            "flex items-center gap-2 px-5 py-3 text-sm font-semibold rounded-none border-b-2 transition-all cursor-pointer h-auto",
             activeTab === "prerequisites"
               ? "border-primary text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
@@ -445,13 +456,15 @@ export function CourseAuthoringClient({
         >
           <GitFork className="h-4 w-4" />
           2. Prerequisites DAG ({edges.length})
-        </button>
+        </Button>
 
-        <button
+        <Button
+          type="button"
+          variant="ghost"
           onClick={() => setActiveTab("questions")}
           id="tab-questions"
           className={cn(
-            "flex items-center gap-2 px-5 py-3 text-sm font-semibold border-b-2 transition-all",
+            "flex items-center gap-2 px-5 py-3 text-sm font-semibold rounded-none border-b-2 transition-all cursor-pointer h-auto",
             activeTab === "questions"
               ? "border-primary text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
@@ -459,7 +472,7 @@ export function CourseAuthoringClient({
         >
           <HelpCircle className="h-4 w-4" />
           3. Practice Questions ({questions.length})
-        </button>
+        </Button>
       </div>
 
       {/* ─────────────────────────────────────────────────────────────
@@ -484,60 +497,59 @@ export function CourseAuthoringClient({
             <form onSubmit={handleAddConcept} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="sm:col-span-2 space-y-1.5">
-                  <label htmlFor="concept-name" className="text-xs font-medium">
+                  <Label htmlFor="concept-name" className="text-xs font-medium">
                     Concept Name <span className="text-primary">*</span>
-                  </label>
-                  <input
+                  </Label>
+                  <Input
                     id="concept-name"
                     type="text"
                     required
                     value={conceptName}
                     onChange={(e) => setConceptName(e.target.value)}
                     placeholder="e.g. Memory Management, CPU Scheduling"
-                    className="w-full rounded-xl border border-border bg-input/50 px-3.5 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    className="w-full rounded-xl border-border bg-input/50 px-3.5 py-2.5 h-10 text-sm placeholder:text-muted-foreground"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label htmlFor="concept-difficulty" className="text-xs font-medium">
+                  <Label htmlFor="concept-difficulty" className="text-xs font-medium">
                     Difficulty Level
-                  </label>
-                  <select
+                  </Label>
+                  <Select
                     id="concept-difficulty"
                     value={conceptDiff}
                     onChange={(e) => setConceptDiff(e.target.value as "easy" | "medium" | "hard")}
-                    className="w-full rounded-xl border border-border bg-input/50 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
                   >
                     <option value="easy">Easy (Foundational)</option>
                     <option value="medium">Medium (Core)</option>
                     <option value="hard">Hard (Advanced)</option>
-                  </select>
+                  </Select>
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label htmlFor="concept-desc" className="text-xs font-medium">
+                <Label htmlFor="concept-desc" className="text-xs font-medium">
                   Concept Description
-                </label>
-                <textarea
+                </Label>
+                <Textarea
                   id="concept-desc"
                   rows={2}
                   value={conceptDesc}
                   onChange={(e) => setConceptDesc(e.target.value)}
                   placeholder="Brief summary of learning objectives and key topics covered..."
-                  className="w-full rounded-xl border border-border bg-input/50 px-3.5 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  className="w-full rounded-xl border-border bg-input/50 px-3.5 py-2 text-sm placeholder:text-muted-foreground"
                 />
               </div>
 
-              <button
+              <Button
                 type="submit"
                 id="add-concept-btn"
                 disabled={conceptLoading}
-                className="inline-flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 transition-colors shadow-sm cursor-pointer"
+                className="gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold shadow-sm cursor-pointer"
               >
-                {conceptLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+                {conceptLoading ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Plus className="h-4 w-4 mr-1" />}
                 Add Concept
-              </button>
+              </Button>
             </form>
           </div>
 
@@ -567,18 +579,19 @@ export function CourseAuthoringClient({
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between">
                           <h3 className="font-semibold text-sm">{c.name}</h3>
-                          <span
+                          <Badge
+                            variant="outline"
                             className={cn(
                               "text-[11px] font-semibold px-2 py-0.5 rounded-md uppercase tracking-wider",
                               c.difficulty === "easy"
-                                ? "bg-emerald-500/15 text-emerald-500"
+                                ? "bg-emerald-500/15 text-emerald-500 border-emerald-500/30"
                                 : c.difficulty === "medium"
-                                  ? "bg-amber-500/15 text-amber-500"
-                                  : "bg-rose-500/15 text-rose-500"
+                                  ? "bg-amber-500/15 text-amber-500 border-amber-500/30"
+                                  : "bg-rose-500/15 text-rose-500 border-rose-500/30"
                             )}
                           >
                             {c.difficulty}
-                          </span>
+                          </Badge>
                         </div>
                         {c.description && (
                           <p className="text-xs text-muted-foreground line-clamp-2">
@@ -589,13 +602,16 @@ export function CourseAuthoringClient({
 
                       <div className="flex items-center justify-between pt-2 border-t border-border/50 text-xs text-muted-foreground">
                         <span>{qCount} question{qCount !== 1 ? "s" : ""}</span>
-                        <button
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-xs"
                           onClick={() => handleDeleteConcept(c.id)}
-                          className="text-muted-foreground hover:text-destructive p-1 rounded-lg transition-colors"
+                          className="text-muted-foreground hover:text-destructive p-1 rounded-lg transition-colors cursor-pointer"
                           title="Delete concept"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   );
@@ -688,10 +704,10 @@ export function CourseAuthoringClient({
                   <div className="grid grid-cols-1 sm:grid-cols-7 gap-3 items-center">
                     {/* Concept A */}
                     <div className="sm:col-span-3 space-y-1">
-                      <label htmlFor="prereq-a-select" className="text-xs font-medium">
+                      <Label htmlFor="prereq-a-select" className="text-xs font-medium">
                         Concept A (Prerequisite)
-                      </label>
-                      <select
+                      </Label>
+                      <Select
                         id="prereq-a-select"
                         required
                         value={prereqA}
@@ -699,7 +715,6 @@ export function CourseAuthoringClient({
                           setPrereqA(e.target.value);
                           setEdgeError(null);
                         }}
-                        className="w-full rounded-xl border border-border bg-input/50 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
                       >
                         <option value="">Select prerequisite concept…</option>
                         {concepts.map((c) => (
@@ -707,7 +722,7 @@ export function CourseAuthoringClient({
                             {c.name} ({c.difficulty})
                           </option>
                         ))}
-                      </select>
+                      </Select>
                     </div>
 
                     {/* Arrow Indicator */}
@@ -718,10 +733,10 @@ export function CourseAuthoringClient({
 
                     {/* Concept B */}
                     <div className="sm:col-span-3 space-y-1">
-                      <label htmlFor="prereq-b-select" className="text-xs font-medium">
+                      <Label htmlFor="prereq-b-select" className="text-xs font-medium">
                         Concept B (Dependent)
-                      </label>
-                      <select
+                      </Label>
+                      <Select
                         id="prereq-b-select"
                         required
                         value={prereqB}
@@ -729,7 +744,6 @@ export function CourseAuthoringClient({
                           setPrereqB(e.target.value);
                           setEdgeError(null);
                         }}
-                        className="w-full rounded-xl border border-border bg-input/50 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
                       >
                         <option value="">Select dependent concept…</option>
                         {concepts.map((c) => (
@@ -737,36 +751,36 @@ export function CourseAuthoringClient({
                             {c.name} ({c.difficulty})
                           </option>
                         ))}
-                      </select>
+                      </Select>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between pt-2">
                     <div className="flex items-center gap-2">
-                      <label htmlFor="edge-weight" className="text-xs text-muted-foreground">
+                      <Label htmlFor="edge-weight" className="text-xs text-muted-foreground">
                         Dependency Strength:
-                      </label>
-                      <select
+                      </Label>
+                      <Select
                         id="edge-weight"
                         value={edgeWeight}
                         onChange={(e) => setEdgeWeight(Number(e.target.value))}
-                        className="rounded-lg border border-border bg-input/50 px-2 py-1 text-xs"
+                        className="text-xs h-8 w-44"
                       >
                         <option value={1}>1 (Mild)</option>
                         <option value={2}>2 (Strong / Standard)</option>
                         <option value={3}>3 (Critical / Absolute)</option>
-                      </select>
+                      </Select>
                     </div>
 
-                    <button
+                    <Button
                       type="submit"
                       id="save-prerequisite-btn"
                       disabled={edgeLoading || !prereqA || !prereqB}
-                      className="inline-flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 transition-colors shadow-sm cursor-pointer"
+                      className="cursor-pointer"
                     >
                       {edgeLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
                       Add Prerequisite
-                    </button>
+                    </Button>
                   </div>
                 </form>
               </div>
@@ -797,18 +811,20 @@ export function CourseAuthoringClient({
                               is prerequisite for <ArrowRight className="h-3.5 w-3.5" />
                             </span>
                             <span className="font-semibold text-foreground">{nameB}</span>
-                            <span className="text-[10px] text-muted-foreground px-2 py-0.5 rounded bg-muted">
+                            <Badge variant="outline" className="text-[10px]">
                               weight {e.weight}
-                            </span>
+                            </Badge>
                           </div>
 
-                          <button
+                          <Button
+                            variant="ghost"
+                            size="icon-xs"
                             onClick={() => handleDeleteEdge(e.id)}
-                            className="text-muted-foreground hover:text-destructive p-1 rounded-lg transition-colors"
+                            className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                             title="Remove prerequisite"
                           >
                             <Trash2 className="h-4 w-4" />
-                          </button>
+                          </Button>
                         </div>
                       );
                     })}
@@ -857,61 +873,58 @@ export function CourseAuthoringClient({
                 <form onSubmit={handleAddQuestion} className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="sm:col-span-2 space-y-1.5">
-                      <label htmlFor="q-concept-select" className="text-xs font-medium">
+                      <Label htmlFor="q-concept-select" className="text-xs font-medium">
                         Target Concept <span className="text-primary">*</span>
-                      </label>
-                      <select
+                      </Label>
+                      <Select
                         id="q-concept-select"
                         required
                         value={qConceptId || concepts[0]?.id}
                         onChange={(e) => setQConceptId(e.target.value)}
-                        className="w-full rounded-xl border border-border bg-input/50 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
                       >
                         {concepts.map((c) => (
                           <option key={c.id} value={c.id}>
                             {c.name} ({c.difficulty})
                           </option>
                         ))}
-                      </select>
+                      </Select>
                     </div>
 
                     <div className="space-y-1.5">
-                      <label htmlFor="q-difficulty-select" className="text-xs font-medium">
+                      <Label htmlFor="q-difficulty-select" className="text-xs font-medium">
                         Question Difficulty
-                      </label>
-                      <select
+                      </Label>
+                      <Select
                         id="q-difficulty-select"
                         value={qDiff}
                         onChange={(e) => setQDiff(e.target.value as "easy" | "medium" | "hard")}
-                        className="w-full rounded-xl border border-border bg-input/50 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
                       >
                         <option value="easy">Easy (Multiplier: 0.8)</option>
                         <option value="medium">Medium (Multiplier: 1.0)</option>
                         <option value="hard">Hard (Multiplier: 1.2)</option>
-                      </select>
+                      </Select>
                     </div>
                   </div>
 
                   <div className="space-y-1.5">
-                    <label htmlFor="q-text-input" className="text-xs font-medium">
+                    <Label htmlFor="q-text-input" className="text-xs font-medium">
                       Question Prompt <span className="text-primary">*</span>
-                    </label>
-                    <textarea
+                    </Label>
+                    <Textarea
                       id="q-text-input"
                       rows={2}
                       required
                       value={qText}
                       onChange={(e) => setQText(e.target.value)}
                       placeholder="What is the primary difference between...?"
-                      className="w-full rounded-xl border border-border bg-input/50 px-3.5 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
                     />
                   </div>
 
                   {/* 4 Options */}
                   <div className="space-y-3">
-                    <label className="text-xs font-medium">
+                    <Label className="text-xs font-medium">
                       Answer Choices & Correct Option <span className="text-primary">*</span>
-                    </label>
+                    </Label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {[
                         { key: "A", val: optA, set: setOptA },
@@ -954,28 +967,27 @@ export function CourseAuthoringClient({
                   </div>
 
                   <div className="space-y-1.5">
-                    <label htmlFor="q-explanation-input" className="text-xs font-medium">
+                    <Label htmlFor="q-explanation-input" className="text-xs font-medium">
                       Answer Explanation
-                    </label>
-                    <textarea
+                    </Label>
+                    <Textarea
                       id="q-explanation-input"
                       rows={2}
                       value={qExplanation}
                       onChange={(e) => setQExplanation(e.target.value)}
                       placeholder="Why is this the correct answer? This is displayed to the student after submission."
-                      className="w-full rounded-xl border border-border bg-input/50 px-3.5 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
                     />
                   </div>
 
-                  <button
+                  <Button
                     type="submit"
                     id="add-question-btn"
                     disabled={qLoading}
-                    className="inline-flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 transition-colors shadow-sm cursor-pointer"
+                    className="cursor-pointer"
                   >
                     {qLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
                     Save Question
-                  </button>
+                  </Button>
                 </form>
               </div>
 
@@ -1001,25 +1013,27 @@ export function CourseAuthoringClient({
                           <div className="flex items-start justify-between gap-4">
                             <div className="space-y-1 min-w-0">
                               <div className="flex items-center gap-2">
-                                <span className="text-xs font-semibold px-2 py-0.5 rounded bg-primary/10 text-primary">
+                                <Badge variant="secondary" className="text-xs">
                                   {cName}
-                                </span>
-                                <span className="text-[10px] text-muted-foreground uppercase">
+                                </Badge>
+                                <Badge variant="outline" className="text-[10px] uppercase">
                                   {q.difficulty}
-                                </span>
+                                </Badge>
                               </div>
                               <p className="font-medium text-foreground pt-1">
                                 Q{idx + 1}. {q.question_text}
                               </p>
                             </div>
 
-                            <button
+                            <Button
+                              variant="ghost"
+                              size="icon-xs"
                               onClick={() => handleDeleteQuestion(q.id)}
-                              className="text-muted-foreground hover:text-destructive p-1 rounded-lg transition-colors shrink-0"
+                              className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
                               title="Delete question"
                             >
                               <Trash2 className="h-4 w-4" />
-                            </button>
+                            </Button>
                           </div>
 
                           {/* Options grid */}

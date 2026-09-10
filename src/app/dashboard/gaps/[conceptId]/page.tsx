@@ -11,7 +11,8 @@ import { RunDiagnosisButton } from "./RunDiagnosisButton";
 import { CourseSelector } from "@/components/CourseSelector";
 import { MasteryExplainerModal } from "@/components/mastery/MasteryExplainerModal";
 import { ArrowLeft, BookOpen, Zap } from "lucide-react";
-import { getDaysSince } from "@/lib/utils";
+import { getDaysSince, cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
 
 export const dynamic = "force-dynamic";
 
@@ -156,7 +157,10 @@ export default async function GapPage({ params }: PageProps) {
         <Link
           href={`/dashboard?courseId=${targetConcept.course_id}`}
           id="back-to-dashboard"
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className={cn(
+            buttonVariants({ variant: "ghost", size: "sm" }),
+            "gap-2 text-sm text-muted-foreground hover:text-foreground"
+          )}
         >
           <ArrowLeft className="h-4 w-4" />
           Back to dashboard
@@ -240,7 +244,10 @@ export default async function GapPage({ params }: PageProps) {
         <Link
           href={`/dashboard/practice?conceptId=${conceptId}&courseId=${targetConcept.course_id}`}
           id="gap-practice-btn"
-          className="flex items-center gap-2 rounded-xl border border-border px-5 py-3 text-sm font-medium hover:border-primary/40 hover:bg-primary/5 transition-all"
+          className={cn(
+            buttonVariants({ variant: "outline", size: "lg" }),
+            "gap-2 text-sm font-medium"
+          )}
         >
           <Zap className="h-4 w-4" />
           Practice Now

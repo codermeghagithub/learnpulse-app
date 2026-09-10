@@ -23,6 +23,8 @@ import { CourseSelector } from "@/components/CourseSelector";
 import { MasteryExplainerModal } from "@/components/mastery/MasteryExplainerModal";
 import { getMasteryStage, getAccuracyText } from "@/lib/masteryLevels";
 import { cn } from "@/lib/utils";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   enqueueOfflineAttempt,
   getQueuedAttempts,
@@ -368,18 +370,13 @@ export function PracticeClient({
           <div className="flex items-center gap-2.5 flex-wrap">
             <span className="font-bold text-base">{activeConcept.name}</span>
             {activeConcept.isDue ? (
-              <span className="text-xs px-2.5 py-0.5 rounded-full border border-amber-500/20 bg-amber-500/15 text-amber-500 font-medium">
+              <Badge variant="warning" className="text-xs">
                 ⏳ Fading — review due
-              </span>
+              </Badge>
             ) : (
-              <span
-                className={cn(
-                  "text-xs px-2.5 py-0.5 rounded-full border font-medium",
-                  getMasteryStage(currentMastery, conceptAttempts).badgeClass,
-                )}
-              >
+              <Badge variant="outline" className="text-xs">
                 {getMasteryStage(currentMastery, conceptAttempts).stageBadge}
-              </span>
+              </Badge>
             )}
           </div>
 
@@ -493,17 +490,18 @@ export function PracticeClient({
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             {nextConcept && (
               <Link
-                href={`/dashboard/practice?conceptId=${nextConcept.id}${selectedCourseId ? `&courseId=${selectedCourseId}` : ""}`}
                 id="next-concept-btn"
-                className="inline-flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 transition-colors shadow-sm"
+                href={`/dashboard/practice?conceptId=${nextConcept.id}${selectedCourseId ? `&courseId=${selectedCourseId}` : ""}`}
+                className={cn(buttonVariants(), "cursor-pointer")}
               >
                 Next Concept: {nextConcept.name}
                 <ArrowRight className="h-4 w-4" />
               </Link>
             )}
 
-            <button
+            <Button
               id="practice-again-btn"
+              variant="outline"
               onClick={() => {
                 if (allQuestions && allQuestions.length > 0) {
                   setActiveQuestions(allQuestions);
@@ -512,15 +510,14 @@ export function PracticeClient({
                 setIsCompleted(false);
                 setLastUpdate(null);
               }}
-              className="inline-flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-medium hover:border-primary/30 hover:bg-card transition-all"
             >
               <RotateCcw className="h-4 w-4" />
               Review All Questions
-            </button>
+            </Button>
 
             <Link
               href={`/dashboard/gaps/${activeConcept.id}`}
-              className="inline-flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-medium hover:border-primary/30 transition-all"
+              className={cn(buttonVariants({ variant: "outline" }), "cursor-pointer")}
             >
               View Gap Analysis
             </Link>
@@ -572,44 +569,46 @@ export function PracticeClient({
       {/* Navigation */}
       {!isEmpty && !isCompleted && (
         <div className="flex items-center justify-between animate-slide-up">
-          <button
+          <Button
             id="prev-question-btn"
+            variant="outline"
             disabled={currentIdx === 0}
             onClick={() => {
               setCurrentIdx((i) => Math.max(0, i - 1));
               setLastUpdate(null);
             }}
-            className="flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-medium disabled:opacity-40 hover:border-primary/30 transition-all"
           >
             <ChevronLeft className="h-4 w-4" />
             Previous
-          </button>
+          </Button>
 
           <div className="flex gap-2">
-            <button
+            <Button
               id="restart-practice-btn"
+              variant="outline"
+              size="sm"
               onClick={() => {
                 setCurrentIdx(0);
                 setLastUpdate(null);
                 setAnsweredCount(0);
                 setCurrentMastery(initialMastery);
               }}
-              className="flex items-center gap-1 rounded-xl border border-border px-3 py-2.5 text-xs text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all"
+              className="text-xs"
             >
               <RotateCcw className="h-3 w-3" />
               Restart
-            </button>
+            </Button>
 
-            <button
+            <Button
               id="next-question-btn"
               onClick={handleNext}
-              className="flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-4 py-2.5 text-sm font-medium hover:bg-primary/90 transition-colors shadow-sm cursor-pointer"
+              className="cursor-pointer"
             >
               {currentIdx < activeQuestions.length - 1
                 ? "Next"
                 : "Finish Concept Practice"}
               <ChevronRight className="h-4 w-4" />
-            </button>
+            </Button>
           </div>
         </div>
       )}

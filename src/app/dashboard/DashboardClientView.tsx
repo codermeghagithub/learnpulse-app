@@ -24,6 +24,9 @@ import {
 import { CourseSelector } from "@/components/CourseSelector";
 import type { RiskResult } from "@/lib/algorithms/risk";
 
+import { buttonVariants } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+
 interface Course {
   id: string;
   title: string;
@@ -116,14 +119,14 @@ export function DashboardClientView({
         className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-border/60 relative"
       >
         <div className="space-y-1.5">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md text-xs font-medium bg-primary/10 text-primary border border-primary/20">
+          <Badge variant="outline" className="gap-2 px-2.5 py-1 text-xs font-medium bg-primary/10 text-primary border-primary/20 h-auto">
             <span className="h-2 w-2 rounded-full bg-primary" />
             <span>Bayesian Knowledge Tracing active</span>
             <span className="text-muted-foreground/60">&bull;</span>
             <span className="text-[11px] text-muted-foreground font-mono">
               Spaced decay enabled
             </span>
-          </div>
+          </Badge>
 
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
             Good day, {firstName}
@@ -177,7 +180,10 @@ export function DashboardClientView({
               <Link
                 href="/dashboard/courses"
                 id="empty-state-browse-catalog-btn"
-                className="inline-flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-6 py-3 text-xs sm:text-sm font-semibold hover:bg-primary/90 transition-colors shadow-sm cursor-pointer"
+                className={cn(
+                  buttonVariants(),
+                  "gap-2 rounded-xl px-6 py-3 text-xs sm:text-sm font-semibold shadow-sm cursor-pointer h-11"
+                )}
               >
                 <Plus className="h-4 w-4" />
                 Browse Course Catalog ({totalPlatformCoursesCount} available)
@@ -249,7 +255,10 @@ export function DashboardClientView({
               <Link
                 href={`/dashboard/practice${selectedCourseId ? `?courseId=${selectedCourseId}` : ""}`}
                 id="empty-state-cta"
-                className="relative z-10 inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground px-6 py-3 text-xs sm:text-sm font-semibold hover:bg-primary/90 transition-colors shadow-sm shrink-0 cursor-pointer"
+                className={cn(
+                  buttonVariants(),
+                  "relative z-10 gap-2 rounded-xl px-6 py-3 text-xs sm:text-sm font-semibold shadow-sm shrink-0 cursor-pointer h-11"
+                )}
               >
                 <Zap className="h-4 w-4" />
                 Start Diagnostic Session
@@ -311,9 +320,9 @@ export function DashboardClientView({
                   </div>
                   Concepts Tracked
                 </span>
-                <div className="text-[10px] font-medium tracking-wide text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-md border border-border/40">
+                <Badge variant="outline" className="text-[10px] font-medium tracking-wide text-muted-foreground bg-muted/60 px-2 py-0.5 border-border/40">
                   Prerequisite Graph
-                </div>
+                </Badge>
               </div>
 
               <div className="flex items-baseline gap-2.5 pt-1">
@@ -382,16 +391,17 @@ export function DashboardClientView({
                   Risk Status
                 </span>
 
-                <span
+                <Badge
+                  variant="outline"
                   className={cn(
-                    "text-[10px] font-medium px-2 py-0.5 rounded-md border",
+                    "text-[10px] font-medium px-2 py-0.5",
                     atRiskCount > 0
                       ? "bg-warning/15 text-warning border-warning/30"
                       : "bg-success/15 text-success border-success/30",
                   )}
                 >
                   {atRiskCount > 0 ? "Requires review" : "Optimal health"}
-                </span>
+                </Badge>
               </div>
 
               <div className="flex items-baseline gap-2.5 pt-1">
@@ -435,10 +445,10 @@ export function DashboardClientView({
                     Concepts needing attention
                   </h2>
                 </div>
-                <span className="text-xs px-2.5 py-0.5 rounded-md bg-warning/10 text-warning border border-warning/20 font-medium">
+                <Badge variant="outline" className="text-xs px-2.5 py-0.5 bg-warning/10 text-warning border-warning/20 font-medium">
                   {weakConcepts.length} concept
                   {weakConcepts.length > 1 ? "s" : ""} below 60%
-                </span>
+                </Badge>
               </div>
 
               <motion.div
@@ -462,9 +472,9 @@ export function DashboardClientView({
                           <span className="font-semibold text-sm sm:text-base group-hover:text-primary transition-colors line-clamp-1 flex items-center gap-2">
                             <span>{concept.name}</span>
                           </span>
-                          <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-mono bg-muted/70 px-2 py-0.5 rounded border border-border/40">
+                          <Badge variant="outline" className="text-[10px] uppercase tracking-wider text-muted-foreground font-mono bg-muted/70 px-2 py-0.5 border-border/40">
                             {concept.difficulty}
-                          </span>
+                          </Badge>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
                           <RiskBadge bucket={concept.risk.bucket} />
@@ -511,9 +521,9 @@ export function DashboardClientView({
                   All curriculum concepts
                 </h2>
               </div>
-              <span className="text-xs text-muted-foreground font-medium bg-muted/50 px-2.5 py-0.5 rounded-md border border-border/40 font-mono">
+              <Badge variant="outline" className="text-xs text-muted-foreground font-medium bg-muted/50 px-2.5 py-0.5 border-border/40 font-mono">
                 {conceptsWithRisk.length} concepts
-              </span>
+              </Badge>
             </div>
 
             <motion.div variants={containerVariants} className="space-y-3">
@@ -530,9 +540,9 @@ export function DashboardClientView({
                         <span className="font-medium text-sm sm:text-base group-hover:text-primary transition-colors truncate text-foreground">
                           {concept.name}
                         </span>
-                        <span className="hidden sm:inline-block text-[10px] uppercase tracking-wider text-muted-foreground font-mono px-2 py-0.5 rounded bg-muted/70 border border-border/40">
+                        <Badge variant="outline" className="hidden sm:inline-flex text-[10px] uppercase tracking-wider text-muted-foreground font-mono px-2 py-0.5 bg-muted/70 border-border/40">
                           {concept.difficulty}
-                        </span>
+                        </Badge>
                       </div>
                       <div className="flex items-center gap-2.5 shrink-0">
                         <RiskBadge bucket={concept.risk.bucket} />

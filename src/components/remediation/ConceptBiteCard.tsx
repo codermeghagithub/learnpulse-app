@@ -11,6 +11,9 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface QuickCheckOption {
   key: "A" | "B" | "C" | "D";
@@ -192,22 +195,22 @@ export function ConceptBiteCard({
     return (
       <div
         className={cn(
-          "glass-card rounded-2xl p-6 border-primary/20 space-y-4 animate-pulse",
+          "glass-card rounded-2xl p-6 border-primary/20 space-y-4",
           className
         )}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-primary/15" />
-            <div className="h-4 w-40 bg-muted rounded" />
+            <Skeleton className="h-8 w-8 rounded-lg" />
+            <Skeleton className="h-4 w-40" />
           </div>
-          <div className="h-5 w-24 bg-muted rounded-md" />
+          <Skeleton className="h-5 w-24 rounded-md" />
         </div>
         <div className="space-y-2">
-          <div className="h-3 w-full bg-muted/60 rounded" />
-          <div className="h-3 w-4/5 bg-muted/60 rounded" />
+          <Skeleton className="h-3 w-full" />
+          <Skeleton className="h-3 w-4/5" />
         </div>
-        <div className="h-24 bg-muted/30 rounded-xl" />
+        <Skeleton className="h-24 w-full rounded-xl" />
       </div>
     );
   }
@@ -280,36 +283,30 @@ export function ConceptBiteCard({
         <div className="flex items-center gap-2">
           {/* Working Language Toggle */}
           <div className="flex items-center bg-background/60 border border-border rounded-lg p-0.5 text-[11px]">
-            <button
+            <Button
               type="button"
+              variant={!isHi ? "default" : "ghost"}
+              size="xs"
               onClick={() => setLang("en")}
-              className={cn(
-                "px-2.5 py-0.5 rounded font-medium transition-all cursor-pointer",
-                !isHi
-                  ? "bg-primary text-white font-bold shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
+              className="h-6 px-2.5 text-xs font-semibold"
             >
               EN
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant={isHi ? "default" : "ghost"}
+              size="xs"
               onClick={() => setLang("hi")}
-              className={cn(
-                "px-2.5 py-0.5 rounded font-medium transition-all cursor-pointer",
-                isHi
-                  ? "bg-primary text-white font-bold shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
+              className="h-6 px-2.5 text-xs font-semibold"
             >
               हिन्दी
-            </button>
+            </Button>
           </div>
 
-          <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md border border-primary/20 bg-primary/10 text-[10px] font-medium text-primary">
-            <Sparkles className="h-3 w-3" />
-            <span>{isHi ? "त्वरित सुधार" : "Remediation Bite"}</span>
-          </div>
+          <Badge variant="outline" className="border-primary/20 bg-primary/10 text-[10px] font-medium text-primary">
+            <Sparkles className="h-3 w-3 mr-1" />
+            {isHi ? "त्वरित सुधार" : "Remediation Bite"}
+          </Badge>
         </div>
       </div>
 
@@ -366,31 +363,29 @@ export function ConceptBiteCard({
             <span className="text-xs font-semibold text-foreground">
               {isHi ? "🎯 अपनी समझ परखें:" : "Check your intuition:"}
             </span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded bg-primary/10 text-primary font-mono">
+            <Badge variant="secondary" className="text-[10px] font-mono">
               {isHi ? "असली दुनिया की चुनौती" : "Application Scenario"}
-            </span>
+            </Badge>
           </div>
 
           <div className="flex items-center gap-2">
             {/* Random Tricky Question Cycler Button */}
-            <button
+            <Button
               type="button"
+              variant="outline"
+              size="xs"
               onClick={handleNextChallenge}
-              className="inline-flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-lg border border-border bg-background hover:bg-muted text-foreground transition-colors cursor-pointer"
+              className="text-[11px]"
               title="Try another random scenario"
             >
-              <span>🎲</span>
+              <span className="mr-1">🎲</span>
               <span>{isHi ? "नया परिदृश्य" : "Try another scenario"}</span>
-            </button>
+            </Button>
 
             {checked && (
-              <span
-                className={cn(
-                  "inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md",
-                  isCorrect
-                    ? "text-success bg-success/10 border border-success/20"
-                    : "text-warning bg-warning/10 border border-warning/20"
-                )}
+              <Badge
+                variant={isCorrect ? "default" : "warning"}
+                className="text-[11px] font-medium flex items-center gap-1"
               >
                 {isCorrect ? (
                   <>
@@ -403,7 +398,7 @@ export function ConceptBiteCard({
                     {isHi ? "नीचे स्पष्टीकरण देखें" : "Review explanation below"}
                   </>
                 )}
-              </span>
+              </Badge>
             )}
           </div>
         </div>

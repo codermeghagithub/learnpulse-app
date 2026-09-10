@@ -27,6 +27,8 @@ function getServerSnapshot(): "dark" | "light" {
   return "dark";
 }
 
+import { Button } from "@/components/ui/button";
+
 export function ThemeToggle({ className }: ThemeToggleProps) {
   const theme = useSyncExternalStore(subscribeTheme, getThemeSnapshot, getServerSnapshot);
   const mounted = useSyncExternalStore(
@@ -47,14 +49,16 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
   }
 
   return (
-    <button
+    <Button
       type="button"
+      variant="outline"
+      size="icon-sm"
       onClick={toggleTheme}
       id="theme-toggle-btn"
       aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
       title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
       className={cn(
-        "relative flex h-9 w-9 items-center justify-center rounded-xl border border-border bg-card text-foreground/80 shadow-xs transition-all duration-200 hover:text-foreground hover:bg-accent hover:scale-105 active:scale-95 cursor-pointer",
+        "relative rounded-xl border-border bg-card text-foreground/80 shadow-xs transition-all duration-200 hover:text-foreground hover:bg-accent hover:scale-105 active:scale-95 cursor-pointer",
         className
       )}
     >
@@ -65,6 +69,6 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
       ) : (
         <Moon className="h-4.5 w-4.5 text-indigo-500 transition-transform duration-300 hover:-rotate-12" />
       )}
-    </button>
+    </Button>
   );
 }

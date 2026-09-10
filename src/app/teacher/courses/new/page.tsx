@@ -3,6 +3,8 @@ import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import { ArrowLeft, BookPlus } from "lucide-react";
 import { CreateCourseForm } from "./CreateCourseForm";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export const metadata = {
   title: "Create New Course — LearnPulse",
@@ -31,7 +33,10 @@ export default async function NewCoursePage() {
       <Link
         href="/teacher"
         id="back-to-teacher"
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        className={cn(
+          buttonVariants({ variant: "ghost", size: "sm" }),
+          "gap-2 text-sm text-muted-foreground hover:text-foreground w-fit"
+        )}
       >
         <ArrowLeft className="h-4 w-4" />
         Back to Class Overview

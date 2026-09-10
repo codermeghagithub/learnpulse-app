@@ -7,6 +7,9 @@ import { ConceptBiteCard } from "@/components/remediation/ConceptBiteCard";
 import { Network, ListOrdered } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+
 interface GapKnowledgeViewProps {
   nodes: DagNode[];
   edges?: DagEdge[];
@@ -40,9 +43,9 @@ export function GapKnowledgeView({
           <h2 className="font-semibold text-base flex items-center gap-2">
             <span>Prerequisite Dependency Graph</span>
             {nodes.length > 1 && (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-normal">
+              <Badge variant="outline" className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-normal border-primary/20">
                 {nodes.length - 1} foundational prerequisite{nodes.length > 2 ? "s" : ""}
-              </span>
+              </Badge>
             )}
           </h2>
         </div>
@@ -50,32 +53,36 @@ export function GapKnowledgeView({
         {/* Toggle Switch */}
         {nodes.length > 1 && (
           <div className="flex items-center bg-background/80 border border-border rounded-xl p-1 text-xs">
-            <button
+            <Button
               type="button"
+              variant={viewMode === "graph" ? "default" : "ghost"}
+              size="sm"
               onClick={() => setViewMode("graph")}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer",
+                "flex items-center gap-1.5 px-3 py-1.5 h-8 rounded-lg font-medium transition-all cursor-pointer",
                 viewMode === "graph"
-                  ? "bg-primary text-white font-semibold shadow-xs"
+                  ? "shadow-xs font-semibold"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
               <Network className="h-3.5 w-3.5" />
               <span>Visual DAG Map</span>
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant={viewMode === "chain" ? "default" : "ghost"}
+              size="sm"
               onClick={() => setViewMode("chain")}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer",
+                "flex items-center gap-1.5 px-3 py-1.5 h-8 rounded-lg font-medium transition-all cursor-pointer",
                 viewMode === "chain"
-                  ? "bg-primary text-white font-semibold shadow-xs"
+                  ? "shadow-xs font-semibold"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
               <ListOrdered className="h-3.5 w-3.5" />
               <span>Step-by-Step Chain</span>
-            </button>
+            </Button>
           </div>
         )}
       </div>

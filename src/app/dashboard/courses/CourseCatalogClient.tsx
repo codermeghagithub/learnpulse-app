@@ -20,6 +20,10 @@ import {
   unenrollFromCourseAction,
 } from "@/app/actions/enrollment";
 import { cn } from "@/lib/utils";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 
 export interface CatalogCourse {
   id: string;
@@ -118,10 +122,13 @@ export function CourseCatalogClient({
 
         <Link
           href="/dashboard"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline self-start sm:self-auto bg-primary/10 hover:bg-primary/15 px-3.5 py-2 rounded-xl transition-colors shrink-0"
+          className={cn(
+            buttonVariants({ variant: "outline", size: "sm" }),
+            "self-start sm:self-auto bg-primary/10 hover:bg-primary/15 text-primary border-primary/20 rounded-xl transition-colors shrink-0 font-semibold cursor-pointer"
+          )}
         >
           Back to Dashboard
-          <ArrowRight className="h-3.5 w-3.5" />
+          <ArrowRight className="h-3.5 w-3.5 ml-1" />
         </Link>
       </div>
 
@@ -129,60 +136,62 @@ export function CourseCatalogClient({
       {actionFeedback && (
         <div className="flex items-center justify-between rounded-xl border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-foreground animate-fade-in shadow-xs">
           <span>{actionFeedback}</span>
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon-xs"
             onClick={() => setActionFeedback(null)}
-            className="text-muted-foreground hover:text-foreground text-xs p-1 cursor-pointer"
+            className="text-muted-foreground hover:text-foreground cursor-pointer"
           >
             <X className="h-4 w-4" />
-          </button>
+          </Button>
         </div>
       )}
 
       {/* Search and Filters */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <input
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          <Input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by course title or department..."
-            className="w-full rounded-xl border border-border bg-muted/40 pl-10 pr-4 py-2.5 text-xs sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-colors"
+            className="w-full rounded-xl pl-10 pr-4 py-2.5 h-10 text-xs sm:text-sm bg-muted/40 border-border"
           />
         </div>
 
         <div className="flex items-center gap-1.5 p-1 rounded-xl bg-muted/50 border border-border shrink-0 self-start sm:self-auto">
-          <button
+          <Button
             type="button"
+            variant={filter === "all" ? "secondary" : "ghost"}
+            size="sm"
             onClick={() => setFilter("all")}
             className={cn(
-              "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer",
-              filter === "all"
-                ? "bg-card text-foreground shadow-xs"
-                : "text-muted-foreground hover:text-foreground",
+              "rounded-lg text-xs font-medium h-8 cursor-pointer",
+              filter === "all" ? "bg-card text-foreground shadow-xs font-semibold" : "text-muted-foreground"
             )}
           >
             All Courses ({courses.length})
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant={filter === "enrolled" ? "secondary" : "ghost"}
+            size="sm"
             onClick={() => setFilter("enrolled")}
             className={cn(
-              "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer",
-              filter === "enrolled"
-                ? "bg-card text-foreground shadow-xs"
-                : "text-muted-foreground hover:text-foreground",
+              "rounded-lg text-xs font-medium h-8 cursor-pointer",
+              filter === "enrolled" ? "bg-card text-foreground shadow-xs font-semibold" : "text-muted-foreground"
             )}
           >
             My Enrolled ({enrolledIds.size})
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Course Grid */}
       {filteredCourses.length === 0 ? (
-        <div className="glass-card rounded-2xl p-12 text-center space-y-4 border-dashed border-2 border-border/80">
+        <Card className="glass-card rounded-2xl p-12 text-center space-y-4 border-dashed border-2 border-border/80 ring-0">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 mx-auto">
             <GraduationCap className="h-6 w-6" />
           </div>
@@ -197,15 +206,16 @@ export function CourseCatalogClient({
               : "No courses match your search. Try another search term or check back later."}
           </p>
           {filter === "enrolled" && courses.length > 0 && (
-            <button
+            <Button
               type="button"
+              variant="link"
               onClick={() => setFilter("all")}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline pt-2 cursor-pointer"
+              className="text-xs font-semibold text-primary pt-2 cursor-pointer h-auto p-0"
             >
               Browse All Courses
-            </button>
+            </Button>
           )}
-        </div>
+        </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {filteredCourses.map((course) => {
@@ -213,10 +223,10 @@ export function CourseCatalogClient({
             const isLoading = loadingCourseId === course.id;
 
             return (
-              <div
+              <Card
                 key={course.id}
                 className={cn(
-                  "group relative flex flex-col justify-between glass-card rounded-2xl p-6 transition-all duration-200 border hover:border-primary/40 shadow-xs hover:shadow-md",
+                  "group relative flex flex-col justify-between glass-card rounded-2xl p-6 transition-all duration-200 border hover:border-primary/40 shadow-xs hover:shadow-md ring-0",
                   isEnrolled
                     ? "border-primary/30 bg-primary/2"
                     : "border-border",
@@ -225,14 +235,14 @@ export function CourseCatalogClient({
                 <div className="space-y-4">
                   {/* Top badges */}
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-muted border border-border text-muted-foreground">
+                    <Badge variant="outline" className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-muted border-border text-muted-foreground">
                       {course.subject}
-                    </span>
+                    </Badge>
                     {isEnrolled ? (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-success/15 text-success border border-success/30">
+                      <Badge variant="outline" className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-success/15 text-success border-success/30">
                         <CheckCircle2 className="h-3 w-3" />
                         Enrolled
-                      </span>
+                      </Badge>
                     ) : (
                       <span className="text-[11px] font-medium text-muted-foreground">
                         Not Enrolled
@@ -284,41 +294,44 @@ export function CourseCatalogClient({
                         <ArrowRight className="h-3.5 w-3.5" />
                       </Link>
 
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
+                        size="sm"
                         onClick={() => handleToggleEnroll(course)}
                         disabled={isLoading}
-                        className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 px-3 py-1.5 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                        className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 px-3 py-1.5 rounded-lg transition-colors cursor-pointer disabled:opacity-50 h-8"
                       >
                         {isLoading ? (
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" />
                         ) : (
                           "Drop Course"
                         )}
-                      </button>
+                      </Button>
                     </>
                   ) : (
-                    <button
+                    <Button
                       type="button"
+                      size="default"
                       onClick={() => handleToggleEnroll(course)}
                       disabled={isLoading}
-                      className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-2.5 text-xs font-semibold hover:bg-primary/90 transition-colors shadow-xs cursor-pointer disabled:opacity-50"
+                      className="w-full rounded-xl py-2.5 text-xs font-semibold shadow-xs cursor-pointer"
                     >
                       {isLoading ? (
                         <>
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          <Loader2 className="h-3.5 w-3.5 animate-spin mr-2" />
                           Enrolling…
                         </>
                       ) : (
                         <>
-                          <Plus className="h-3.5 w-3.5" />
+                          <Plus className="h-3.5 w-3.5 mr-1" />
                           Enroll in Course
                         </>
                       )}
-                    </button>
+                    </Button>
                   )}
                 </div>
-              </div>
+              </Card>
             );
           })}
         </div>

@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -83,10 +85,10 @@ export default function LoginPage() {
       <form onSubmit={handleLogin} className="space-y-4" id="login-form">
         {/* Email */}
         <div className="space-y-1.5">
-          <label htmlFor="login-email" className="text-sm font-medium text-foreground">
+          <Label htmlFor="login-email" className="text-sm font-medium text-foreground">
             Email
-          </label>
-          <input
+          </Label>
+          <Input
             id="login-email"
             type="email"
             autoComplete="email"
@@ -95,22 +97,17 @@ export default function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
-            className={cn(
-              "w-full rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-foreground",
-              "placeholder:text-muted-foreground/60",
-              "focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring",
-              "transition-colors"
-            )}
+            className="rounded-xl border-border bg-muted/40 px-4 py-3 h-11 text-sm placeholder:text-muted-foreground/60"
           />
         </div>
 
         {/* Password */}
         <div className="space-y-1.5">
-          <label htmlFor="login-password" className="text-sm font-medium text-foreground">
+          <Label htmlFor="login-password" className="text-sm font-medium text-foreground">
             Password
-          </label>
+          </Label>
           <div className="relative">
-            <input
+            <Input
               id="login-password"
               type={showPassword ? "text" : "password"}
               autoComplete="current-password"
@@ -119,21 +116,18 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className={cn(
-                "w-full rounded-xl border border-border bg-muted/40 px-4 py-3 pr-10 text-sm text-foreground",
-                "placeholder:text-muted-foreground/60",
-                "focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring",
-                "transition-colors"
-              )}
+              className="rounded-xl border-border bg-muted/40 px-4 py-3 pr-10 h-11 text-sm placeholder:text-muted-foreground/60"
             />
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon-xs"
               id="toggle-password-visibility"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -147,16 +141,11 @@ export default function LoginPage() {
           </div>
         )}
 
-        <button
+        <Button
           id="login-submit-btn"
           type="submit"
           disabled={loading}
-          className={cn(
-            "w-full flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition-colors shadow-sm",
-            loading
-              ? "bg-muted text-muted-foreground cursor-not-allowed"
-              : "bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer"
-          )}
+          className="w-full h-11 rounded-xl font-semibold shadow-sm cursor-pointer"
         >
           {loading ? (
             <>
@@ -166,10 +155,10 @@ export default function LoginPage() {
           ) : (
             <>
               Sign in
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-4 w-4 ml-1" />
             </>
           )}
-        </button>
+        </Button>
       </form>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">

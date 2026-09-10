@@ -12,6 +12,10 @@ import {
   MessageSquare,
 } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface QuizOption {
@@ -196,14 +200,15 @@ export function QuizCard({
         <span className="text-sm text-muted-foreground">
           Question {questionNumber} of {totalQuestions}
         </span>
-        <span
+        <Badge
+          variant="outline"
           className={cn(
-            "text-xs px-2.5 py-1 rounded-full border font-medium capitalize",
+            "text-xs px-2.5 py-1 rounded-full font-medium capitalize",
             DIFFICULTY_BADGE[difficulty],
           )}
         >
           {difficulty}
-        </span>
+        </Badge>
       </div>
 
       {/* Question */}
@@ -268,17 +273,20 @@ export function QuizCard({
       {!submitted && selected && selected !== correctAnswer && (
         <div className="space-y-2 animate-slide-up">
           {!showReasoningInput ? (
-            <button
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
               id="show-reasoning-btn"
               onClick={() => setShowReasoningInput(true)}
-              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+              className="gap-1.5 text-xs text-muted-foreground hover:text-primary h-auto p-0 cursor-pointer hover:bg-transparent"
             >
               <MessageSquare className="h-3.5 w-3.5" />
               Why did you pick this?{" "}
               <span className="text-primary font-medium">
                 (helps AI tailor feedback)
               </span>
-            </button>
+            </Button>
           ) : (
             <div className="space-y-1.5">
               <label
@@ -288,14 +296,14 @@ export function QuizCard({
                 <MessageSquare className="h-3.5 w-3.5" />
                 Your reasoning (optional — makes AI diagnosis sharper):
               </label>
-              <textarea
+              <Textarea
                 id="student-reasoning"
                 value={studentReasoning}
                 onChange={(e) => setStudentReasoning(e.target.value)}
                 placeholder="e.g. I picked this because I assumed locks always prevent deadlocks..."
                 maxLength={500}
                 rows={2}
-                className="w-full rounded-xl border border-border bg-background/50 px-3 py-2 text-xs text-foreground focus:outline-none resize-none transition-colors"
+                className="w-full rounded-xl border-border bg-background/50 px-3 py-2 text-xs text-foreground focus:outline-none resize-none transition-colors"
               />
             </div>
           )}
@@ -481,19 +489,14 @@ export function QuizCard({
 
       {/* Submit / Recorded */}
       {!submitted ? (
-        <button
+        <Button
           id="quiz-submit-btn"
           disabled={!selected || isBusy}
           onClick={handleSubmit}
-          className={cn(
-            "w-full py-3 rounded-xl font-semibold text-sm transition-colors",
-            selected && !isBusy
-              ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm cursor-pointer"
-              : "bg-muted text-muted-foreground cursor-not-allowed",
-          )}
+          className="w-full h-11 rounded-xl font-semibold text-sm shadow-sm cursor-pointer"
         >
           {isBusy ? "Submitting..." : "Submit Answer"}
-        </button>
+        </Button>
       ) : (
         <div className="text-center text-sm text-muted-foreground pt-1">
           Answer recorded — see your updated mastery status below

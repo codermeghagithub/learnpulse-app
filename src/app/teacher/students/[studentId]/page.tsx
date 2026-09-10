@@ -10,6 +10,8 @@ import { ArrowLeft, BookOpen, Shield } from "lucide-react";
 import { getDaysSince, cn } from "@/lib/utils";
 import { CourseSelector } from "@/components/CourseSelector";
 import { getStudentEnrolledCourseIds } from "@/lib/enrollment";
+import { buttonVariants } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 interface PageProps {
   params: Promise<{ studentId: string }>;
@@ -157,7 +159,10 @@ export default async function TeacherStudentPage({
         <Link
           href={selectedCourseId ? `/teacher?courseId=${selectedCourseId}` : "/teacher"}
           id="back-to-class"
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className={cn(
+            buttonVariants({ variant: "ghost", size: "sm" }),
+            "gap-2 text-sm text-muted-foreground hover:text-foreground"
+          )}
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Class Overview
@@ -242,7 +247,10 @@ export default async function TeacherStudentPage({
           <div className="pt-2">
             <Link
               href="/teacher"
-              className="inline-flex items-center gap-2 text-xs font-semibold text-primary hover:underline"
+              className={cn(
+                buttonVariants({ variant: "ghost", size: "sm" }),
+                "gap-2 text-xs font-semibold text-primary"
+              )}
             >
               <ArrowLeft className="h-3.5 w-3.5" />
               Return to Class Overview
@@ -257,9 +265,9 @@ export default async function TeacherStudentPage({
           <div className="flex items-center justify-between">
             <h2 className="font-semibold text-base text-destructive flex items-center gap-2">
               Concepts Needing Attention
-              <span className="text-xs px-2 py-0.5 rounded-md bg-destructive/10 text-destructive border border-destructive/20 font-medium">
+              <Badge variant="destructive" className="text-xs">
                 {weakConcepts.length} Weak
-              </span>
+              </Badge>
             </h2>
           </div>
           <div className="space-y-3">
@@ -344,9 +352,9 @@ export default async function TeacherStudentPage({
                     {concept.isAttempted && concept.risk ? (
                       <RiskBadge bucket={concept.risk.bucket} />
                     ) : (
-                      <span className="text-[10px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-medium border border-border">
+                      <Badge variant="outline" className="text-[10px]">
                         Pending Practice
-                      </span>
+                      </Badge>
                     )}
                   </div>
                 </div>

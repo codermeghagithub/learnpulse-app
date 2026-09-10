@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 import type { RiskBucket } from "@/lib/algorithms/risk";
 
 interface RiskBadgeProps {
@@ -42,9 +43,10 @@ export function RiskBadge({ bucket, score, showScore = false, className }: RiskB
   const styles = BUCKET_STYLES[bucket];
 
   return (
-    <span
+    <Badge
+      variant="outline"
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-medium border transition-colors",
+        "gap-1.5 font-medium transition-colors cursor-default",
         styles.bg,
         styles.text,
         styles.border,
@@ -64,6 +66,6 @@ export function RiskBadge({ bucket, score, showScore = false, className }: RiskB
           ({(score * 100).toFixed(0)}%)
         </span>
       )}
-    </span>
+    </Badge>
   );
 }

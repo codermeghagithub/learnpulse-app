@@ -20,6 +20,8 @@ import { CourseSelector } from "@/components/CourseSelector";
 import { CreateCourseModal } from "@/components/teacher/CreateCourseModal";
 import { DeleteCourseButton } from "@/components/teacher/DeleteCourseButton";
 import { getEnrolledStudentsForCourse } from "@/lib/enrollment";
+import { buttonVariants } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 export const dynamic = "force-dynamic";
 
@@ -265,7 +267,10 @@ export default async function TeacherPage({ searchParams }: PageProps) {
           <Link
             href={`/teacher/courses/${selectedCourseId}/concepts`}
             id="manage-curriculum-btn"
-            className="inline-flex items-center gap-1.5 text-xs text-primary font-medium hover:underline bg-primary/10 hover:bg-primary/15 px-3 py-1.5 rounded-lg transition-colors"
+            className={cn(
+              buttonVariants({ variant: "outline", size: "sm" }),
+              "gap-1.5 text-xs text-primary font-medium cursor-pointer"
+            )}
           >
             Author Concepts, Prerequisites & Questions
             <ArrowRight className="h-3 w-3" />
@@ -448,9 +453,9 @@ export default async function TeacherPage({ searchParams }: PageProps) {
                         {student.name}
                       </p>
                       {!student.hasCourseAttempts && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-md bg-muted text-muted-foreground font-medium border border-border">
+                        <Badge variant="outline" className="text-[10px]">
                           Not started
-                        </span>
+                        </Badge>
                       )}
                     </div>
 
@@ -472,9 +477,9 @@ export default async function TeacherPage({ searchParams }: PageProps) {
                   {student.hasCourseAttempts ? (
                     <RiskBadge bucket={student.courseRisk.bucket} />
                   ) : (
-                    <span className="text-xs px-2.5 py-1 rounded-lg bg-muted text-muted-foreground font-medium border border-border">
+                    <Badge variant="outline" className="text-xs">
                       Unranked
-                    </span>
+                    </Badge>
                   )}
                   <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors group-hover:translate-x-0.5" />
                 </div>

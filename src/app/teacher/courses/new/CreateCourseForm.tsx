@@ -4,6 +4,10 @@ import { useState } from "react";
 import { createCourseAction } from "@/app/actions/authoring";
 import { BookPlus, Loader2, AlertCircle } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
 export function CreateCourseForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -26,7 +30,9 @@ export function CreateCourseForm() {
         throw err;
       }
       console.error("Create course error:", err);
-      setError("Unable to create course. Please check the details and try again.");
+      setError(
+        "Unable to create course. Please check the details and try again.",
+      );
       setLoading(false);
     }
   }
@@ -41,10 +47,13 @@ export function CreateCourseForm() {
       )}
 
       <div className="space-y-2">
-        <label htmlFor="title" className="block text-sm font-medium text-foreground">
+        <Label
+          htmlFor="course-title-input"
+          className="block text-sm font-medium text-foreground"
+        >
           Course Title <span className="text-primary">*</span>
-        </label>
-        <input
+        </Label>
+        <Input
           id="course-title-input"
           name="title"
           type="text"
@@ -52,18 +61,22 @@ export function CreateCourseForm() {
           minLength={2}
           maxLength={120}
           placeholder="e.g. Cloud Computing & Distributed Systems"
-          className="w-full rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-colors"
+          className="w-full rounded-xl border-border bg-muted/40 px-4 py-3 h-11 text-sm text-foreground transition-colors"
         />
         <p className="text-xs text-muted-foreground">
-          A clear, distinctive name for the course visible to students and teachers.
+          A clear, distinctive name for the course visible to students and
+          teachers.
         </p>
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="subject" className="block text-sm font-medium text-foreground">
+        <Label
+          htmlFor="course-subject-input"
+          className="block text-sm font-medium text-foreground"
+        >
           Subject / Department <span className="text-primary">*</span>
-        </label>
-        <input
+        </Label>
+        <Input
           id="course-subject-input"
           name="subject"
           type="text"
@@ -72,28 +85,28 @@ export function CreateCourseForm() {
           maxLength={100}
           defaultValue="Computer Science"
           placeholder="e.g. Computer Science"
-          className="w-full rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-colors"
+          className="w-full rounded-xl border-border bg-muted/40 px-4 py-3 h-11 text-sm text-foreground transition-colors"
         />
       </div>
 
-      <button
+      <Button
         type="submit"
         id="submit-course-btn"
         disabled={loading}
-        className="flex items-center justify-center gap-2 w-full rounded-xl bg-primary text-primary-foreground py-3.5 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 transition-colors shadow-sm cursor-pointer"
+        className="gap-2 w-full rounded-xl py-3.5 h-12 text-sm font-semibold shadow-sm cursor-pointer"
       >
         {loading ? (
           <>
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin mr-2" />
             Creating Course…
           </>
         ) : (
           <>
-            <BookPlus className="h-4 w-4" />
+            <BookPlus className="h-4 w-4 mr-2" />
             Create Course & Author Concepts
           </>
         )}
-      </button>
+      </Button>
     </form>
   );
 }

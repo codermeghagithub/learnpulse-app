@@ -6,6 +6,9 @@ import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -83,10 +86,10 @@ export default function SignupPage() {
       <form onSubmit={handleSignup} className="space-y-4" id="signup-form">
         {/* Full name */}
         <div className="space-y-1.5">
-          <label htmlFor="signup-name" className="text-sm font-medium text-foreground">
+          <Label htmlFor="signup-name" className="text-sm font-medium text-foreground">
             Full Name
-          </label>
-          <input
+          </Label>
+          <Input
             id="signup-name"
             type="text"
             autoComplete="name"
@@ -95,46 +98,42 @@ export default function SignupPage() {
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             placeholder="Rebortak Roy"
-            className={cn(
-              "w-full rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-foreground",
-              "placeholder:text-muted-foreground/60",
-              "focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring",
-              "transition-colors"
-            )}
+            className="rounded-xl border-border bg-muted/40 px-4 py-3 h-11 text-sm placeholder:text-muted-foreground/60"
           />
         </div>
 
         {/* Role selector */}
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-foreground">I am a…</label>
+          <Label className="text-sm font-medium text-foreground">I am a…</Label>
           <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Role selection">
             {(["student", "teacher"] as const).map((r) => (
-              <button
+              <Button
                 key={r}
                 type="button"
                 id={`role-${r}`}
                 role="radio"
+                variant={role === r ? "default" : "outline"}
                 aria-checked={role === r}
                 onClick={() => setRole(r)}
                 className={cn(
-                  "rounded-xl border py-2.5 text-sm font-medium capitalize transition-colors cursor-pointer",
+                  "rounded-xl h-11 text-sm font-medium capitalize cursor-pointer",
                   role === r
-                    ? "border-primary bg-primary/10 text-primary font-semibold"
-                    : "border-border text-muted-foreground hover:border-border/80"
+                    ? "border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary font-semibold shadow-none"
+                    : "border-border text-muted-foreground hover:border-border/80 hover:text-foreground"
                 )}
               >
                 {r}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
 
         {/* Email */}
         <div className="space-y-1.5">
-          <label htmlFor="signup-email" className="text-sm font-medium text-foreground">
+          <Label htmlFor="signup-email" className="text-sm font-medium text-foreground">
             Email
-          </label>
-          <input
+          </Label>
+          <Input
             id="signup-email"
             type="email"
             autoComplete="email"
@@ -143,22 +142,17 @@ export default function SignupPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
-            className={cn(
-              "w-full rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-foreground",
-              "placeholder:text-muted-foreground/60",
-              "focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring",
-              "transition-colors"
-            )}
+            className="rounded-xl border-border bg-muted/40 px-4 py-3 h-11 text-sm placeholder:text-muted-foreground/60"
           />
         </div>
 
         {/* Password */}
         <div className="space-y-1.5">
-          <label htmlFor="signup-password" className="text-sm font-medium text-foreground">
+          <Label htmlFor="signup-password" className="text-sm font-medium text-foreground">
             Password
-          </label>
+          </Label>
           <div className="relative">
-            <input
+            <Input
               id="signup-password"
               type={showPassword ? "text" : "password"}
               autoComplete="new-password"
@@ -168,21 +162,18 @@ export default function SignupPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Min. 6 characters"
-              className={cn(
-                "w-full rounded-xl border border-border bg-muted/40 px-4 py-3 pr-10 text-sm text-foreground",
-                "placeholder:text-muted-foreground/60",
-                "focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring",
-                "transition-colors"
-              )}
+              className="rounded-xl border-border bg-muted/40 px-4 py-3 pr-10 h-11 text-sm placeholder:text-muted-foreground/60"
             />
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon-xs"
               id="toggle-signup-password"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
             >
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -196,29 +187,24 @@ export default function SignupPage() {
           </div>
         )}
 
-        <button
+        <Button
           id="signup-submit-btn"
           type="submit"
           disabled={loading}
-          className={cn(
-            "w-full flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition-colors shadow-sm",
-            loading
-              ? "bg-muted text-muted-foreground cursor-not-allowed"
-              : "bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer"
-          )}
+          className="w-full h-11 rounded-xl py-3 text-sm font-semibold shadow-sm cursor-pointer"
         >
           {loading ? (
             <>
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
               Creating account…
             </>
           ) : (
             <>
               Create account
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-4 w-4 ml-2" />
             </>
           )}
-        </button>
+        </Button>
       </form>
 
       <p className="mt-6 text-center text-sm text-muted-foreground">
