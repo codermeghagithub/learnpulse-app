@@ -25,7 +25,8 @@ export function CreateCourseForm() {
       if (err instanceof Error && err.message.includes("NEXT_REDIRECT")) {
         throw err;
       }
-      setError(err instanceof Error ? err.message : "Failed to create course");
+      console.error("Create course error:", err);
+      setError("Unable to create course. Please check the details and try again.");
       setLoading(false);
     }
   }
@@ -40,7 +41,7 @@ export function CreateCourseForm() {
       )}
 
       <div className="space-y-2">
-        <label htmlFor="title" className="block text-sm font-medium">
+        <label htmlFor="title" className="block text-sm font-medium text-foreground">
           Course Title <span className="text-primary">*</span>
         </label>
         <input
@@ -48,8 +49,10 @@ export function CreateCourseForm() {
           name="title"
           type="text"
           required
+          minLength={2}
+          maxLength={120}
           placeholder="e.g. Cloud Computing & Distributed Systems"
-          className="w-full rounded-xl border border-border bg-input/50 px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+          className="w-full rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-colors"
         />
         <p className="text-xs text-muted-foreground">
           A clear, distinctive name for the course visible to students and teachers.
@@ -57,7 +60,7 @@ export function CreateCourseForm() {
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="subject" className="block text-sm font-medium">
+        <label htmlFor="subject" className="block text-sm font-medium text-foreground">
           Subject / Department <span className="text-primary">*</span>
         </label>
         <input
@@ -65,9 +68,11 @@ export function CreateCourseForm() {
           name="subject"
           type="text"
           required
+          minLength={2}
+          maxLength={100}
           defaultValue="Computer Science"
           placeholder="e.g. Computer Science"
-          className="w-full rounded-xl border border-border bg-input/50 px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+          className="w-full rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-colors"
         />
       </div>
 
@@ -75,7 +80,7 @@ export function CreateCourseForm() {
         type="submit"
         id="submit-course-btn"
         disabled={loading}
-        className="flex items-center justify-center gap-2 w-full rounded-xl gradient-brand glow-brand text-white py-3.5 text-sm font-semibold hover:opacity-90 disabled:opacity-50 transition-all shadow-sm"
+        className="flex items-center justify-center gap-2 w-full rounded-xl bg-primary text-primary-foreground py-3.5 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50 transition-colors shadow-sm cursor-pointer"
       >
         {loading ? (
           <>

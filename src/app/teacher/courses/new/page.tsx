@@ -40,7 +40,7 @@ export default async function NewCoursePage() {
       {/* Header */}
       <div className="space-y-2">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-brand text-white shadow-sm">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
             <BookPlus className="h-5 w-5" />
           </div>
           <h1 className="text-2xl font-bold">Create New Course</h1>

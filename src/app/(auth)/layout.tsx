@@ -18,12 +18,12 @@ export default function AuthLayout({
 
       {/* Logo */}
       <div className="flex items-center gap-3 mb-10">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-brand glow-brand">
-          <Brain className="h-5 w-5 text-white" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
+          <Brain className="h-5 w-5" />
         </div>
         <div>
-          <h1 className="text-xl font-bold gradient-text">LearnPulse</h1>
-          <p className="text-xs text-muted-foreground">Know what you don&apos;t know.</p>
+          <h1 className="text-xl font-bold tracking-tight text-foreground font-display">LearnPulse</h1>
+          <p className="text-xs text-muted-foreground">Adaptive Knowledge Tracing System</p>
         </div>
       </div>
 

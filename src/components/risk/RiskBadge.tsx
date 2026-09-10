@@ -13,28 +13,28 @@ const BUCKET_STYLES: Record<
   { bg: string; text: string; dot: string; border: string }
 > = {
   Healthy: {
-    bg: "bg-[var(--mastery-high)]/10",
-    text: "text-[var(--mastery-high)]",
-    dot: "bg-[var(--mastery-high)]",
-    border: "border-[var(--mastery-high)]/20",
+    bg: "bg-success/10",
+    text: "text-success",
+    dot: "bg-success",
+    border: "border-success/20",
   },
   Monitor: {
-    bg: "bg-[var(--mastery-mid)]/10",
-    text: "text-[var(--mastery-mid)]",
-    dot: "bg-[var(--mastery-mid)]",
-    border: "border-[var(--mastery-mid)]/20",
+    bg: "bg-warning/10",
+    text: "text-warning",
+    dot: "bg-warning",
+    border: "border-warning/20",
   },
   "At Risk": {
     bg: "bg-orange-500/10",
-    text: "text-orange-400",
-    dot: "bg-orange-400",
+    text: "text-orange-500 dark:text-orange-400",
+    dot: "bg-orange-500",
     border: "border-orange-500/20",
   },
   Critical: {
-    bg: "bg-[var(--mastery-low)]/10",
-    text: "text-[var(--mastery-low)]",
-    dot: "bg-[var(--mastery-low)]",
-    border: "border-[var(--mastery-low)]/20",
+    bg: "bg-destructive/10",
+    text: "text-destructive",
+    dot: "bg-destructive",
+    border: "border-destructive/20",
   },
 };
 
@@ -44,7 +44,7 @@ export function RiskBadge({ bucket, score, showScore = false, className }: RiskB
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold border shadow-2xs backdrop-blur-xs transition-transform duration-150 hover:scale-105",
+        "inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-medium border transition-colors",
         styles.bg,
         styles.text,
         styles.border,
@@ -56,12 +56,11 @@ export function RiskBadge({ bucket, score, showScore = false, className }: RiskB
         className={cn(
           "h-1.5 w-1.5 rounded-full shrink-0",
           styles.dot,
-          bucket === "At Risk" || bucket === "Critical" ? "animate-pulse" : ""
         )}
       />
-      {bucket}
+      <span>{bucket}</span>
       {showScore && score !== undefined && (
-        <span className="opacity-75 font-normal">
+        <span className="opacity-80 font-mono tabular-nums text-[11px]">
           ({(score * 100).toFixed(0)}%)
         </span>
       )}

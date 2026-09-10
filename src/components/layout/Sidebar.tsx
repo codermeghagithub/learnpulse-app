@@ -56,19 +56,15 @@ export function Sidebar({ role, fullName }: SidebarProps) {
       {/* Brand Header */}
       <div className="flex items-center justify-between px-5 py-4.5 border-b border-border/60">
         <Link href={role === "teacher" ? "/teacher" : "/dashboard"} className="flex items-center gap-3 group">
-          <motion.div
-            whileHover={{ scale: 1.06, rotate: 5 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex h-9 w-9 items-center justify-center rounded-xl gradient-brand glow-brand shadow-sm"
-          >
-            <Brain className="h-5 w-5 text-white animate-float" />
-          </motion.div>
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
+            <Brain className="h-5 w-5" />
+          </div>
           <div className="flex flex-col">
-            <span className="font-bold text-base gradient-text tracking-tight group-hover:opacity-90 transition-opacity">
+            <span className="font-bold text-base text-foreground font-display tracking-tight group-hover:text-primary transition-colors">
               LearnPulse
             </span>
-            <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary shadow-xs shadow-primary" />
+            <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
               {role === "teacher" ? "Teacher Portal" : "Student Hub"}
             </span>
           </div>
@@ -141,11 +137,11 @@ export function Sidebar({ role, fullName }: SidebarProps) {
       <div className="border-t border-border/80 p-3">
         <div className="flex items-center justify-between rounded-xl p-2.5 glass-card border border-border/70 hover:border-primary/30 transition-all shadow-xs">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg gradient-brand text-white font-bold text-xs uppercase shadow-xs shrink-0">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary border border-primary/20 font-display font-semibold text-xs uppercase shadow-xs shrink-0">
               {fullName.charAt(0) || "U"}
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-semibold truncate leading-tight">{fullName}</p>
+              <p className="text-xs font-semibold truncate leading-tight text-foreground">{fullName}</p>
               <p className="text-[10px] text-muted-foreground capitalize leading-tight mt-0.5">{role}</p>
             </div>
           </div>
@@ -177,10 +173,10 @@ export function Sidebar({ role, fullName }: SidebarProps) {
         </button>
 
         <Link href={role === "teacher" ? "/teacher" : "/dashboard"} className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg gradient-brand">
-            <Brain className="h-4 w-4 text-white" />
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <Brain className="h-4 w-4" />
           </div>
-          <span className="font-bold text-sm gradient-text">LearnPulse</span>
+          <span className="font-bold text-sm text-foreground font-display">LearnPulse</span>
         </Link>
 
         {/* Placeholder spacer to balance layout */}

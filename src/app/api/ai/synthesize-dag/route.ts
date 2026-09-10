@@ -71,8 +71,9 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const parsed = requestSchema.safeParse(body);
     if (!parsed.success) {
+      console.warn("[/api/ai/synthesize-dag] Validation failure:", parsed.error.format());
       return NextResponse.json(
-        { error: "Invalid payload", details: parsed.error.format() },
+        { error: "Invalid payload" },
         { status: 400 }
       );
     }

@@ -16,9 +16,9 @@ interface PageProps {
 }
 
 const DIFFICULTY_COLOR: Record<string, string> = {
-  easy: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
-  medium: "bg-amber-500/10 text-amber-400 border-amber-500/30",
-  hard: "bg-red-500/10 text-red-400 border-red-500/30",
+  easy: "bg-success/10 text-success border-success/30",
+  medium: "bg-warning/10 text-warning border-warning/30",
+  hard: "bg-destructive/10 text-destructive border-destructive/30",
 };
 
 export default async function TeacherStudentPage({
@@ -161,13 +161,13 @@ export default async function TeacherStudentPage({
       <div className="glass-card rounded-2xl p-6 sm:p-7 space-y-5 animate-slide-up">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full gradient-brand text-white text-lg font-bold shadow-sm">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 text-base font-display font-semibold shadow-xs">
               {studentProfile.full_name.charAt(0).toUpperCase()}
             </div>
             <div>
-              <h1 className="text-xl font-bold">{studentProfile.full_name}</h1>
+              <h1 className="text-xl font-bold text-foreground">{studentProfile.full_name}</h1>
               <p className="text-xs text-muted-foreground">
-                Individual Student Learning Diagnostic Profile
+                Individual student diagnostic profile
               </p>
             </div>
           </div>
@@ -195,7 +195,7 @@ export default async function TeacherStudentPage({
               Mastery in {selectedCourse?.title ?? "Subject"}
             </span>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-base gradient-text">
+              <span className="font-display font-semibold text-base text-foreground tabular-nums">
                 {avgMastery.toFixed(0)}%
               </span>
               <span className="text-xs text-muted-foreground font-medium">
@@ -218,9 +218,9 @@ export default async function TeacherStudentPage({
       {weakConcepts.length > 0 && (
         <div className="animate-slide-up space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="font-semibold text-base text-mastery-low flex items-center gap-2">
+            <h2 className="font-semibold text-base text-destructive flex items-center gap-2">
               Concepts Needing Attention
-              <span className="text-xs px-2 py-0.5 rounded-full bg-mastery-low/10 text-mastery-low border border-mastery-low/20">
+              <span className="text-xs px-2 py-0.5 rounded-md bg-destructive/10 text-destructive border border-destructive/20 font-medium">
                 {weakConcepts.length} Weak
               </span>
             </h2>
@@ -230,7 +230,7 @@ export default async function TeacherStudentPage({
               <div
                 key={concept.id}
                 id={`teacher-concept-weak-${idx}`}
-                className="glass-card rounded-xl p-4 space-y-2.5 border-mastery-low/30"
+                className="glass-card rounded-xl p-4 space-y-2.5 border-destructive/30"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">

@@ -99,7 +99,7 @@ export function ConceptBiteCard({
       .then(async (res) => {
         if (!res.ok) {
           const errBody = await res.json().catch(() => null);
-          const msg = errBody?.error || `HTTP ${res.status}`;
+          const msg = errBody?.error || "Unable to load concept bite. Please try again.";
           throw new Error(msg);
         }
         return res.json();
@@ -116,7 +116,7 @@ export function ConceptBiteCard({
       })
       .catch((err) => {
         console.error("Failed to load concept bite:", err);
-        setError(err instanceof Error ? err.message : "Could not load concept bite");
+        setError("Could not load concept bite at this time.");
         setLoading(false);
       });
   }
@@ -139,7 +139,7 @@ export function ConceptBiteCard({
       .then(async (res) => {
         if (!res.ok) {
           const errBody = await res.json().catch(() => null);
-          const msg = errBody?.error || `HTTP ${res.status}`;
+          const msg = errBody?.error || "Unable to load concept bite. Please try again.";
           throw new Error(msg);
         }
         return res.json();
@@ -159,7 +159,7 @@ export function ConceptBiteCard({
       .catch((err) => {
         if (!isCancelled) {
           console.error("Failed to load concept bite:", err);
-          setError(err instanceof Error ? err.message : "Could not load concept bite");
+          setError("Could not load concept bite at this time.");
           setLoading(false);
         }
       });
@@ -198,10 +198,10 @@ export function ConceptBiteCard({
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-primary/20" />
+            <div className="h-8 w-8 rounded-lg bg-primary/15" />
             <div className="h-4 w-40 bg-muted rounded" />
           </div>
-          <div className="h-5 w-24 bg-muted rounded-full" />
+          <div className="h-5 w-24 bg-muted rounded-md" />
         </div>
         <div className="space-y-2">
           <div className="h-3 w-full bg-muted/60 rounded" />
@@ -252,22 +252,19 @@ export function ConceptBiteCard({
   return (
     <div
       className={cn(
-        "glass-card rounded-2xl p-6 sm:p-7 space-y-5 border-primary/30 shadow-lg relative overflow-hidden animate-slide-up",
+        "glass-card rounded-2xl p-6 sm:p-7 space-y-5 border-primary/20 shadow-lg relative overflow-hidden",
         className
       )}
     >
-      {/* Top ambient glow */}
-      <div className="absolute top-0 right-0 -mt-8 -mr-8 w-36 h-36 rounded-full bg-primary/10 blur-2xl pointer-events-none" />
-
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl gradient-brand text-white shadow-sm">
-            <Zap className="h-5 w-5" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
+            <Zap className="h-4.5 w-4.5" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-foreground flex items-center gap-1.5">
-              <span>{isHi ? "60-सेकंड कॉन्सेप्ट बाइट" : "60-Second Concept Bite"}</span>
+            <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+              <span>{isHi ? "60-सेकंड अवधारणा विवरण" : "60-Second Concept Bite"}</span>
               <span className="text-xs font-normal text-muted-foreground">
                 • {data.conceptName}
               </span>
@@ -309,7 +306,7 @@ export function ConceptBiteCard({
             </button>
           </div>
 
-          <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border border-primary/20 bg-primary/10 text-[10px] font-semibold text-primary">
+          <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md border border-primary/20 bg-primary/10 text-[10px] font-medium text-primary">
             <Sparkles className="h-3 w-3" />
             <span>{isHi ? "त्वरित सुधार" : "Remediation Bite"}</span>
           </div>
@@ -320,12 +317,12 @@ export function ConceptBiteCard({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
         {/* Intuition */}
         <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-2">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-primary">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
             <Brain className="h-4 w-4" />
             <span>
               {isHi
                 ? "💡 सहज समझ (यह क्यों आवश्यक है):"
-                : "Core Intuition (Why it exists):"}
+                : "Core intuition (why it exists):"}
             </span>
           </div>
           <p className="text-xs text-foreground/90 leading-relaxed">
@@ -334,13 +331,13 @@ export function ConceptBiteCard({
         </div>
 
         {/* Real-World Analogy */}
-        <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 space-y-2">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400">
+        <div className="rounded-xl border border-warning/20 bg-warning/5 p-4 space-y-2">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-warning">
             <Lightbulb className="h-4 w-4" />
             <span>
               {isHi
                 ? "🌍 वास्तविक दुनिया का मानसिक मॉडल:"
-                : "Real-World Mental Model:"}
+                : "Real-world mental model:"}
             </span>
           </div>
           <p className="text-xs text-foreground/90 leading-relaxed">
@@ -349,10 +346,10 @@ export function ConceptBiteCard({
         </div>
       </div>
 
-      {/* 10-Second Anchor Formula (Clean English in EN, Clean Hindi in HI) */}
-      <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/5 px-4 py-3 flex items-center justify-between gap-3">
+      {/* 10-Second Anchor Formula */}
+      <div className="rounded-xl border border-success/25 bg-success/5 px-4 py-3 flex items-center justify-between gap-3">
         <div className="space-y-0.5">
-          <span className="text-[10px] uppercase tracking-wider font-bold text-emerald-400">
+          <span className="text-[10px] uppercase tracking-wider font-semibold text-success">
             💡 {isHi ? "१०-सेकंड सूत्र (NEP 2020)" : "10-Second Anchor Formula"}
           </span>
           <p className="text-xs font-medium text-foreground">
@@ -362,15 +359,15 @@ export function ConceptBiteCard({
       </div>
 
       {/* 2. Tricky Conceptual Quick-Check */}
-      <div className="rounded-xl border border-border/80 bg-background/40 p-4 space-y-3">
+      <div className="rounded-xl border border-border bg-card/40 p-4 space-y-3">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2">
             <HelpCircle className="h-4 w-4 text-primary" />
-            <span className="text-xs font-bold text-foreground">
-              {isHi ? "🎯 अपनी समझ परखें (Check Your Intuition):" : "Check Your Intuition:"}
+            <span className="text-xs font-semibold text-foreground">
+              {isHi ? "🎯 अपनी समझ परखें:" : "Check your intuition:"}
             </span>
             <span className="text-[10px] px-1.5 py-0.2 rounded bg-primary/10 text-primary font-mono">
-              {isHi ? "असली दुनिया की चुनौती" : "Real-World Dilemma"}
+              {isHi ? "असली दुनिया की चुनौती" : "Application Scenario"}
             </span>
           </div>
 
@@ -379,31 +376,31 @@ export function ConceptBiteCard({
             <button
               type="button"
               onClick={handleNextChallenge}
-              className="inline-flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-lg border border-border bg-background/80 hover:bg-primary/10 hover:border-primary/40 text-foreground transition-all cursor-pointer"
-              title="Try another random tricky scenario"
+              className="inline-flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-lg border border-border bg-background hover:bg-muted text-foreground transition-colors cursor-pointer"
+              title="Try another random scenario"
             >
               <span>🎲</span>
-              <span>{isHi ? "नया प्रश्न आज़माएं" : "Try Another Scenario"}</span>
+              <span>{isHi ? "नया परिदृश्य" : "Try another scenario"}</span>
             </button>
 
             {checked && (
               <span
                 className={cn(
-                  "inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full",
+                  "inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-md",
                   isCorrect
-                    ? "text-emerald-400 bg-emerald-500/10 border border-emerald-500/20"
-                    : "text-amber-400 bg-amber-500/10 border border-amber-500/20"
+                    ? "text-success bg-success/10 border border-success/20"
+                    : "text-warning bg-warning/10 border border-warning/20"
                 )}
               >
                 {isCorrect ? (
                   <>
                     <CheckCircle2 className="h-3.5 w-3.5" />
-                    {isHi ? "अवधारणा सत्यापित" : "Concept Verified"}
+                    {isHi ? "अवधारणा सत्यापित" : "Concept verified"}
                   </>
                 ) : (
                   <>
                     <XCircle className="h-3.5 w-3.5" />
-                    {isHi ? "नीचे स्पष्टीकरण देखें" : "Review Explanation Below"}
+                    {isHi ? "नीचे स्पष्टीकरण देखें" : "Review explanation below"}
                   </>
                 )}
               </span>
@@ -411,7 +408,7 @@ export function ConceptBiteCard({
           </div>
         </div>
 
-        <p className="text-xs font-medium text-foreground/95 leading-relaxed">
+        <p className="text-xs font-medium text-foreground leading-relaxed">
           {activeQuestion.question}
         </p>
 
@@ -422,14 +419,14 @@ export function ConceptBiteCard({
             const isAnswer = opt.key === activeQuestion.correctAnswer;
 
             let optStyle =
-              "border-border/70 hover:border-primary/40 hover:bg-primary/5 text-foreground";
+              "border-border hover:border-primary/40 hover:bg-muted/50 text-foreground";
             if (checked) {
               if (isAnswer) {
                 optStyle =
-                  "border-emerald-500/60 bg-emerald-500/10 text-emerald-300 font-medium";
+                  "border-success/60 bg-success/10 text-foreground font-medium";
               } else if (isSelected) {
                 optStyle =
-                  "border-red-500/60 bg-red-500/10 text-red-300";
+                  "border-destructive/60 bg-destructive/10 text-destructive";
               } else {
                 optStyle = "border-border/40 opacity-60";
               }
@@ -444,18 +441,18 @@ export function ConceptBiteCard({
                 onClick={() => handleSelectOption(opt.key, activeQuestion.correctAnswer)}
                 disabled={checked}
                 className={cn(
-                  "w-full flex items-center gap-3 p-2.5 rounded-xl border text-left text-xs transition-all cursor-pointer",
+                  "w-full flex items-center gap-3 p-2.5 rounded-xl border text-left text-xs transition-colors cursor-pointer",
                   optStyle
                 )}
               >
                 <span
                   className={cn(
-                    "flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[11px] font-bold",
+                    "flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[11px] font-mono font-medium",
                     checked && isAnswer
-                      ? "border-emerald-500 bg-emerald-500 text-white"
+                      ? "border-success bg-success text-success-foreground"
                       : checked && isSelected
-                      ? "border-red-500 bg-red-500 text-white"
-                      : "border-border bg-background/60 text-muted-foreground"
+                      ? "border-destructive bg-destructive text-white"
+                      : "border-border bg-background text-muted-foreground"
                   )}
                 >
                   {opt.key}
@@ -470,18 +467,18 @@ export function ConceptBiteCard({
         {checked && (
           <div
             className={cn(
-              "rounded-lg p-3 text-xs leading-relaxed animate-fade-in",
+              "rounded-lg p-3 text-xs leading-relaxed",
               isCorrect
-                ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-200"
-                : "bg-amber-500/10 border border-amber-500/20 text-amber-200"
+                ? "bg-success/10 border border-success/20 text-foreground"
+                : "bg-warning/10 border border-warning/20 text-foreground"
             )}
           >
             <p className="font-semibold mb-0.5">
               {isCorrect
-                ? isHi ? "✅ बेहतरीन समझ!" : "✅ Excellent Intuition!"
-                : isHi ? "💡 यह क्यों काम करता है:" : "💡 Real-World Explanation:"}
+                ? isHi ? "✅ उत्कृष्ट समझ!" : "✅ Conceptual alignment verified"
+                : isHi ? "💡 यह क्यों काम करता है:" : "💡 Intuitive explanation:"}
             </p>
-            <p>{activeQuestion.explanation}</p>
+            <p className="text-muted-foreground">{activeQuestion.explanation}</p>
           </div>
         )}
       </div>

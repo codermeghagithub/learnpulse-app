@@ -189,11 +189,11 @@ export default async function PracticePage({ searchParams }: PageProps) {
           </div>
         )}
 
-        <div className="glass-card rounded-2xl p-12 text-center space-y-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl gradient-brand mx-auto">
-            <Zap className="h-7 w-7 text-white" />
+        <div className="border border-border/80 bg-card rounded-xl p-12 text-center space-y-4 shadow-sm">
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 border border-primary/20 text-primary mx-auto">
+            <Zap className="h-6 w-6" />
           </div>
-          <h2 className="text-xl font-bold">No practice material yet</h2>
+          <h2 className="text-xl font-semibold tracking-tight">No practice material yet</h2>
           <p className="text-muted-foreground text-sm max-w-md mx-auto">
             Your teacher hasn&apos;t added any questions to this course yet. Check back soon!
           </p>
