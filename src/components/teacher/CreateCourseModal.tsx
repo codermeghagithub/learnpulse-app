@@ -71,13 +71,13 @@ export function CreateCourseModal() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="modal-title"
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md animate-fade-in"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm animate-fade-in"
             onClick={(e) => {
               if (e.target === e.currentTarget) handleClose();
             }}
           >
             <div className={cn(
-              "relative w-full rounded-2xl border border-border/80 bg-[#0d121f] text-foreground shadow-2xl transition-all duration-200 animate-scale-up z-50 overflow-hidden",
+              "relative w-full rounded-2xl border border-border bg-card text-card-foreground shadow-2xl transition-all duration-200 animate-scale-up z-50 overflow-hidden",
               mode === "choose" ? "max-w-2xl p-6 sm:p-8" : "max-w-3xl p-6 sm:p-7 max-h-[92vh] overflow-y-auto"
             )}>
               {/* Top Bar / Close Button */}
@@ -86,7 +86,7 @@ export function CreateCourseModal() {
                   <button
                     type="button"
                     onClick={() => setMode("choose")}
-                    className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-lg hover:bg-muted/50 cursor-pointer"
+                    className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-lg hover:bg-muted cursor-pointer"
                   >
                     <ArrowLeft className="h-3.5 w-3.5" />
                     Back to Creation Options
@@ -101,7 +101,7 @@ export function CreateCourseModal() {
                 <button
                   type="button"
                   onClick={handleClose}
-                  className="p-1.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors ml-auto cursor-pointer"
+                  className="p-1.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-colors ml-auto cursor-pointer"
                   aria-label="Close dialog"
                 >
                   <X className="h-4 w-4" />
@@ -112,7 +112,7 @@ export function CreateCourseModal() {
               {mode === "choose" && (
                 <div className="space-y-6">
                   <div className="space-y-1.5">
-                    <h2 id="modal-title" className="text-xl sm:text-2xl font-bold tracking-tight">
+                    <h2 id="modal-title" className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
                       How would you like to create your course?
                     </h2>
                     <p className="text-sm text-muted-foreground">
@@ -132,11 +132,11 @@ export function CreateCourseModal() {
                           setMode("ai");
                         }
                       }}
-                      className="group relative flex flex-col justify-between rounded-2xl border-2 border-primary/40 hover:border-primary bg-primary/5 hover:bg-primary/10 p-5 transition-all duration-200 cursor-pointer text-left shadow-sm hover:shadow-primary/10 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="group relative flex flex-col justify-between rounded-2xl border-2 border-primary/30 hover:border-primary bg-primary/[0.04] hover:bg-primary/[0.08] dark:bg-primary/[0.08] dark:hover:bg-primary/[0.14] p-5 transition-all duration-200 cursor-pointer text-left shadow-xs hover:shadow-md hover:shadow-primary/10 focus:outline-none focus:ring-2 focus:ring-primary"
                     >
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-brand text-white shadow-sm">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-brand text-white shadow-xs">
                             <Sparkles className="h-5 w-5" />
                           </div>
                           <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary text-primary-foreground">
@@ -153,7 +153,7 @@ export function CreateCourseModal() {
                           </p>
                         </div>
 
-                        <ul className="space-y-1.5 text-xs text-muted-foreground pt-1 border-t border-primary/20">
+                        <ul className="space-y-2 text-xs text-muted-foreground pt-3 border-t border-primary/20">
                           <li className="flex items-center gap-2">
                             <BrainCircuit className="h-3.5 w-3.5 text-primary shrink-0" />
                             <span>Zero manual graph charting</span>
@@ -173,7 +173,7 @@ export function CreateCourseModal() {
                         <button
                           type="button"
                           tabIndex={-1}
-                          className="w-full py-2.5 px-3 rounded-xl gradient-brand text-white text-xs font-semibold inline-flex items-center justify-center gap-1.5 shadow-sm group-hover:opacity-95 pointer-events-none"
+                          className="w-full py-2.5 px-3 rounded-xl gradient-brand text-white text-xs font-semibold inline-flex items-center justify-center gap-1.5 shadow-xs group-hover:opacity-95 pointer-events-none"
                         >
                           Synthesize with AI
                           <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
@@ -185,20 +185,20 @@ export function CreateCourseModal() {
                     <Link
                       href="/teacher/courses/new"
                       onClick={handleClose}
-                      className="group relative flex flex-col justify-between rounded-2xl border border-border/80 hover:border-border bg-background/40 hover:bg-background/70 p-5 transition-all duration-200 text-left shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="group relative flex flex-col justify-between rounded-2xl border border-border hover:border-foreground/30 bg-muted/40 hover:bg-muted/70 dark:bg-muted/20 dark:hover:bg-muted/40 p-5 transition-all duration-200 text-left shadow-xs hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary"
                     >
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-foreground border border-border shadow-sm">
-                            <BookPlus className="h-5 w-5" />
+                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-background text-foreground border border-border shadow-xs">
+                            <BookPlus className="h-5 w-5 text-primary" />
                           </div>
-                          <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-muted text-muted-foreground border border-border">
+                          <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-background text-muted-foreground border border-border shadow-xs">
                             Manual Setup
                           </span>
                         </div>
 
                         <div>
-                          <h3 className="font-bold text-base text-foreground group-hover:text-foreground transition-colors flex items-center gap-1.5">
+                          <h3 className="font-bold text-base text-foreground group-hover:text-primary transition-colors flex items-center gap-1.5">
                             Create Manually
                           </h3>
                           <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
@@ -206,7 +206,7 @@ export function CreateCourseModal() {
                           </p>
                         </div>
 
-                        <ul className="space-y-1.5 text-xs text-muted-foreground pt-1 border-t border-border/60">
+                        <ul className="space-y-2 text-xs text-muted-foreground pt-3 border-t border-border">
                           <li className="flex items-center gap-2">
                             <Layers className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                             <span>Custom course metadata & department</span>
@@ -223,7 +223,7 @@ export function CreateCourseModal() {
                       </div>
 
                       <div className="pt-4 mt-2">
-                        <div className="w-full py-2.5 px-3 rounded-xl border border-border/80 bg-background/60 group-hover:bg-background text-foreground text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition-colors">
+                        <div className="w-full py-2.5 px-3 rounded-xl border border-border bg-card group-hover:bg-muted/60 text-foreground text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition-colors shadow-xs">
                           Continue Manually
                           <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                         </div>
