@@ -24,7 +24,9 @@ import {
   Loader2,
   Layers,
   ArrowRight,
+  AlertTriangle,
 } from "lucide-react";
+import { toast } from "react-toastify";
 import { cn } from "@/lib/utils";
 import { SyllabusIngestionModal } from "@/components/teacher/SyllabusIngestionModal";
 import { InteractiveDagGraph } from "@/components/mastery/InteractiveDagGraph";
@@ -261,21 +263,76 @@ export function CourseAuthoringClient({
     }
   }
 
-  async function handleDeleteCourse() {
-    const confirmed = window.confirm(
-      `Are you sure you want to permanently delete "${course.title}"?\n\nThis will remove all associated concepts, prerequisite dependencies, and questions.`
-    );
-    if (!confirmed) return;
+  function handleDeleteCourse() {
+    toast(
+      ({ closeToast }) => (
+        <div className="space-y-3 py-1">
+          <div className="flex items-start gap-3">
+            <div className="h-9 w-9 rounded-xl bg-destructive/15 text-destructive flex items-center justify-center shrink-0 mt-0.5">
+              <AlertTriangle className="h-5 w-5" />
+            </div>
+            <div className="space-y-1">
+              <h4 className="text-sm font-bold text-foreground">
+                Permanently delete &ldquo;{course.title}&rdquo;?
+              </h4>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                This will remove all associated concepts, prerequisite dependencies, and questions.
+              </p>
+            </div>
+          </div>
 
-    setDeletingCourse(true);
-    const res = await deleteCourseAction(course.id);
-    if (res?.error) {
-      alert(`Failed to delete course: ${res.error}`);
-      setDeletingCourse(false);
-    } else {
-      router.push("/teacher");
-      router.refresh();
-    }
+          <div className="flex items-center justify-end gap-2 pt-2 border-t border-border/60">
+            <button
+              type="button"
+              onClick={closeToast}
+              className="px-3 py-1.5 text-xs rounded-lg border border-border bg-background hover:bg-muted text-foreground transition-colors font-medium cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                closeToast();
+                setDeletingCourse(true);
+                const toastId = toast.loading(`Deleting "${course.title}"...`);
+                const res = await deleteCourseAction(course.id);
+                if (res?.error) {
+                  toast.update(toastId, {
+                    render: `Failed to delete course: ${res.error}`,
+                    type: "error",
+                    isLoading: false,
+                    autoClose: 4000,
+                    closeButton: true,
+                  });
+                  setDeletingCourse(false);
+                } else {
+                  toast.update(toastId, {
+                    render: `Course "${course.title}" deleted successfully`,
+                    type: "success",
+                    isLoading: false,
+                    autoClose: 2500,
+                    closeButton: true,
+                  });
+                  router.push("/teacher");
+                  router.refresh();
+                }
+              }}
+              className="px-3.5 py-1.5 text-xs rounded-lg bg-destructive text-white hover:bg-destructive/90 transition-colors font-semibold shadow-xs cursor-pointer inline-flex items-center gap-1.5"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Yes, Delete Course
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        toastId: `delete-course-${course.id}`,
+        autoClose: false,
+        closeOnClick: false,
+        draggable: false,
+        closeButton: true,
+      }
+    );
   }
 
   return (
