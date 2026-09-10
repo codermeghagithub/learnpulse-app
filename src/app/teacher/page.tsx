@@ -358,10 +358,10 @@ export default async function TeacherPage({ searchParams }: PageProps) {
               >
                 <div className="flex items-center justify-between">
                   <span className="font-medium text-sm">{concept.name}</span>
-                  <span className="text-xs font-semibold text-muted-foreground">
-                    {concept.average > 0
-                      ? `${concept.average.toFixed(0)}%`
-                      : "0%"}
+                  <span className="text-xs text-muted-foreground">
+                    {concept.studentCount === 0
+                      ? "No attempts yet"
+                      : `${concept.studentCount} student${concept.studentCount !== 1 ? "s" : ""} active`}
                   </span>
                 </div>
                 <MasteryBar

@@ -19,6 +19,7 @@ interface CourseSelectorProps {
   selectedCourseId: string;
   basePath: string;
   showExploreLink?: boolean;
+  label?: string;
 }
 
 function getCourseIcon(title: string) {
@@ -36,6 +37,7 @@ export function CourseSelector({
   selectedCourseId,
   basePath,
   showExploreLink,
+  label,
 }: CourseSelectorProps) {
   const setSelectedCourseId = useCourseStore((state) => state.setSelectedCourseId);
   const isStudentArea = basePath.startsWith("/dashboard");
@@ -53,7 +55,7 @@ export function CourseSelector({
     <div className="w-full space-y-1.5">
       <div className="flex items-center justify-between">
         <span className="text-[11px] font-medium text-muted-foreground">
-          {isStudentArea ? "Enrolled courses" : "Courses"}
+          {label ?? (isStudentArea ? "Enrolled courses" : "Courses")}
         </span>
         {shouldShowExplore && (
           <Link

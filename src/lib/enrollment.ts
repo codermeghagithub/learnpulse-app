@@ -25,9 +25,30 @@ export async function getStudentEnrolledCourseIds(
     console.warn("[getStudentEnrolledCourseIds] Note:", err);
   }
 
-  // Resilient fallback: read from user_metadata
+  // Resilient fallback 1: read from user_metadata passed directly
   if (userMetadata && Array.isArray(userMetadata.enrolledCourseIds)) {
     return userMetadata.enrolledCourseIds as string[];
+  }
+
+  // Resilient fallback 2: if userMetadata was not provided (e.g. called from teacher views), fetch via admin service role
+  if (process.env.SUPABASE_SERVICE_ROLE_KEY && process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    try {
+      const { createClient: createSupabaseClient } = await import("@supabase/supabase-js");
+      const admin = createSupabaseClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL,
+        process.env.SUPABASE_SERVICE_ROLE_KEY,
+        { auth: { persistSession: false } }
+      );
+      const { data: userData } = await admin.auth.admin.getUserById(userId);
+      if (
+        userData?.user?.user_metadata?.enrolledCourseIds &&
+        Array.isArray(userData.user.user_metadata.enrolledCourseIds)
+      ) {
+        return userData.user.user_metadata.enrolledCourseIds as string[];
+      }
+    } catch (adminErr) {
+      console.warn("[getStudentEnrolledCourseIds] Admin fallback note:", adminErr);
+    }
   }
 
   return [];
