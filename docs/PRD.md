@@ -183,7 +183,8 @@ journey
 
 ### 6.4 Accessibility & Responsiveness
 - Full WCAG 2.1 AA compliance with high-contrast color badges and accessible font pairings.
-- Seamless responsiveness across desktop monitors, tablets, and mobile devices.
+- Outfit Neo-Brutalist visual design system with clear typography hierarchy (weights 300, 400, 500, 600), 1.5px/2px borders, 6px radii, and light/dark modes.
+- Seamless responsiveness across desktop monitors, tablets, and mobile devices with dedicated bottom/side-over drawers and touch-optimized tap targets (min 44px).
 
 ---
 

@@ -193,14 +193,14 @@ Where:
 
 | Layer | Framework / Tool | Version | Purpose |
 | :--- | :--- | :--- | :--- |
-| **Fullstack Framework** | **Next.js** | `16.3.4` (Turbopack) | Server Components, Streaming SSR, API Routes, Edge Routing |
-| **Runtime & Core** | **Node.js** / **TypeScript** | `v20+` / `5.x Strict` | Strict type safety, 0 runtime type errors |
-| **Database & Auth** | **Supabase** (PostgreSQL 15) | Latest | Relational schema, ACID compliance, Row-Level Security (RLS) |
-| **AI Diagnosis & Synthesis** | **Google Gemini** | `3.6 Flash` | Sub-second cognitive analysis, bilingual synthesis, structured JSON |
+| **Frontend Framework** | **Next.js** | `16.3.4` (Turbopack) | App Router, Server Actions, Server Components, Streaming SSR |
+| **Language & Engine** | **TypeScript** | `5.x` | Strict mode, Target ES2022, 100% type safety, zero `any` types |
+| **Database & Auth** | **Supabase** | `PostgreSQL 15` | Row-Level Security (RLS), ACID transactions, SSR Auth Cookies |
+| **Artificial Intelligence** | **Google Gemini** | `3.6 Flash` | Cognitive Thought Trap analysis, 60-Sec Concept Bites, DAG Synthesis |
 | **Graph Visualization** | **@xyflow/react** | `12.4.x` | Hardware-accelerated interactive canvas DAG graph |
-| **Schema Validation** | **Zod** | `3.24.x` | Strict input bounds, payload sanitization, AI schema validation |
-| **Styling & Design System** | **Tailwind CSS + Vanilla CSS** | `v4.x` | Modern glassmorphism, responsive themes, accessible color palette |
-| **Unit & Integration Tests** | **Vitest** | `5.0.x` | 101 automated unit, algorithm, and simulation tests |
+| **Schema Validation** | **Zod** | `v4.5.x` | Strict input bounds, payload sanitization, AI schema validation |
+| **Styling & Design System** | **Tailwind CSS + Vanilla CSS** | `v4` | Outfit Neo-Brutalist visual system, dark/light themes, mobile drawer |
+| **Unit & Integration Tests** | **Vitest** | `v5.0.x` (ESM) | 105 automated unit, algorithm, and simulation tests across 12 suites |
 
 ---
 
@@ -241,12 +241,13 @@ GEMINI_API_KEY=your-gemini-api-key
 ### 4. Database Setup & Migrations
 1. Open your Supabase Dashboard -> **SQL Editor** -> **New Query**.
 2. Run the migration script located at `supabase/schema.sql` to create all tables, indexes, triggers, and Row-Level Security policies.
-3. *(Optional)* Run `supabase/fix_rls.sql` if you need to refresh policies.
+3. Run `supabase/migrations/20260910_enrollments.sql` to ensure student course enrollments are tracked.
 
 ### 5. Idempotent Data Reset & Cohort Baseline
 Initialize the database with a clean 0% baseline, official demo accounts, and synchronized student profiles:
 ```bash
-node --env-file=.env.local scripts/reset_demo_data.mjs
+npm run seed
+# Or manually: node --env-file=.env.local scripts/reset_demo_data.mjs
 ```
 
 ### 6. Launch Development Server
@@ -361,12 +362,13 @@ npm run build
 
 ```
 learnpulse-app/
+├── docs/                         # Engineering specifications & architecture documentation
+│   ├── PRD.md                    # Product Requirements Document
+│   ├── SRS.md                    # Software Requirements Specification (IEEE 830)
+│   └── TRD.md                    # Technical Requirements & Architecture Document
 ├── public/                       # Static visual assets, brand icons
-├── scripts/                      # Verified database utility scripts
-│   ├── reset_demo_data.mjs       # Database reset & cohort profile synchronization (0% baseline)
-│   ├── sync_mastery_scores.mjs   # Mastery score database synchronization
-│   ├── test_misconception_api.mjs# Mental Mirror endpoint test
-│   └── test_teacher_authoring_loop.mjs # Authoring lifecycle verification
+├── scripts/                      # Verified database seeding & utility scripts
+│   └── reset_demo_data.mjs       # Database reset & cohort profile synchronization (npm run seed / reset)
 ├── src/
 │   ├── app/                      # Next.js 16 App Router
 │   │   ├── (auth)/               # Login & Signup flows
@@ -374,7 +376,7 @@ learnpulse-app/
 │   │   ├── api/                  # RESTful endpoints (diagnose, submit-attempt, ai/*)
 │   │   ├── dashboard/            # Student learning portal (Gaps, Practice, Courses catalog, Overview)
 │   │   └── teacher/              # Teacher portal (Cohort analytics, DAG authoring)
-│   ├── components/               # Modular UI architecture
+│   ├── components/               # Modular UI architecture (Outfit Neo-Brutalist design system)
 │   │   ├── layout/               # Header, Sidebar, CourseSelector, App Shell
 │   │   ├── mastery/              # InteractiveDagGraph, ConceptChain, MasteryBar
 │   │   ├── practice/             # QuizCard (Mental Mirror, Cognitive Dissonance)
@@ -387,11 +389,13 @@ learnpulse-app/
 │   │   └── offline/              # Offline queue & automatic sync engine
 │   └── utils/
 │       └── supabase/             # Server & browser SSR client creators
-├── supabase/                     # SQL schemas, migrations & question banks
+├── supabase/                     # SQL schemas & migration history
+│   ├── migrations/               # Incremental schema migrations
+│   └── schema.sql                # Complete source-of-truth PostgreSQL schema
 ├── .env.local.example            # Environment configuration template
 ├── package.json
 ├── tsconfig.json
-└── vitest.config.ts
+└── vitest.config.mjs
 ```
 
 ---

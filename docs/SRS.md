@@ -110,10 +110,10 @@ LearnPulse is a cloud-native, responsive web application operating on a decouple
 - **Client Browsers:** Modern evergreen browsers: Chromium 110+, Firefox 110+, Safari 16+, Edge 110+ on Desktop, Tablet, and Mobile.
 
 ### 2.5 Design and Implementation Constraints
-1. **Strict TypeScript:** No implicit or explicit `any` types permitted across the codebase (`--strict` mode).
-2. **ESLint Compliance:** Zero lint warnings or errors permitted in production builds (`npm run lint`).
-3. **Secret Protection:** No API keys (`GEMINI_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`) may be exposed to browser bundles.
-4. **Data Consistency:** All mastery and attempt updates must preserve ACID properties with atomic upsert operations.
+1. **Strict Modern TypeScript:** Compiled targeting `ES2022` with zero implicit or explicit `any` types permitted across the codebase (`--strict` mode, zero emit errors).
+2. **ESLint & Quality Compliance:** Zero lint warnings or errors permitted in production builds (`npm run lint`), verified by Vitest ESM test runners (`vitest.config.mjs`).
+3. **Secret Protection & Dependency Audits:** No API keys (`GEMINI_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`) may be exposed to browser bundles; dependencies must maintain a 0-vulnerability baseline (`npm audit`).
+4. **Data Consistency & Schema Validation:** Every input is validated against strict Zod schemas with bounded lengths; all mastery and attempt updates must preserve ACID properties with atomic upsert operations.
 
 ---
 
