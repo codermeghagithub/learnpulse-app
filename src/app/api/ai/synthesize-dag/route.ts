@@ -212,7 +212,7 @@ export async function POST(req: NextRequest) {
         console.warn("[synthesize-dag] Rolling back newly created course:", effectiveCourseId);
         await supabase.from("courses").delete().eq("id", effectiveCourseId);
       }
-      return NextResponse.json({ error: "Failed to insert concepts: rolled back course" }, { status: 500 });
+      return NextResponse.json({ error: "Failed to save course concepts. Please try again." }, { status: 500 });
     }
 
     // 3. Build name → real DB UUID map

@@ -53,14 +53,14 @@ export default async function PracticePage({ searchParams }: PageProps) {
   if (validCourses.length === 0) {
     return (
       <div className="px-8 py-16 max-w-2xl mx-auto text-center space-y-6">
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20 text-primary mx-auto shadow-sm">
+        <div className="flex h-16 w-16 items-center justify-center rounded-md bg-accent-blue/20 border-2 border-border text-foreground mx-auto shadow-[2px_2px_0px_var(--shadow-color)]">
           <Compass className="h-8 w-8" />
         </div>
         <div className="space-y-2">
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
             {allCourses.length > 0 ? "Enroll in a Course to Practice" : "No Courses Available Yet"}
           </h1>
-          <p className="text-muted-foreground text-xs sm:text-sm max-w-md mx-auto leading-relaxed">
+          <p className="text-muted-foreground text-xs sm:text-sm max-w-md mx-auto leading-relaxed font-medium">
             {allCourses.length > 0
               ? "You haven't enrolled in any courses yet. Browse the course catalog to enroll in subjects of your choice and begin practice sessions."
               : "Your instructor hasn't created any courses yet. Check back soon!"}
@@ -70,7 +70,7 @@ export default async function PracticePage({ searchParams }: PageProps) {
           <div className="pt-2">
             <Link
               href="/dashboard/courses"
-              className="inline-flex items-center gap-2 rounded-xl bg-primary text-primary-foreground px-6 py-3 text-xs sm:text-sm font-semibold hover:bg-primary/90 transition-colors shadow-sm"
+              className="inline-flex items-center gap-2 rounded-md bg-primary text-primary-foreground border-2 border-border px-6 py-3 text-xs sm:text-sm font-bold shadow-[2px_2px_0px_var(--shadow-color)] hover:shadow-[3px_3px_0px_var(--shadow-color)] transition-all"
             >
               <Plus className="h-4 w-4" />
               Browse Course Catalog ({allCourses.length} available)

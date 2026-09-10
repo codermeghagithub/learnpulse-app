@@ -89,23 +89,23 @@ export function RunDiagnosisButton({
         className="gap-2 rounded-xl px-5 py-3 text-sm font-semibold shadow-sm cursor-pointer h-11"
       >
         <Brain className="h-4 w-4" />
-        Run AI Diagnosis
+        Analyze What I Missed
       </Button>
     );
   }
 
   if (state.status === "loading") {
     return (
-      <div className="mt-4 w-full glass-card rounded-2xl p-8 text-center space-y-4 animate-fade-in">
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 mx-auto">
+      <div className="mt-4 w-full glass-card rounded-xl p-8 text-center space-y-4 animate-fade-in border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)]">
+        <div className="flex h-14 w-14 items-center justify-center rounded-md bg-primary/10 text-primary border-2 border-border mx-auto shadow-[1px_1px_0px_var(--shadow-color)]">
           <Brain className="h-7 w-7" />
         </div>
         <div>
-          <p className="font-semibold text-foreground">
-            Analyzing your recent learning signals…
+          <p className="font-bold text-foreground">
+            Checking your recent quiz answers…
           </p>
-          <p className="text-sm text-muted-foreground mt-1">
-            Tracing prerequisites • Ranking root causes • Building recovery plan
+          <p className="text-sm text-muted-foreground mt-1 font-medium">
+            Reviewing earlier lessons • Finding tricky spots • Creating study suggestions
           </p>
         </div>
         <Loader2 className="h-6 w-6 animate-spin text-primary mx-auto" />
@@ -115,16 +115,16 @@ export function RunDiagnosisButton({
 
   if (state.status === "error") {
     return (
-      <div className="mt-4 w-full glass-card rounded-2xl p-6 space-y-4 border-destructive/30 animate-fade-in">
+      <div className="mt-4 w-full glass-card rounded-xl p-6 space-y-4 border-2 border-destructive/60 animate-fade-in shadow-[2px_2px_0px_var(--shadow-color)]">
         <div className="flex items-center gap-2 text-destructive">
           <AlertCircle className="h-5 w-5" />
-          <span className="font-semibold text-sm">Diagnosis failed</span>
+          <span className="font-bold text-sm">Could not complete review</span>
         </div>
-        <p className="text-sm text-muted-foreground">{state.message}</p>
+        <p className="text-sm text-muted-foreground font-medium">{state.message}</p>
         <Button
           variant="link"
           onClick={() => setState({ status: "idle" })}
-          className="text-sm text-primary p-0 h-auto cursor-pointer"
+          className="text-sm text-primary p-0 h-auto cursor-pointer font-bold"
         >
           Try again
         </Button>
@@ -137,24 +137,24 @@ export function RunDiagnosisButton({
   return (
     <div className="mt-4 w-full space-y-5 animate-slide-up">
       {/* Header */}
-      <div className="glass-card rounded-2xl p-6 space-y-4">
+      <div className="glass-card rounded-xl p-6 space-y-4 border-2 border-border shadow-[3px_3px_0px_var(--shadow-color)]">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10 text-primary border-2 border-border shadow-[1px_1px_0px_var(--shadow-color)]">
               <Brain className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="font-semibold text-foreground">AI Diagnosis Complete</h3>
-              <p className="text-xs text-muted-foreground">
-                {result.isAiGenerated
-                  ? "Powered by Gemini 2.5 Flash"
+              <h3 className="font-bold text-foreground">AI Diagnosis Complete</h3>
+              <p className="text-xs text-muted-foreground font-medium">
+                {result.isAiGenerated !== false
+                  ? "Powered by Gemini 3.6 Flash"
                   : "Deterministic analysis"}
               </p>
             </div>
           </div>
           {/* Confidence */}
           <div className="text-right">
-            <p className="text-xs text-muted-foreground">Confidence</p>
+            <p className="text-xs text-muted-foreground font-medium">Confidence</p>
             <p className="font-display font-bold text-lg text-foreground tabular-nums">
               {(result.confidence * 100).toFixed(0)}%
             </p>
@@ -162,15 +162,15 @@ export function RunDiagnosisButton({
         </div>
 
         {/* Root cause */}
-        <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 space-y-2">
-          <div className="flex items-center gap-2 text-sm font-semibold text-destructive">
+        <div className="rounded-md border-2 border-destructive/40 bg-destructive/10 p-4 space-y-2 shadow-[2px_2px_0px_var(--shadow-color)]">
+          <div className="flex items-center gap-2 text-sm font-bold text-destructive">
             <Target className="h-4 w-4" />
             Root cause identified
           </div>
-          <p className="text-sm font-medium text-foreground">{result.rootCause}</p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm font-bold text-foreground">{result.rootCause}</p>
+          <p className="text-xs text-muted-foreground font-medium">
             Blocking concept:{" "}
-            <span className="font-semibold text-foreground">
+            <span className="font-bold text-foreground">
               {result.blockingConcept}
             </span>
           </p>
@@ -178,17 +178,17 @@ export function RunDiagnosisButton({
 
         {/* Explanation */}
         <div className="space-y-2">
-          <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-            <Lightbulb className="h-4 w-4" />
+          <div className="flex items-center gap-2 text-sm font-bold text-foreground">
+            <Lightbulb className="h-4 w-4 text-primary" />
             Why this matters
           </div>
-          <p className="text-sm leading-relaxed text-foreground/90">{result.explanation}</p>
+          <p className="text-sm leading-relaxed text-foreground/90 font-medium">{result.explanation}</p>
         </div>
       </div>
 
       {/* Recovery plan */}
-      <div className="glass-card rounded-2xl p-6 space-y-4">
-        <div className="flex items-center gap-2 font-semibold text-foreground">
+      <div className="glass-card rounded-xl p-6 space-y-4 border-2 border-border shadow-[3px_3px_0px_var(--shadow-color)]">
+        <div className="flex items-center gap-2 font-bold text-foreground">
           <ListChecks className="h-4 w-4 text-primary" />
           Recovery plan
         </div>
@@ -196,17 +196,17 @@ export function RunDiagnosisButton({
           {result.actionPlan.map((step, idx) => (
             <li
               key={idx}
-              className="flex gap-4 rounded-xl border border-border p-4 bg-card/50"
+              className="flex gap-4 rounded-md border-2 border-border p-4 bg-card/50 shadow-[2px_2px_0px_var(--shadow-color)]"
             >
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground text-xs font-semibold">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xs bg-primary text-primary-foreground text-xs font-bold border border-border shadow-[1px_1px_0px_var(--shadow-color)]">
                 {idx + 1}
               </span>
               <div className="min-w-0 flex-1">
-                <p className="font-medium text-sm text-foreground">{step.title}</p>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="font-bold text-sm text-foreground">{step.title}</p>
+                <p className="text-xs text-muted-foreground mt-1 font-medium">
                   {step.description}
                 </p>
-                <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground font-mono">
+                <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground font-mono font-medium">
                   <Clock className="h-3 w-3" />~{step.estimatedMinutes} min
                 </div>
               </div>
@@ -234,7 +234,7 @@ export function RunDiagnosisButton({
               href={`/dashboard/practice?conceptId=${targetPracticeConceptId}${diagnosisInput.courseId ? `&courseId=${diagnosisInput.courseId}` : ""}`}
               className={cn(
                 buttonVariants(),
-                "gap-2 w-full rounded-xl py-3.5 h-12 font-semibold shadow-sm cursor-pointer"
+                "gap-2 w-full rounded-md py-3.5 h-12 font-bold border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] hover:shadow-[3px_3px_0px_var(--shadow-color)] cursor-pointer"
               )}
             >
               <Zap className="h-4 w-4" />

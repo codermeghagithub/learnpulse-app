@@ -47,7 +47,7 @@ export function ConceptChain({ nodes, className }: ConceptChainProps) {
             <div className="flex flex-col items-center pt-3">
               <div
                 className={cn(
-                  "h-2 w-2 rounded-full shrink-0",
+                  "h-2 w-2 rounded-xs shrink-0",
                   state === "weak" && "bg-destructive",
                   state === "partial" && "bg-warning",
                   state === "strong" && "bg-success",
@@ -62,7 +62,7 @@ export function ConceptChain({ nodes, className }: ConceptChainProps) {
             {/* Node card */}
             <div
               className={cn(
-                "flex-1 rounded-xl border p-3 mb-2 transition-colors",
+                "flex-1 rounded-md border-2 border-border p-3 mb-2 transition-colors shadow-[2px_2px_0px_var(--shadow-color)]",
                 STATE_STYLES[state],
               )}
             >

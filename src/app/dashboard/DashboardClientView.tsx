@@ -111,35 +111,34 @@ export function DashboardClientView({
       variants={containerVariants}
       initial="hidden"
       animate="show"
-      className="px-4 py-6 sm:px-8 sm:py-8 max-w-6xl mx-auto space-y-8"
+      className="w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8"
     >
       {/* ── Top Hero Banner ── */}
       <motion.div
         variants={itemVariants}
-        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-border/60 relative"
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b-2 border-border/40 relative"
       >
-        <div className="space-y-1.5">
-          <Badge variant="outline" className="gap-2 px-2.5 py-1 text-xs font-medium bg-primary/10 text-primary border-primary/20 h-auto">
-            <span className="h-2 w-2 rounded-full bg-primary" />
-            <span>Bayesian Knowledge Tracing active</span>
-            <span className="text-muted-foreground/60">&bull;</span>
-            <span className="text-[11px] text-muted-foreground font-mono">
-              Spaced decay enabled
+        <div className="space-y-1.5 min-w-0 flex-1">
+          <Badge variant="outline" className="gap-2 px-3 py-1 text-xs font-bold bg-primary text-primary-foreground border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] h-auto rounded-xs">
+            <span className="h-2 w-2 rounded-xs bg-white" />
+            <span>Smart Learning Active</span>
+            <span className="opacity-60">&bull;</span>
+            <span className="text-[11px] font-mono opacity-90">
+              Personalized Practice
             </span>
           </Badge>
 
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
             Good day, {firstName}
           </h1>
-          <p className="text-muted-foreground text-xs sm:text-sm max-w-2xl leading-relaxed">
-            Continuous prerequisite gap diagnosis and AI-guided spaced retention
-            recovery.
+          <p className="text-muted-foreground text-xs sm:text-sm max-w-2xl leading-relaxed font-medium">
+            Find out what you know, review tricky questions, and build confidence with quick practice.
           </p>
         </div>
 
-        <div className="flex items-center gap-3 self-start sm:self-auto shrink-0">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto shrink-0">
           <MasteryExplainerModal
-            buttonText="How is Mastery calculated?"
+            buttonText="How do these scores work?"
             variant="button"
           />
         </div>
@@ -161,16 +160,16 @@ export function DashboardClientView({
           /* ── Empty State: Student has not enrolled in any course yet ── */
           <motion.div
             variants={itemVariants}
-            className="glass-card rounded-2xl p-10 sm:p-14 text-center space-y-6 border-dashed border-2 border-primary/30 bg-primary/2"
+            className="rounded-xl p-10 sm:p-14 text-center space-y-6 border-2 border-dashed border-border bg-card shadow-[2px_2px_0px_var(--shadow-color)]"
           >
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 mx-auto shadow-sm">
-              <Compass className="h-8 w-8" />
+            <div className="flex h-14 w-14 items-center justify-center rounded-md bg-accent-blue/20 text-foreground border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] mx-auto">
+              <Compass className="h-7 w-7" />
             </div>
             <div className="space-y-2 max-w-md mx-auto">
               <h2 className="text-xl sm:text-2xl font-bold text-foreground tracking-tight">
                 Choose Your Courses to Get Started
               </h2>
-              <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed">
+              <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed font-medium">
                 You have the freedom to enroll in courses of your choice. Once
                 you enroll, LearnPulse will begin tracking your concept mastery
                 and retention.
@@ -182,7 +181,7 @@ export function DashboardClientView({
                 id="empty-state-browse-catalog-btn"
                 className={cn(
                   buttonVariants(),
-                  "gap-2 rounded-xl px-6 py-3 text-xs sm:text-sm font-semibold shadow-sm cursor-pointer h-11"
+                  "gap-2 rounded-md px-6 py-2.5 text-xs sm:text-sm font-bold border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] hover:shadow-[3px_3px_0px_var(--shadow-color)] cursor-pointer h-10"
                 )}
               >
                 <Plus className="h-4 w-4" />
@@ -194,16 +193,16 @@ export function DashboardClientView({
           /* ── Empty State: No courses published on platform yet ── */
           <motion.div
             variants={itemVariants}
-            className="glass-card rounded-2xl p-12 text-center space-y-5 border-dashed border-2 border-border/80"
+            className="rounded-xl p-12 text-center space-y-5 border-2 border-dashed border-border bg-card shadow-[2px_2px_0px_var(--shadow-color)]"
           >
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 mx-auto shadow-sm">
-              <BookOpen className="h-7 w-7" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-md bg-accent-yellow/20 text-foreground border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] mx-auto">
+              <BookOpen className="h-6 w-6" />
             </div>
             <div>
               <h2 className="text-xl font-bold text-foreground">
                 No courses available yet
               </h2>
-              <p className="text-muted-foreground text-sm mt-2 max-w-sm mx-auto">
+              <p className="text-muted-foreground text-sm mt-2 max-w-sm mx-auto font-medium">
                 Your instructor has not created or published any courses yet.
                 Once courses are created, you will see them in the course
                 catalog.
@@ -215,16 +214,16 @@ export function DashboardClientView({
         /* ── Empty State: Course empty ── */
         <motion.div
           variants={itemVariants}
-          className="glass-card rounded-2xl p-12 text-center space-y-5 border-dashed border-2 border-border/80"
+          className="rounded-xl p-12 text-center space-y-5 border-2 border-dashed border-border bg-card shadow-[2px_2px_0px_var(--shadow-color)]"
         >
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 mx-auto shadow-sm">
-            <BookOpen className="h-7 w-7" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-md bg-muted text-foreground border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] mx-auto">
+            <BookOpen className="h-6 w-6" />
           </div>
           <div>
             <h2 className="text-xl font-bold text-foreground">
               No concepts added yet
             </h2>
-            <p className="text-muted-foreground text-sm mt-2 max-w-sm mx-auto">
+            <p className="text-muted-foreground text-sm mt-2 max-w-sm mx-auto font-medium">
               This course does not have any concepts authored yet. Check back
               soon or switch course.
             </p>
@@ -236,20 +235,19 @@ export function DashboardClientView({
           {attemptedConcepts.length === 0 && (
             <motion.div
               variants={itemVariants}
-              className="glass-card rounded-2xl p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 border-primary/25 bg-primary/5 relative overflow-hidden shadow-sm"
+              className="rounded-xl p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5 border-2 border-border bg-card shadow-[2px_2px_0px_var(--shadow-color)] relative overflow-hidden"
             >
               <div className="space-y-1.5 relative z-10">
-                <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary">
+                <div className="inline-flex items-center gap-1.5 text-xs font-bold text-primary">
                   <Sparkles className="h-4 w-4" />
-                  Diagnostic ready
+                  Quiz ready
                 </div>
-                <h3 className="font-semibold text-base sm:text-lg text-foreground">
-                  Ready to baseline {selectedCourse?.title}?
+                <h3 className="font-bold text-base sm:text-lg text-foreground">
+                  Ready to test your knowledge in {selectedCourse?.title}?
                 </h3>
-                <p className="text-xs sm:text-sm text-muted-foreground max-w-xl leading-relaxed">
-                  Start your first diagnostic practice session to baseline your
-                  knowledge graph, detect foundational gaps, and unlock
-                  60-second AI remediation bites.
+                <p className="text-xs sm:text-sm text-muted-foreground max-w-xl leading-relaxed font-medium">
+                  Take a quick practice quiz to see what you already know, find topics
+                  that need review, and get instant explanations.
                 </p>
               </div>
               <Link
@@ -257,11 +255,11 @@ export function DashboardClientView({
                 id="empty-state-cta"
                 className={cn(
                   buttonVariants(),
-                  "relative z-10 gap-2 rounded-xl px-6 py-3 text-xs sm:text-sm font-semibold shadow-sm shrink-0 cursor-pointer h-11"
+                  "relative z-10 gap-2 rounded-md px-6 py-2.5 text-xs sm:text-sm font-bold border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] hover:shadow-[3px_3px_0px_var(--shadow-color)] shrink-0 cursor-pointer h-10"
                 )}
               >
                 <Zap className="h-4 w-4" />
-                Start Diagnostic Session
+                Start Practice Quiz
               </Link>
             </motion.div>
           )}
@@ -269,40 +267,40 @@ export function DashboardClientView({
           {/* ── Three Key KPI Cards ── */}
           <motion.div
             variants={containerVariants}
-            className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5"
           >
             {/* 1. Learning Health */}
             <motion.div
               variants={itemVariants}
-              className="glass-card rounded-2xl p-5 sm:p-6 space-y-3.5 relative overflow-hidden"
+              className="rounded-xl p-5 sm:p-6 space-y-3.5 relative overflow-hidden border-2 border-border bg-card shadow-[2px_2px_0px_var(--shadow-color)]"
             >
               <div className="flex items-center justify-between text-muted-foreground text-xs sm:text-sm font-medium">
-                <span className="flex items-center gap-2.5 text-foreground font-semibold">
-                  <div className="p-2 rounded-xl bg-primary/10 text-primary">
+                <span className="flex items-center gap-2.5 text-foreground font-bold">
+                  <div className="p-2 rounded-md bg-accent-yellow/20 text-foreground border-2 border-border shadow-[1px_1px_0px_var(--shadow-color)]">
                     <TrendingUp className="h-4 w-4" />
                   </div>
-                  Learning Health
+                  Your Score
                 </span>
                 <MasteryExplainerModal variant="icon" />
               </div>
 
               <div className="flex items-baseline gap-2.5 pt-1">
-                <div className="text-3xl sm:text-4xl font-display font-semibold tracking-tight text-foreground tabular-nums">
+                <div className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground tabular-nums">
                   {learningHealth.toFixed(0)}%
                 </div>
-                <span className="text-[11px] text-muted-foreground font-medium">
-                  overall course mastery
+                <span className="text-[11px] text-muted-foreground font-semibold">
+                  overall class score
                 </span>
               </div>
 
               <MasteryBar score={learningHealth} showLabel={false} size="sm" />
 
-              <div className="text-xs text-muted-foreground pt-1 flex items-center justify-between">
+              <div className="text-xs text-muted-foreground pt-1 flex items-center justify-between font-medium">
                 <span className="flex items-center gap-1.5">
-                  <Flame className="h-3.5 w-3.5 text-orange-500" />
-                  <span>{completedCount} mastered (&ge;80%)</span>
+                  <Flame className="h-3.5 w-3.5 text-primary" />
+                  <span>{completedCount} completed (&ge;80%)</span>
                 </span>
-                <span className="font-display tabular-nums text-[11px] text-primary font-semibold">
+                <span className="tabular-nums text-[11px] text-primary font-bold">
                   {((learningHealth / 100) * 5.0).toFixed(1)}/5.0 GPA
                 </span>
               </div>
@@ -311,31 +309,31 @@ export function DashboardClientView({
             {/* 2. Concepts Tracked */}
             <motion.div
               variants={itemVariants}
-              className="glass-card rounded-2xl p-5 sm:p-6 space-y-3.5 relative overflow-hidden"
+              className="rounded-xl p-5 sm:p-6 space-y-3.5 relative overflow-hidden border-2 border-border bg-card shadow-[2px_2px_0px_var(--shadow-color)]"
             >
               <div className="flex items-center justify-between text-muted-foreground text-xs sm:text-sm font-medium">
-                <span className="flex items-center gap-2.5 text-foreground font-semibold">
-                  <div className="p-2 rounded-xl bg-muted text-foreground">
+                <span className="flex items-center gap-2.5 text-foreground font-bold">
+                  <div className="p-2 rounded-md bg-accent-blue/20 text-foreground border-2 border-border shadow-[1px_1px_0px_var(--shadow-color)]">
                     <Target className="h-4 w-4" />
                   </div>
-                  Concepts Tracked
+                  Lessons in Class
                 </span>
-                <Badge variant="outline" className="text-[10px] font-medium tracking-wide text-muted-foreground bg-muted/60 px-2 py-0.5 border-border/40">
-                  Prerequisite Graph
+                <Badge variant="outline" className="text-[10px] font-bold tracking-wide text-muted-foreground bg-muted px-2 py-0.5 border-1.5 border-border rounded-xs">
+                  Course Topics
                 </Badge>
               </div>
 
               <div className="flex items-baseline gap-2.5 pt-1">
-                <div className="text-3xl sm:text-4xl font-display font-semibold tracking-tight text-foreground tabular-nums">
+                <div className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground tabular-nums">
                   {conceptsWithRisk.length}
                 </div>
-                <span className="text-[11px] text-muted-foreground font-medium">
-                  curriculum nodes
+                <span className="text-[11px] text-muted-foreground font-semibold">
+                  total topics
                 </span>
               </div>
 
               {/* Mini visual ratio bar */}
-              <div className="w-full h-1.5 rounded-full bg-muted/60 overflow-hidden flex">
+              <div className="w-full h-2 rounded-sm bg-muted border-2 border-border overflow-hidden flex">
                 <div
                   className="h-full bg-primary transition-all duration-500"
                   style={{
@@ -349,15 +347,15 @@ export function DashboardClientView({
                 />
               </div>
 
-              <div className="text-xs text-muted-foreground pt-1 flex items-center justify-between">
+              <div className="text-xs text-muted-foreground pt-1 flex items-center justify-between font-medium">
                 <span className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-success" />
+                  <span className="h-2.5 w-2.5 rounded-xs bg-success border border-border" />
                   <span>
-                    <strong>{attemptedConcepts.length}</strong> practiced
+                    <strong>{attemptedConcepts.length}</strong> completed
                   </span>
                 </span>
-                <span className="text-[11px] text-muted-foreground">
-                  {conceptsWithRisk.length - attemptedConcepts.length} remaining
+                <span className="text-[11px] text-muted-foreground font-semibold">
+                  {conceptsWithRisk.length - attemptedConcepts.length} to go
                 </span>
               </div>
             </motion.div>
@@ -365,21 +363,16 @@ export function DashboardClientView({
             {/* 3. At Risk Metric */}
             <motion.div
               variants={itemVariants}
-              className={cn(
-                "glass-card rounded-2xl p-5 sm:p-6 space-y-3.5 relative overflow-hidden border",
-                atRiskCount > 0
-                  ? "border-warning/30 bg-warning/[0.03]"
-                  : "border-success/30 bg-success/[0.03]",
-              )}
+              className="rounded-xl p-5 sm:p-6 space-y-3.5 relative overflow-hidden border-2 border-border bg-card shadow-[2px_2px_0px_var(--shadow-color)]"
             >
               <div className="flex items-center justify-between text-muted-foreground text-xs sm:text-sm font-medium">
-                <span className="flex items-center gap-2.5 text-foreground font-semibold">
+                <span className="flex items-center gap-2.5 text-foreground font-bold">
                   <div
                     className={cn(
-                      "p-2 rounded-xl",
+                      "p-2 rounded-md border-2 border-border shadow-[1px_1px_0px_var(--shadow-color)]",
                       atRiskCount > 0
-                        ? "bg-warning/10 text-warning"
-                        : "bg-success/10 text-success",
+                        ? "bg-accent-yellow/30 text-foreground"
+                        : "bg-success/20 text-success",
                     )}
                   >
                     {atRiskCount > 0 ? (
@@ -388,47 +381,47 @@ export function DashboardClientView({
                       <Award className="h-4 w-4" />
                     )}
                   </div>
-                  Risk Status
+                  Needs Review
                 </span>
 
                 <Badge
                   variant="outline"
                   className={cn(
-                    "text-[10px] font-medium px-2 py-0.5",
+                    "text-[10px] font-bold px-2.5 py-0.5 rounded-xs border-1.5",
                     atRiskCount > 0
-                      ? "bg-warning/15 text-warning border-warning/30"
-                      : "bg-success/15 text-success border-success/30",
+                      ? "bg-accent-yellow text-black border-border shadow-[1px_1px_0px_var(--shadow-color)]"
+                      : "bg-success/20 text-success border-success",
                   )}
                 >
-                  {atRiskCount > 0 ? "Requires review" : "Optimal health"}
+                  {atRiskCount > 0 ? "Review suggested" : "Doing great"}
                 </Badge>
               </div>
 
               <div className="flex items-baseline gap-2.5 pt-1">
                 <div
                   className={cn(
-                    "text-3xl sm:text-4xl font-display font-semibold tracking-tight tabular-nums",
-                    atRiskCount > 0 ? "text-warning" : "text-success",
+                    "text-3xl sm:text-4xl font-bold tracking-tight tabular-nums",
+                    atRiskCount > 0 ? "text-primary" : "text-success",
                   )}
                 >
                   {atRiskCount}
                 </div>
-                <span className="text-[11px] text-muted-foreground font-medium">
+                <span className="text-[11px] text-muted-foreground font-semibold">
                   {atRiskCount === 1
-                    ? "vulnerable concept"
-                    : "vulnerable concepts"}
+                    ? "topic needs review"
+                    : "topics need review"}
                 </span>
               </div>
 
-              <div className="text-xs text-muted-foreground pt-1 flex items-center justify-between">
+              <div className="text-xs text-muted-foreground pt-1 flex items-center justify-between font-medium">
                 <span>
                   {atRiskCount > 0
-                    ? "High error rate or forgetting decay"
-                    : "All nodes in safe retention"}
+                    ? "Missed questions or time to practice again"
+                    : "All topics are up to date"}
                 </span>
                 {atRiskCount > 0 && (
-                  <span className="text-warning text-[11px] font-medium flex items-center gap-0.5">
-                    Action recommended
+                  <span className="text-primary text-[11px] font-bold flex items-center gap-0.5">
+                    Practice now
                   </span>
                 )}
               </div>
@@ -440,14 +433,14 @@ export function DashboardClientView({
             <motion.div variants={itemVariants} className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <span className="h-2 w-2 rounded-full bg-warning" />
-                  <h2 className="font-semibold text-base sm:text-lg tracking-tight text-foreground">
-                    Concepts needing attention
+                  <span className="h-2.5 w-2.5 rounded-xs bg-primary border border-border" />
+                  <h2 className="font-bold text-base sm:text-lg tracking-tight text-foreground">
+                    Topics Needing Practice
                   </h2>
                 </div>
-                <Badge variant="outline" className="text-xs px-2.5 py-0.5 bg-warning/10 text-warning border-warning/20 font-medium">
-                  {weakConcepts.length} concept
-                  {weakConcepts.length > 1 ? "s" : ""} below 60%
+                <Badge variant="outline" className="text-xs px-3 py-0.5 bg-accent-yellow/30 text-foreground border-1.5 border-border font-bold rounded-xs">
+                  {weakConcepts.length} topic
+                  {weakConcepts.length > 1 ? "s" : ""} under 60%
                 </Badge>
               </div>
 
@@ -459,26 +452,26 @@ export function DashboardClientView({
                   <motion.div
                     key={concept.id}
                     variants={itemVariants}
-                    whileHover={{ y: -3, transition: { duration: 0.2 } }}
+                    whileHover={{ y: -2, transition: { duration: 0.15 } }}
                     whileTap={{ scale: 0.99 }}
                   >
                     <Link
                       href={`/dashboard/gaps/${concept.id}`}
                       id={`concept-card-${idx}`}
-                      className="group block glass-card rounded-2xl p-5 border border-border/80 hover:border-primary/50 transition-all duration-200 space-y-3.5 relative overflow-hidden shadow-xs hover:shadow-md"
+                      className="group block rounded-xl p-5 border-2 border-border bg-card shadow-[2px_2px_0px_var(--shadow-color)] hover:shadow-[4px_4px_0px_var(--shadow-color)] hover:-translate-x-px hover:-translate-y-px transition-all duration-150 space-y-3.5 relative overflow-hidden"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="space-y-1">
-                          <span className="font-semibold text-sm sm:text-base group-hover:text-primary transition-colors line-clamp-1 flex items-center gap-2">
+                          <span className="font-bold text-sm sm:text-base group-hover:text-primary transition-colors line-clamp-1 flex items-center gap-2">
                             <span>{concept.name}</span>
                           </span>
-                          <Badge variant="outline" className="text-[10px] uppercase tracking-wider text-muted-foreground font-mono bg-muted/70 px-2 py-0.5 border-border/40">
+                          <Badge variant="outline" className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold bg-muted px-2.5 py-0.5 border-1.5 border-border rounded-xs">
                             {concept.difficulty}
                           </Badge>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
                           <RiskBadge bucket={concept.risk.bucket} />
-                          <div className="p-1 rounded-lg text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-200 bg-muted/40">
+                          <div className="p-1.5 rounded-md text-foreground group-hover:text-primary group-hover:translate-x-1 transition-all duration-150 bg-muted border-1.5 border-border shadow-[1px_1px_0px_var(--shadow-color)]">
                             <ArrowRight className="h-4 w-4" />
                           </div>
                         </div>
@@ -493,7 +486,7 @@ export function DashboardClientView({
                         isDue={concept.isDue}
                       />
 
-                      <div className="text-[11px] text-muted-foreground font-medium pt-2 border-t border-border/40 flex items-center justify-between">
+                      <div className="text-[11px] text-muted-foreground font-medium pt-2 border-t-2 border-border/40 flex items-center justify-between">
                         <span>
                           {getAccuracyText(
                             concept.correctCount,
@@ -501,8 +494,8 @@ export function DashboardClientView({
                             concept.score,
                           )}
                         </span>
-                        <span className="text-primary font-semibold group-hover:underline flex items-center gap-1">
-                          Diagnose gap
+                        <span className="text-primary font-bold group-hover:underline flex items-center gap-1">
+                          View details &amp; help
                           <ChevronRight className="h-3.5 w-3.5" />
                         </span>
                       </div>
@@ -517,12 +510,12 @@ export function DashboardClientView({
           <motion.div variants={itemVariants} className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <h2 className="font-semibold text-base sm:text-lg tracking-tight text-foreground">
-                  All curriculum concepts
+                <h2 className="font-bold text-base sm:text-lg tracking-tight text-foreground">
+                  All Course Topics
                 </h2>
               </div>
-              <Badge variant="outline" className="text-xs text-muted-foreground font-medium bg-muted/50 px-2.5 py-0.5 border-border/40 font-mono">
-                {conceptsWithRisk.length} concepts
+              <Badge variant="outline" className="text-xs text-foreground font-bold bg-muted px-3 py-0.5 border-1.5 border-border rounded-xs font-mono">
+                {conceptsWithRisk.length} topics
               </Badge>
             </div>
 
@@ -532,15 +525,15 @@ export function DashboardClientView({
                   <Link
                     href={`/dashboard/gaps/${concept.id}`}
                     id={`all-concept-${idx}`}
-                    className="group block glass-card rounded-xl p-4 sm:p-4.5 border border-border hover:border-primary/50 transition-colors space-y-2.5 shadow-xs cursor-pointer"
+                    className="group block rounded-xl p-4 sm:p-4.5 border-2 border-border bg-card hover:-translate-x-px hover:-translate-y-px shadow-[2px_2px_0px_var(--shadow-color)] hover:shadow-[3px_3px_0px_var(--shadow-color)] transition-all duration-150 space-y-2.5 cursor-pointer"
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="h-2 w-2 rounded-full bg-primary/40 group-hover:bg-primary transition-colors shrink-0" />
-                        <span className="font-medium text-sm sm:text-base group-hover:text-primary transition-colors truncate text-foreground">
+                        <div className="h-2.5 w-2.5 rounded-xs bg-primary border border-border group-hover:scale-110 transition-transform shrink-0" />
+                        <span className="font-bold text-sm sm:text-base group-hover:text-primary transition-colors truncate text-foreground">
                           {concept.name}
                         </span>
-                        <Badge variant="outline" className="hidden sm:inline-flex text-[10px] uppercase tracking-wider text-muted-foreground font-mono px-2 py-0.5 bg-muted/70 border-border/40">
+                        <Badge variant="outline" className="hidden sm:inline-flex text-[10px] uppercase tracking-wider text-muted-foreground font-bold px-2 py-0.5 bg-muted border-1.5 border-border rounded-xs">
                           {concept.difficulty}
                         </Badge>
                       </div>
@@ -559,7 +552,7 @@ export function DashboardClientView({
                       isDue={concept.isDue}
                     />
 
-                    <div className="text-[11px] text-muted-foreground font-medium flex items-center justify-between pt-0.5">
+                    <div className="text-[11px] text-muted-foreground font-medium flex items-center justify-between pt-1 border-t-2 border-border/40">
                       <span>
                         {getAccuracyText(
                           concept.correctCount,
@@ -567,9 +560,9 @@ export function DashboardClientView({
                           concept.score,
                         )}
                       </span>
-                      <span className="text-muted-foreground group-hover:text-primary transition-colors text-[10px] flex items-center gap-1">
-                        Analyze prerequisite tree
-                        <ChevronRight className="h-3 w-3" />
+                      <span className="text-muted-foreground group-hover:text-primary transition-colors text-[10px] font-bold flex items-center gap-1">
+                        See lesson breakdown
+                        <ChevronRight className="h-3.5 w-3.5" />
                       </span>
                     </div>
                   </Link>

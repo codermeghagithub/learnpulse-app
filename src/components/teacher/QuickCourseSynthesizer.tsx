@@ -324,20 +324,20 @@ export function QuickCourseSynthesizer({
   return (
     <div
       className={cn(
-        isModal ? "space-y-5" : "glass-card rounded-2xl p-6 space-y-5",
+        isModal ? "space-y-5" : "glass-card rounded-xl p-6 space-y-5 border-2 border-border bg-card shadow-[4px_4px_0px_var(--shadow-color)]",
       )}
     >
       {/* Header */}
       <div className="flex items-start gap-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary mt-0.5">
-          <Zap className="h-5 w-5" />
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-accent-yellow/20 text-foreground border-2 border-border shadow-[1px_1px_0px_var(--shadow-color)] mt-0.5">
+          <Zap className="h-5 w-5 text-primary" />
         </div>
         <div>
           <h2 className="font-bold text-base flex items-center gap-2">
             AI Course Synthesizer
             <Badge
               variant="outline"
-              className="border-primary/20 bg-primary/10 text-[10px] font-semibold text-primary"
+              className="border-1.5 border-border bg-primary/15 text-[10px] font-bold text-primary rounded-xs"
             >
               <Sparkles className="h-3 w-3 mr-1" />
               Zero Authoring
@@ -637,7 +637,7 @@ export function QuickCourseSynthesizer({
                         </span>
                         <span
                           className={cn(
-                            "text-[10px] px-2 py-0.5 rounded-full border font-medium capitalize shrink-0",
+                            "text-[10px] px-2 py-0.5 rounded-xs border font-medium capitalize shrink-0",
                             DIFFICULTY_COLOR[concept.difficulty],
                           )}
                         >

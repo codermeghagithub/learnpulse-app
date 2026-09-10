@@ -45,19 +45,19 @@ export default async function NewCoursePage() {
       {/* Header */}
       <div className="space-y-2">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
-            <BookPlus className="h-5 w-5" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-accent-blue/20 text-foreground border-2 border-border shadow-[1px_1px_0px_var(--shadow-color)]">
+            <BookPlus className="h-5 w-5 text-primary" />
           </div>
-          <h1 className="text-2xl font-bold">Create New Course</h1>
+          <h1 className="text-2xl font-bold text-foreground">Create New Course</h1>
         </div>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-muted-foreground font-medium">
           Define the course title and subject department. Next, you&apos;ll build its
           concept prerequisite DAG and add practice questions.
         </p>
       </div>
 
       {/* Form Container */}
-      <div className="glass-card rounded-2xl p-6 sm:p-8 space-y-6">
+      <div className="glass-card rounded-xl p-6 sm:p-8 space-y-6 border-2 border-border bg-card shadow-[4px_4px_0px_var(--shadow-color)]">
         <CreateCourseForm />
       </div>
     </div>

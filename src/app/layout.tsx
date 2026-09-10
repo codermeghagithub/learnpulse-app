@@ -5,10 +5,9 @@ export const metadata: Metadata = {
   title: "LearnPulse — Know what you don't know",
   description:
     "LearnPulse uses adaptive learning and AI-powered diagnostics to identify your knowledge gaps, trace them to root causes, and build a personalized recovery plan.",
-  keywords: ["adaptive learning", "AI tutoring", "knowledge gaps", "education", "SIH 2026"],
+  keywords: ["adaptive learning", "learning assistant", "knowledge gaps", "education", "student success"],
 };
 
-import { FloatingThemeToggle } from "@/components/FloatingThemeToggle";
 import { ToastProvider } from "@/components/ToastProvider";
 
 export default function RootLayout({
@@ -19,26 +18,17 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              try {
-                const saved = localStorage.getItem('learnpulse-theme');
-                if (saved === 'light') {
-                  document.documentElement.classList.remove('dark');
-                } else {
-                  document.documentElement.classList.add('dark');
-                }
-              } catch (e) {}
-            `,
-          }}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap"
+          rel="stylesheet"
         />
       </head>
       <body
         className="min-h-screen bg-background text-foreground antialiased"
         suppressHydrationWarning
       >
-        <FloatingThemeToggle />
         <ToastProvider />
         {children}
       </body>

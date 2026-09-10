@@ -195,13 +195,13 @@ export function ConceptBiteCard({
     return (
       <div
         className={cn(
-          "glass-card rounded-2xl p-6 border-primary/20 space-y-4",
+          "rounded-xl border-2 border-border bg-card p-6 space-y-4 shadow-[4px_4px_0px_var(--shadow-color)]",
           className
         )}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Skeleton className="h-8 w-8 rounded-lg" />
+            <Skeleton className="h-8 w-8 rounded-md" />
             <Skeleton className="h-4 w-40" />
           </div>
           <Skeleton className="h-5 w-24 rounded-md" />
@@ -255,24 +255,24 @@ export function ConceptBiteCard({
   return (
     <div
       className={cn(
-        "glass-card rounded-2xl p-6 sm:p-7 space-y-5 border-primary/20 shadow-lg relative overflow-hidden",
+        "rounded-xl p-6 sm:p-7 space-y-5 border-2 border-border bg-card shadow-[4px_4px_0px_var(--shadow-color)] relative overflow-hidden",
         className
       )}
     >
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
-            <Zap className="h-4.5 w-4.5" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-accent-yellow/30 text-foreground border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)]">
+            <Zap className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+            <h3 className="text-sm font-bold text-foreground flex items-center gap-1.5">
               <span>{isHi ? "60-सेकंड अवधारणा विवरण" : "60-Second Concept Bite"}</span>
-              <span className="text-xs font-normal text-muted-foreground">
+              <span className="text-xs font-semibold text-muted-foreground">
                 • {data.conceptName}
               </span>
             </h3>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-[11px] text-muted-foreground font-medium">
               {isHi
                 ? "अभ्यास जारी रखने से पहले मूल समझ (Intuition) को समझें"
                 : "Master the intuition before continuing practice"}
@@ -282,13 +282,16 @@ export function ConceptBiteCard({
 
         <div className="flex items-center gap-2">
           {/* Working Language Toggle */}
-          <div className="flex items-center bg-background/60 border border-border rounded-lg p-0.5 text-[11px]">
+          <div className="flex items-center bg-muted border-2 border-border rounded-md p-1 text-[11px] shadow-[2px_2px_0px_var(--shadow-color)]">
             <Button
               type="button"
               variant={!isHi ? "default" : "ghost"}
               size="xs"
               onClick={() => setLang("en")}
-              className="h-6 px-2.5 text-xs font-semibold"
+              className={cn(
+                "h-6 px-3 text-xs font-bold rounded-sm transition-all",
+                !isHi ? "bg-foreground text-background shadow-[1px_1px_0px_var(--shadow-color)]" : "text-muted-foreground"
+              )}
             >
               EN
             </Button>
@@ -297,14 +300,17 @@ export function ConceptBiteCard({
               variant={isHi ? "default" : "ghost"}
               size="xs"
               onClick={() => setLang("hi")}
-              className="h-6 px-2.5 text-xs font-semibold"
+              className={cn(
+                "h-6 px-3 text-xs font-bold rounded-sm transition-all",
+                isHi ? "bg-foreground text-background shadow-[1px_1px_0px_var(--shadow-color)]" : "text-muted-foreground"
+              )}
             >
               हिन्दी
             </Button>
           </div>
 
-          <Badge variant="outline" className="border-primary/20 bg-primary/10 text-[10px] font-medium text-primary">
-            <Sparkles className="h-3 w-3 mr-1" />
+          <Badge variant="outline" className="border-1.5 border-border bg-accent-purple/20 text-[10px] font-bold text-foreground rounded-xs px-2.5 py-0.5 shadow-[1px_1px_0px_var(--shadow-color)]">
+            <Sparkles className="h-3 w-3 mr-1 text-primary" />
             {isHi ? "त्वरित सुधार" : "Remediation Bite"}
           </Badge>
         </div>
@@ -313,8 +319,8 @@ export function ConceptBiteCard({
       {/* 1. Core Intuition & Analogy Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
         {/* Intuition */}
-        <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-2">
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
+        <div className="rounded-lg border-2 border-border bg-card p-4 space-y-2 shadow-[2px_2px_0px_var(--shadow-color)]">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-primary">
             <Brain className="h-4 w-4" />
             <span>
               {isHi
@@ -322,48 +328,48 @@ export function ConceptBiteCard({
                 : "Core intuition (why it exists):"}
             </span>
           </div>
-          <p className="text-xs text-foreground/90 leading-relaxed">
+          <p className="text-xs text-foreground/90 leading-relaxed font-medium">
             {intuitionText}
           </p>
         </div>
 
         {/* Real-World Analogy */}
-        <div className="rounded-xl border border-warning/20 bg-warning/5 p-4 space-y-2">
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-warning">
-            <Lightbulb className="h-4 w-4" />
+        <div className="rounded-lg border-2 border-border bg-card p-4 space-y-2 shadow-[2px_2px_0px_var(--shadow-color)]">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
+            <Lightbulb className="h-4 w-4 text-accent-yellow" />
             <span>
               {isHi
                 ? "🌍 वास्तविक दुनिया का मानसिक मॉडल:"
                 : "Real-world mental model:"}
             </span>
           </div>
-          <p className="text-xs text-foreground/90 leading-relaxed">
+          <p className="text-xs text-foreground/90 leading-relaxed font-medium">
             {analogyText}
           </p>
         </div>
       </div>
 
       {/* 10-Second Anchor Formula */}
-      <div className="rounded-xl border border-success/25 bg-success/5 px-4 py-3 flex items-center justify-between gap-3">
+      <div className="rounded-lg border-2 border-border bg-accent-yellow/10 px-4 py-3 flex items-center justify-between gap-3 shadow-[2px_2px_0px_var(--shadow-color)]">
         <div className="space-y-0.5">
-          <span className="text-[10px] uppercase tracking-wider font-semibold text-success">
+          <span className="text-[10px] uppercase tracking-wider font-bold text-primary">
             💡 {isHi ? "१०-सेकंड सूत्र (NEP 2020)" : "10-Second Anchor Formula"}
           </span>
-          <p className="text-xs font-medium text-foreground">
+          <p className="text-xs font-bold text-foreground">
             {anchorText}
           </p>
         </div>
       </div>
 
       {/* 2. Tricky Conceptual Quick-Check */}
-      <div className="rounded-xl border border-border bg-card/40 p-4 space-y-3">
+      <div className="rounded-lg border-2 border-border bg-card p-4 space-y-3 shadow-[2px_2px_0px_var(--shadow-color)]">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2">
             <HelpCircle className="h-4 w-4 text-primary" />
-            <span className="text-xs font-semibold text-foreground">
+            <span className="text-xs font-bold text-foreground">
               {isHi ? "🎯 अपनी समझ परखें:" : "Check your intuition:"}
             </span>
-            <Badge variant="secondary" className="text-[10px] font-mono">
+            <Badge variant="secondary" className="text-[10px] font-mono font-bold rounded-xs border-1.5 border-border">
               {isHi ? "असली दुनिया की चुनौती" : "Application Scenario"}
             </Badge>
           </div>
@@ -375,7 +381,7 @@ export function ConceptBiteCard({
               variant="outline"
               size="xs"
               onClick={handleNextChallenge}
-              className="text-[11px]"
+              className="text-[11px] font-bold rounded-md border-2 border-border shadow-[1px_1px_0px_var(--shadow-color)] hover:shadow-[2px_2px_0px_var(--shadow-color)]"
               title="Try another random scenario"
             >
               <span className="mr-1">🎲</span>
@@ -385,7 +391,7 @@ export function ConceptBiteCard({
             {checked && (
               <Badge
                 variant={isCorrect ? "default" : "warning"}
-                className="text-[11px] font-medium flex items-center gap-1"
+                className="text-[11px] font-bold flex items-center gap-1 rounded-xs border-1.5 border-border shadow-[1px_1px_0px_var(--shadow-color)]"
               >
                 {isCorrect ? (
                   <>
@@ -403,7 +409,7 @@ export function ConceptBiteCard({
           </div>
         </div>
 
-        <p className="text-xs font-medium text-foreground leading-relaxed">
+        <p className="text-xs font-semibold text-foreground leading-relaxed">
           {activeQuestion.question}
         </p>
 
@@ -414,19 +420,19 @@ export function ConceptBiteCard({
             const isAnswer = opt.key === activeQuestion.correctAnswer;
 
             let optStyle =
-              "border-border hover:border-primary/40 hover:bg-muted/50 text-foreground";
+              "border-2 border-border hover:border-primary hover:bg-muted text-foreground shadow-[2px_2px_0px_var(--shadow-color)]";
             if (checked) {
               if (isAnswer) {
                 optStyle =
-                  "border-success/60 bg-success/10 text-foreground font-medium";
+                  "border-2 border-success bg-success/15 text-foreground font-bold shadow-[2px_2px_0px_var(--shadow-color)]";
               } else if (isSelected) {
                 optStyle =
-                  "border-destructive/60 bg-destructive/10 text-destructive";
+                  "border-2 border-destructive bg-destructive/15 text-destructive font-bold shadow-[2px_2px_0px_var(--shadow-color)]";
               } else {
-                optStyle = "border-border/40 opacity-60";
+                optStyle = "border-2 border-border/40 opacity-60";
               }
             } else if (isSelected) {
-              optStyle = "border-primary bg-primary/10 text-primary font-medium";
+              optStyle = "border-2 border-primary bg-primary/15 text-foreground font-bold shadow-[2px_2px_0px_var(--shadow-color)]";
             }
 
             return (
@@ -436,18 +442,18 @@ export function ConceptBiteCard({
                 onClick={() => handleSelectOption(opt.key, activeQuestion.correctAnswer)}
                 disabled={checked}
                 className={cn(
-                  "w-full flex items-center gap-3 p-2.5 rounded-xl border text-left text-xs transition-colors cursor-pointer",
+                  "w-full flex items-center gap-3 p-3 rounded-md text-left text-xs transition-all cursor-pointer",
                   optStyle
                 )}
               >
                 <span
                   className={cn(
-                    "flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[11px] font-mono font-medium",
+                    "flex h-7 w-7 shrink-0 items-center justify-center rounded-xs border-2 text-[11px] font-mono font-bold shadow-[1px_1px_0px_var(--shadow-color)]",
                     checked && isAnswer
                       ? "border-success bg-success text-success-foreground"
                       : checked && isSelected
                       ? "border-destructive bg-destructive text-white"
-                      : "border-border bg-background text-muted-foreground"
+                      : "border-border bg-background text-foreground"
                   )}
                 >
                   {opt.key}
@@ -462,18 +468,18 @@ export function ConceptBiteCard({
         {checked && (
           <div
             className={cn(
-              "rounded-lg p-3 text-xs leading-relaxed",
+              "rounded-md p-4 text-xs leading-relaxed border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)]",
               isCorrect
-                ? "bg-success/10 border border-success/20 text-foreground"
-                : "bg-warning/10 border border-warning/20 text-foreground"
+                ? "bg-success/10 text-foreground"
+                : "bg-accent-yellow/20 text-foreground"
             )}
           >
-            <p className="font-semibold mb-0.5">
+            <p className="font-bold mb-0.5 text-foreground">
               {isCorrect
                 ? isHi ? "✅ उत्कृष्ट समझ!" : "✅ Conceptual alignment verified"
                 : isHi ? "💡 यह क्यों काम करता है:" : "💡 Intuitive explanation:"}
             </p>
-            <p className="text-muted-foreground">{activeQuestion.explanation}</p>
+            <p className="text-muted-foreground font-medium">{activeQuestion.explanation}</p>
           </div>
         )}
       </div>

@@ -1,27 +1,35 @@
 import { mergeProps } from "@base-ui/react/merge-props"
 import { useRender } from "@base-ui/react/use-render"
 import { cva, type VariantProps } from "class-variance-authority"
-import { cn } from "cn"
+import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-  "group/badge inline-flex h-5 w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-4xl border border-transparent px-2 py-0.5 text-xs font-medium whitespace-nowrap transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none [&>svg]:size-3!",
+  "group/badge inline-flex h-6 w-fit shrink-0 items-center justify-center gap-1.5 rounded-xs border-1.5 border-border px-2.5 py-0.5 text-xs font-medium whitespace-nowrap transition-all shadow-[1px_1px_0px_var(--shadow-color)] [&>svg]:pointer-events-none [&>svg]:size-3.5",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground [a]:hover:bg-primary/80",
+        default:
+          "bg-[#151313] text-white dark:bg-[#F7F7F5] dark:text-[#151313]",
+        primary:
+          "bg-primary text-primary-foreground",
         secondary:
-          "bg-secondary text-secondary-foreground [a]:hover:bg-secondary/80",
+          "bg-secondary text-secondary-foreground",
+        purple:
+          "bg-[#BE94F5] text-[#151313] dark:bg-[#4D366B] dark:text-[#F7F7F5]",
+        yellow:
+          "bg-[#FCCC42] text-[#151313] dark:bg-[#614B14] dark:text-[#F7F7F5]",
+        blue:
+          "bg-[#C0E6FF] text-[#151313] dark:bg-[#234559] dark:text-[#F7F7F5]",
         destructive:
-          "bg-destructive/10 text-destructive focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:focus-visible:ring-destructive/40 [a]:hover:bg-destructive/20",
+          "bg-destructive text-destructive-foreground",
         warning:
-          "border-warning/30 bg-warning/10 text-warning [a]:hover:bg-warning/20",
+          "bg-[#FCCC42] text-[#151313] dark:bg-[#614B14] dark:text-[#F7F7F5]",
         success:
-          "border-success/30 bg-success/10 text-success [a]:hover:bg-success/20",
+          "bg-green-500 text-[#151313] dark:text-white",
         outline:
-          "border-border text-foreground [a]:hover:bg-muted [a]:hover:text-muted-foreground",
+          "bg-card text-foreground",
         ghost:
-          "hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50",
-        link: "text-primary underline-offset-4 hover:underline",
+          "border-transparent shadow-none bg-transparent hover:bg-muted text-foreground",
       },
     },
     defaultVariants: {

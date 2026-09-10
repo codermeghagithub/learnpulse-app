@@ -194,16 +194,16 @@ export function QuizCard({
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="glass-card rounded-2xl p-6 space-y-6 animate-slide-up">
+    <div className="rounded-xl border-2 border-border bg-card p-6 space-y-6 animate-slide-up shadow-[4px_4px_0px_var(--shadow-color)]">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <span className="text-sm text-muted-foreground">
+        <span className="text-sm font-bold text-muted-foreground">
           Question {questionNumber} of {totalQuestions}
         </span>
         <Badge
           variant="outline"
           className={cn(
-            "text-xs px-2.5 py-1 rounded-full font-medium capitalize",
+            "text-xs px-3 py-1 rounded-xs font-bold border-1.5 capitalize shadow-[1px_1px_0px_var(--shadow-color)]",
             DIFFICULTY_BADGE[difficulty],
           )}
         >
@@ -212,26 +212,26 @@ export function QuizCard({
       </div>
 
       {/* Question */}
-      <p className="text-base font-medium leading-relaxed">{questionText}</p>
+      <p className="text-base font-bold leading-relaxed text-foreground">{questionText}</p>
 
       {/* Options */}
-      <div className="space-y-2.5">
+      <div className="space-y-3">
         {options.map((option) => {
           const isSelected = selected === option.key;
           const isThisCorrect = option.key === correctAnswer;
 
           let optionStyle =
-            "border-border hover:border-primary/40 hover:bg-primary/5";
+            "border-2 border-border hover:border-primary hover:bg-muted/50 text-foreground shadow-[2px_2px_0px_var(--shadow-color)]";
           if (submitted) {
             if (isThisCorrect)
               optionStyle =
-                "border-[var(--mastery-high)]/50 bg-[var(--mastery-high)]/10";
+                "border-2 border-success bg-success/15 text-foreground font-bold shadow-[2px_2px_0px_var(--shadow-color)]";
             else if (isSelected && !isThisCorrect)
               optionStyle =
-                "border-[var(--mastery-low)]/50 bg-[var(--mastery-low)]/10";
-            else optionStyle = "border-border opacity-50";
+                "border-2 border-destructive bg-destructive/15 text-destructive font-bold shadow-[2px_2px_0px_var(--shadow-color)]";
+            else optionStyle = "border-2 border-border/40 opacity-50";
           } else if (isSelected) {
-            optionStyle = "border-primary bg-primary/10";
+            optionStyle = "border-2 border-primary bg-primary/15 text-foreground font-bold shadow-[2px_2px_0px_var(--shadow-color)]";
           }
 
           return (
@@ -241,14 +241,14 @@ export function QuizCard({
               disabled={submitted}
               onClick={() => !submitted && setSelected(option.key)}
               className={cn(
-                "w-full flex items-center gap-3 rounded-xl border p-3.5 text-left transition-all duration-150",
+                "w-full flex items-center gap-3 rounded-md border-2 p-3.5 text-left transition-all duration-150",
                 optionStyle,
-                !submitted && "cursor-pointer",
+                !submitted && "cursor-pointer hover:-translate-x-px hover:-translate-y-px",
               )}
             >
               <span
                 className={cn(
-                  "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border text-sm font-semibold",
+                  "flex h-7 w-7 shrink-0 items-center justify-center rounded-xs border text-sm font-semibold",
                   isSelected && !submitted
                     ? "border-primary text-primary bg-primary/10"
                     : "border-border text-muted-foreground",
@@ -303,7 +303,7 @@ export function QuizCard({
                 placeholder="e.g. I picked this because I assumed locks always prevent deadlocks..."
                 maxLength={500}
                 rows={2}
-                className="w-full rounded-xl border-border bg-background/50 px-3 py-2 text-xs text-foreground focus:outline-none resize-none transition-colors"
+                className="w-full rounded-md border-border bg-background/50 px-3 py-2 text-xs text-foreground focus:outline-none resize-none transition-colors"
               />
             </div>
           )}
@@ -316,10 +316,10 @@ export function QuizCard({
           {/* Status Banner */}
           <div
             className={cn(
-              "rounded-xl border p-4 text-sm flex items-start gap-3",
+              "rounded-md border-2 p-4 text-sm flex items-start gap-3 shadow-[2px_2px_0px_var(--shadow-color)]",
               isCorrect
-                ? "border-success/30 bg-success/10 text-success"
-                : "border-destructive/30 bg-destructive/10 text-destructive",
+                ? "border-success bg-success/15 text-success"
+                : "border-destructive bg-destructive/15 text-destructive",
             )}
           >
             {isCorrect ? (
@@ -328,11 +328,11 @@ export function QuizCard({
               <XCircle className="h-5 w-5 shrink-0 text-destructive mt-0.5" />
             )}
             <div className="space-y-1">
-              <p className="font-semibold text-sm">
+              <p className="font-bold text-sm">
                 {isCorrect ? "Correct answer" : "Incorrect selection"}
               </p>
               {explanation && (
-                <p className="text-xs text-foreground/80 leading-relaxed">
+                <p className="text-xs text-foreground/90 font-medium leading-relaxed">
                   {explanation}
                 </p>
               )}
@@ -341,17 +341,17 @@ export function QuizCard({
 
           {/* Mental Mirror + Cognitive Dissonance (shown only on wrong answers) */}
           {!isCorrect && (
-            <div className="rounded-2xl border border-primary/20 bg-primary/5 p-5 space-y-4 shadow-md">
+            <div className="rounded-xl border-2 border-border bg-card p-5 space-y-4 shadow-[3px_3px_0px_var(--shadow-color)]">
               {/* Header with Dual Language Switcher */}
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div className="flex items-center gap-2">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/15 text-primary">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-md bg-accent-yellow/20 text-foreground border-2 border-border shadow-[1px_1px_0px_var(--shadow-color)]">
                     <Brain className="h-4 w-4" />
                   </div>
                   <div>
                     <h3 className="text-xs font-bold text-foreground flex items-center gap-1.5">
                       <span>{anchorLang === "hi" ? "मेंटल मिरर" : "Mental Mirror"}</span>
-                      <span className="text-[10px] text-muted-foreground font-normal">
+                      <span className="text-[10px] text-muted-foreground font-semibold">
                         • {anchorLang === "hi" ? "संज्ञानात्मक भ्रांति विश्लेषण (NEP 2020)" : "Cognitive Misconception Diagnosis"}
                       </span>
                     </h3>
@@ -360,14 +360,14 @@ export function QuizCard({
 
                 <div className="flex items-center gap-2">
                   {/* Language Switcher for the entire Mental Mirror */}
-                  <div className="flex items-center bg-background/80 border border-primary/20 rounded-md p-0.5 text-[10px]">
+                  <div className="flex items-center bg-muted border-2 border-border rounded-md p-0.5 text-[10px] shadow-[1px_1px_0px_var(--shadow-color)]">
                     <button
                       type="button"
                       onClick={() => setAnchorLang("en")}
                       className={cn(
-                        "px-2.5 py-0.5 rounded font-medium transition-all cursor-pointer",
+                        "px-3 py-0.5 rounded-sm font-bold transition-all cursor-pointer",
                         anchorLang === "en"
-                          ? "bg-primary text-white font-bold shadow-xs"
+                          ? "bg-foreground text-background shadow-[1px_1px_0px_var(--shadow-color)]"
                           : "text-muted-foreground hover:text-foreground"
                       )}
                     >
@@ -377,9 +377,9 @@ export function QuizCard({
                       type="button"
                       onClick={() => setAnchorLang("hi")}
                       className={cn(
-                        "px-2.5 py-0.5 rounded font-medium transition-all cursor-pointer",
+                        "px-3 py-0.5 rounded-sm font-bold transition-all cursor-pointer",
                         anchorLang === "hi"
-                          ? "bg-primary text-white font-bold shadow-xs"
+                          ? "bg-foreground text-background shadow-[1px_1px_0px_var(--shadow-color)]"
                           : "text-muted-foreground hover:text-foreground"
                       )}
                     >
@@ -387,81 +387,74 @@ export function QuizCard({
                     </button>
                   </div>
 
-                  <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full border border-primary/20 bg-primary/10 text-[10px] font-semibold text-primary">
-                    <Sparkles className="h-3 w-3" />
+                  <div className="inline-flex items-center gap-1 px-3 py-0.5 rounded-xs border-1.5 border-border bg-accent-purple/20 text-[10px] font-bold text-foreground shadow-[1px_1px_0px_var(--shadow-color)]">
+                    <Sparkles className="h-3 w-3 text-primary" />
                     <span>{anchorLang === "hi" ? "एआई विश्लेषण" : "AI Deconstructed"}</span>
                   </div>
                 </div>
               </div>
 
               {loadingMisconception ? (
-                <div className="flex items-center gap-3 py-3 text-xs text-muted-foreground animate-pulse">
+                <div className="flex items-center gap-3 py-3 text-xs text-muted-foreground font-medium animate-pulse">
                   <Sparkles className="h-4 w-4 text-primary animate-spin" />
-                  <span>
-                    {anchorLang === "hi"
-                      ? `विश्लेषण कर रहे हैं कि आपने विकल्प (${selected}) क्यों चुना...`
-                      : `Deconstructing why your brain selected Option (${selected})...`}
-                  </span>
+                  <span>Diagnosing conceptual root-cause…</span>
                 </div>
               ) : (
                 (() => {
+                  const activeSection =
+                    anchorLang === "hi"
+                      ? misconception?.hi || misconception
+                      : misconception?.en || misconception;
+
+                  const activeThoughtTrap =
+                    activeSection?.thoughtTrap ||
+                    misconception?.thoughtTrap;
+
+                  const activeMentalAnchor =
+                    anchorLang === "hi"
+                      ? misconception?.vernacularAnchor ||
+                        misconception?.hi?.mentalAnchor ||
+                        misconception?.mentalAnchor
+                      : misconception?.en?.mentalAnchor ||
+                        misconception?.mentalAnchor;
+
+                  const activeCognitiveDissonance =
+                    activeSection?.cognitiveDissonance ||
+                    misconception?.cognitiveDissonance;
+
                   const isHindi = anchorLang === "hi";
 
-                  const activeThoughtTrap = isHindi
-                    ? misconception?.hi?.thoughtTrap ||
-                      (misconception?.thoughtTrap
-                        ? `आपने संभवतः यह विकल्प इसलिए चुना क्योंकि दोनों विकल्प ${conceptName || "इस विषय"} में संबंधित हैं।`
-                        : undefined)
-                    : misconception?.en?.thoughtTrap || misconception?.thoughtTrap;
-
-                  const activeMentalAnchor = isHindi
-                    ? misconception?.hi?.mentalAnchor || misconception?.vernacularAnchor || misconception?.mentalAnchor
-                    : misconception?.en?.mentalAnchor || misconception?.mentalAnchor;
-
-                  const activeCognitiveDissonance = isHindi
-                    ? misconception?.hi?.cognitiveDissonance || misconception?.cognitiveDissonance
-                    : misconception?.en?.cognitiveDissonance || misconception?.cognitiveDissonance;
-
                   return (
-                    <div className="space-y-3">
+                    <div className="space-y-3 pt-1">
                       {/* 1. Thought Trap */}
-                      <div className="rounded-xl border border-amber-500/25 bg-amber-500/5 p-3.5 space-y-1.5">
-                        <div className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
-                          <span>
-                            {isHindi
-                              ? "⚠️ सोच का जाल (Thought Trap):"
-                              : "⚠️ The Thought Trap You Fell Into:"}
-                          </span>
+                      {activeThoughtTrap && (
+                        <div className="rounded-lg border-2 border-border bg-accent-yellow/10 p-4 space-y-1 shadow-[2px_2px_0px_var(--shadow-color)]">
+                          <p className="text-[11px] font-bold text-primary uppercase tracking-wider">
+                            {isHindi ? "🧠 अनुमानित सोच का जाल" : "🧠 Presumed Thought Trap"}
+                          </p>
+                          <p className="text-xs text-foreground/90 font-medium leading-relaxed">
+                            {activeThoughtTrap}
+                          </p>
                         </div>
-                        <p className="text-xs text-foreground/90 leading-relaxed">
-                          {activeThoughtTrap ??
-                            (isHindi
-                              ? `आपने संभवतः यह विकल्प इसलिए चुना क्योंकि दोनों विकल्प ${conceptName || "इस विषय"} से जुड़े हुए हैं।`
-                              : `You may have selected this option because both choices share closely related terminology in ${conceptName || "this subject"}.`)}
-                        </p>
-                      </div>
+                      )}
 
                       {/* 2. Mental Anchor */}
-                      <div className="rounded-xl border border-primary/25 bg-primary/5 p-3.5 space-y-2">
-                        <div className="text-xs font-bold text-primary flex items-center gap-1.5">
-                          <Lightbulb className="h-3.5 w-3.5" />
-                          <span>
-                            💡 {isHindi ? "१०-सेकंड सूत्र (Mental Anchor):" : "10-Second Mental Anchor:"}
-                          </span>
+                      {activeMentalAnchor && (
+                        <div className="rounded-lg border-2 border-border bg-accent-blue/10 p-4 space-y-1 shadow-[2px_2px_0px_var(--shadow-color)]">
+                          <p className="text-[11px] font-bold text-foreground uppercase tracking-wider">
+                            {isHindi ? "⚓ मानसिक आधार (नियम)" : "⚓ Mental Anchor (Rule of Thumb)"}
+                          </p>
+                          <p className="text-xs text-foreground/90 font-medium leading-relaxed">
+                            {activeMentalAnchor}
+                          </p>
                         </div>
-                        <p className="text-xs text-foreground font-medium leading-relaxed">
-                          {activeMentalAnchor ??
-                            (isHindi
-                              ? `याद रखें: हमेशा देखें कि कौन निर्णय लेता है और कौन डेटा प्रोसेस करता है — दोनों के काम अलग हैं।`
-                              : `Rule of thumb: Clearly distinguish the component that makes decisions from the one that executes state.`)}
-                        </p>
-                      </div>
+                      )}
 
                       {/* 3. Reality Check — Cognitive Dissonance Counter-Example */}
                       {activeCognitiveDissonance && (
-                        <div className="rounded-xl border border-violet-500/30 bg-violet-500/5 p-3.5 space-y-2">
-                          <div className="text-xs font-bold text-violet-400 flex items-center gap-1.5">
-                            <Zap className="h-3.5 w-3.5" />
+                        <div className="rounded-lg border-2 border-border bg-accent-purple/10 p-4 space-y-2 shadow-[2px_2px_0px_var(--shadow-color)]">
+                          <div className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                            <Zap className="h-3.5 w-3.5 text-primary" />
                             <span>
                               {isHindi
                                 ? "⚡ वास्तविकता की जाँच — क्या आपका मानसिक मॉडल सही है?"
@@ -471,7 +464,7 @@ export function QuizCard({
                           <p className="text-xs text-foreground/90 leading-relaxed">
                             {activeCognitiveDissonance.paradoxScenario}
                           </p>
-                          <div className="rounded-lg border border-violet-500/20 bg-violet-500/5 px-3 py-2">
+                          <div className="rounded-md border border-violet-500/20 bg-violet-500/5 px-3 py-2">
                             <p className="text-xs text-violet-300 font-medium italic">
                               🤔 {activeCognitiveDissonance.counterQuestion}
                             </p>
@@ -493,12 +486,12 @@ export function QuizCard({
           id="quiz-submit-btn"
           disabled={!selected || isBusy}
           onClick={handleSubmit}
-          className="w-full h-11 rounded-xl font-semibold text-sm shadow-sm cursor-pointer"
+          className="w-full h-11 rounded-md font-bold text-sm border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] hover:shadow-[3px_3px_0px_var(--shadow-color)] active:translate-x-px active:translate-y-px cursor-pointer"
         >
           {isBusy ? "Submitting..." : "Submit Answer"}
         </Button>
       ) : (
-        <div className="text-center text-sm text-muted-foreground pt-1">
+        <div className="text-center text-sm font-bold text-muted-foreground pt-1">
           Answer recorded — see your updated mastery status below
         </div>
       )}

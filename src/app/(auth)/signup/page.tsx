@@ -77,8 +77,8 @@ export default function SignupPage() {
   return (
     <>
       <div className="mb-7">
-        <h2 className="text-2xl font-bold tracking-tight text-foreground">Create your account</h2>
-        <p className="text-sm text-muted-foreground mt-1">
+        <h2 className="text-2xl font-bold tracking-tight text-foreground font-heading">Create your account</h2>
+        <p className="text-sm font-medium text-muted-foreground mt-1">
           Start understanding your learning gaps today.
         </p>
       </div>
@@ -86,7 +86,7 @@ export default function SignupPage() {
       <form onSubmit={handleSignup} className="space-y-4" id="signup-form">
         {/* Full name */}
         <div className="space-y-1.5">
-          <Label htmlFor="signup-name" className="text-sm font-medium text-foreground">
+          <Label htmlFor="signup-name" className="text-xs font-bold text-foreground uppercase tracking-wider">
             Full Name
           </Label>
           <Input
@@ -98,14 +98,14 @@ export default function SignupPage() {
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             placeholder="Rebortak Roy"
-            className="rounded-xl border-border bg-muted/40 px-4 py-3 h-11 text-sm placeholder:text-muted-foreground/60"
+            className="h-11 px-4"
           />
         </div>
 
         {/* Role selector */}
         <div className="space-y-1.5">
-          <Label className="text-sm font-medium text-foreground">I am a…</Label>
-          <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Role selection">
+          <Label className="text-xs font-bold text-foreground uppercase tracking-wider">I am a…</Label>
+          <div className="grid grid-cols-2 gap-2.5" role="radiogroup" aria-label="Role selection">
             {(["student", "teacher"] as const).map((r) => (
               <Button
                 key={r}
@@ -116,10 +116,10 @@ export default function SignupPage() {
                 aria-checked={role === r}
                 onClick={() => setRole(r)}
                 className={cn(
-                  "rounded-xl h-11 text-sm font-medium capitalize cursor-pointer",
+                  "rounded-md h-11 text-sm font-bold capitalize cursor-pointer",
                   role === r
-                    ? "border-primary bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary font-semibold shadow-none"
-                    : "border-border text-muted-foreground hover:border-border/80 hover:text-foreground"
+                    ? "bg-[#151313] text-[#FFFFFF] border-2 border-[#151313] dark:bg-[#F7F7F5] dark:text-[#151313] dark:border-[#F7F7F5] shadow-[2px_2px_0px_var(--shadow-color)]"
+                    : "border-2 border-border bg-card text-foreground shadow-[2px_2px_0px_var(--shadow-color)]"
                 )}
               >
                 {r}
@@ -130,7 +130,7 @@ export default function SignupPage() {
 
         {/* Email */}
         <div className="space-y-1.5">
-          <Label htmlFor="signup-email" className="text-sm font-medium text-foreground">
+          <Label htmlFor="signup-email" className="text-xs font-bold text-foreground uppercase tracking-wider">
             Email
           </Label>
           <Input
@@ -142,13 +142,13 @@ export default function SignupPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
-            className="rounded-xl border-border bg-muted/40 px-4 py-3 h-11 text-sm placeholder:text-muted-foreground/60"
+            className="h-11 px-4"
           />
         </div>
 
         {/* Password */}
         <div className="space-y-1.5">
-          <Label htmlFor="signup-password" className="text-sm font-medium text-foreground">
+          <Label htmlFor="signup-password" className="text-xs font-bold text-foreground uppercase tracking-wider">
             Password
           </Label>
           <div className="relative">
@@ -157,22 +157,22 @@ export default function SignupPage() {
               type={showPassword ? "text" : "password"}
               autoComplete="new-password"
               required
-              minLength={6}
+              minLength={8}
               maxLength={72}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Min. 6 characters"
-              className="rounded-xl border-border bg-muted/40 px-4 py-3 pr-10 h-11 text-sm placeholder:text-muted-foreground/60"
+              placeholder="••••••••"
+              className="h-11 px-4 pr-10"
             />
             <Button
               type="button"
               variant="ghost"
               size="icon-xs"
-              id="toggle-signup-password"
+              id="toggle-password-visibility"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer shadow-none border-transparent hover:border-transparent"
             >
-              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              {showPassword ? <EyeOff className="h-4 w-4 stroke-[2.5]" /> : <Eye className="h-4 w-4 stroke-[2.5]" />}
             </Button>
           </div>
         </div>
@@ -181,7 +181,7 @@ export default function SignupPage() {
           <div
             id="signup-error"
             role="alert"
-            className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+            className="rounded-md border-2 border-destructive bg-destructive/10 px-4 py-3 text-xs font-bold text-destructive shadow-[2px_2px_0px_var(--shadow-color)]"
           >
             {error}
           </div>
@@ -191,7 +191,7 @@ export default function SignupPage() {
           id="signup-submit-btn"
           type="submit"
           disabled={loading}
-          className="w-full h-11 rounded-xl py-3 text-sm font-semibold shadow-sm cursor-pointer"
+          className="w-full h-11 rounded-md font-bold shadow-[2px_2px_0px_var(--shadow-color)] cursor-pointer mt-2"
         >
           {loading ? (
             <>
@@ -201,18 +201,18 @@ export default function SignupPage() {
           ) : (
             <>
               Create account
-              <ArrowRight className="h-4 w-4 ml-2" />
+              <ArrowRight className="h-4 w-4 ml-1.5 stroke-[2.5]" />
             </>
           )}
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-muted-foreground">
+      <p className="mt-6 text-center text-sm font-medium text-muted-foreground">
         Already have an account?{" "}
         <Link
           href="/login"
           id="login-link"
-          className="font-medium text-primary hover:underline"
+          className="font-bold text-primary underline underline-offset-4 hover:opacity-80 transition-opacity"
         >
           Sign in
         </Link>

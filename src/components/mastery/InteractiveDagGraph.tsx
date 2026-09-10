@@ -92,14 +92,14 @@ function CustomConceptNode({ data }: NodeProps<Node<ConceptNodeData>>) {
   return (
     <div
       className={cn(
-        "relative rounded-xl border bg-background/95 backdrop-blur-md px-3.5 py-2.5 shadow-lg transition-all duration-200 cursor-pointer min-w-42.5 max-w-52.5",
-        borderClass,
-        isSelected && "ring-2 ring-primary border-primary shadow-primary/20",
-        isTarget && "ring-1 ring-primary/60",
+        "relative rounded-md border-2 bg-card px-3.5 py-2.5 shadow-[2px_2px_0px_var(--shadow-color)] transition-all duration-200 cursor-pointer min-w-42.5 max-w-52.5",
+        data.isTarget
+          ? "border-primary bg-primary/10 shadow-[3px_3px_0px_var(--shadow-color)]"
+          : isSelected
+          ? "border-primary shadow-[3px_3px_0px_var(--shadow-color)]"
+          : "border-border hover:border-foreground/80 hover:shadow-[3px_3px_0px_var(--shadow-color)]"
       )}
-    >
-      {/* Target input handle (from prerequisites) */}
-      <Handle
+    >  <Handle
         type="target"
         position={Position.Left}
         className="w-2.5 h-2.5 bg-primary border-2 border-background -left-1.5!"
@@ -109,7 +109,7 @@ function CustomConceptNode({ data }: NodeProps<Node<ConceptNodeData>>) {
       <div className="flex items-center gap-2 mb-1.5">
         <span
           className={cn(
-            "h-2.5 w-2.5 rounded-full shrink-0",
+            "h-2.5 w-2.5 rounded-xs shrink-0",
             badgeDot,
             isWeak && "animate-ping",
           )}
@@ -317,9 +317,9 @@ export function InteractiveDagGraph({
   return (
     <div className={cn("space-y-4", className)}>
       {/* Graph Visual Canvas via React Flow */}
-      <div className="glass-card rounded-2xl border border-border/80 relative overflow-hidden bg-background/60 shadow-xl">
+      <div className="glass-card rounded-xl border-2 border-border relative overflow-hidden bg-card shadow-[4px_4px_0px_var(--shadow-color)]">
         {/* Header & Legend Bar */}
-        <div className="flex items-center justify-between flex-wrap gap-2 px-5 py-3.5 border-b border-border/60 bg-card/40">
+        <div className="flex items-center justify-between flex-wrap gap-2 px-5 py-3.5 border-b-2 border-border bg-card/40">
           <div className="flex items-center gap-2">
             <Brain className="h-4 w-4 text-primary" />
             <span className="text-xs font-bold uppercase tracking-wider text-foreground">
@@ -327,27 +327,27 @@ export function InteractiveDagGraph({
             </span>
           </div>
 
-          <div className="flex items-center gap-3 text-[11px] text-muted-foreground flex-wrap">
+          <div className="flex items-center gap-3 text-[11px] text-muted-foreground flex-wrap font-medium">
             <span className="flex items-center gap-1">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" />
+              <span className="h-2 w-2 rounded-xs bg-emerald-500" />
               <span>{mode === "teacher" ? "Class Avg ≥85%" : "Mastered (≥85%)"}</span>
             </span>
             <span className="flex items-center gap-1">
-              <span className="h-2 w-2 rounded-full bg-amber-500" />
+              <span className="h-2 w-2 rounded-xs bg-amber-500" />
               <span>{mode === "teacher" ? "Class Avg 40-84%" : "Developing (40-84%)"}</span>
             </span>
             <span className="flex items-center gap-1">
-              <span className="h-2 w-2 rounded-full bg-rose-500 animate-pulse" />
+              <span className="h-2 w-2 rounded-xs bg-rose-500 animate-pulse" />
               <span>{mode === "teacher" ? "At-Risk Bottleneck (<40%)" : "Root Cause Gap (<40%)"}</span>
             </span>
             {mode === "teacher" ? (
               <span className="flex items-center gap-1">
-                <span className="h-2 w-2 rounded-full bg-muted-foreground/30" />
+                <span className="h-2 w-2 rounded-xs bg-muted-foreground/30" />
                 <span>Unattempted (0%)</span>
               </span>
             ) : (
               <span className="flex items-center gap-1">
-                <span className="h-2 w-2 rounded-full ring-2 ring-primary bg-primary/20" />
+                <span className="h-2 w-2 rounded-xs ring-2 ring-primary bg-primary/20" />
                 <span>Target</span>
               </span>
             )}
@@ -372,24 +372,24 @@ export function InteractiveDagGraph({
             <Background color="#334155" gap={20} size={1} />
             <Controls
               showInteractive={false}
-              className="bg-background/80! border-border/60! rounded-xl! shadow-md! [&>button]:fill-foreground!"
+              className="bg-card! border-2! border-border! rounded-md! shadow-[2px_2px_0px_var(--shadow-color)]! [&>button]:fill-foreground!"
             />
           </ReactFlow>
         </div>
 
-        <p className="text-[11px] text-muted-foreground text-center py-2 border-t border-border/40 bg-card/20">
+        <p className="text-[11px] text-muted-foreground text-center py-2 border-t-2 border-border/40 bg-card/20 font-medium">
           💡 Drag or click any concept node to inspect {mode === "teacher" ? "curriculum dependencies and class performance" : "root causes or start targeted remediation"}.
         </p>
       </div>
 
       {/* Selected Node Details Card (Bug-Free Compact Flex Layout) */}
       {selectedNode && (
-        <div className="glass-card rounded-xl p-4 sm:p-5 flex items-center justify-between flex-wrap gap-4 border-primary/20 animate-fade-in bg-primary/5">
+        <div className="glass-card rounded-xl p-4 sm:p-5 flex items-center justify-between flex-wrap gap-4 border-2 border-border animate-fade-in bg-card shadow-[3px_3px_0px_var(--shadow-color)]">
           <div className="flex items-center gap-3.5 min-w-0">
-            {/* Mastery Score Badge Circle (Guaranteed No Overlap with shrink-0 & Math.round) */}
+            {/* Mastery Score Badge (Guaranteed No Overlap with shrink-0 & Math.round) */}
             <div
               className={cn(
-                "flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white font-bold text-xs shadow-sm",
+                "flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-white font-bold text-xs border-2 border-border shadow-[1px_1px_0px_var(--shadow-color)]",
                 roundedSelectedMastery >= 85
                   ? "bg-emerald-500"
                   : roundedSelectedMastery < 40
@@ -409,18 +409,18 @@ export function InteractiveDagGraph({
                   {selectedNode.name}
                 </h4>
                 {selectedNode.isTarget && (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/20 text-primary font-semibold">
+                  <span className="text-[10px] px-2 py-0.5 rounded-xs bg-primary/20 text-primary font-bold border-1.5 border-border">
                     Current Target
                   </span>
                 )}
                 {roundedSelectedMastery < 40 && (
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-400 font-semibold flex items-center gap-0.5">
+                  <span className="text-[10px] px-2 py-0.5 rounded-xs bg-rose-500/20 text-rose-400 font-bold border-1.5 border-border flex items-center gap-0.5">
                     <AlertTriangle className="h-2.5 w-2.5" />
                     {mode === "teacher" ? "Class Bottleneck" : "Root Cause Gap"}
                   </span>
                 )}
               </div>
-              <p className="text-xs text-muted-foreground mt-0.5">
+              <p className="text-xs text-muted-foreground mt-0.5 font-medium">
                 Prerequisite Depth Level: {selectedNode.depth} •{" "}
                 {mode === "teacher"
                   ? roundedSelectedMastery >= 85
@@ -442,14 +442,14 @@ export function InteractiveDagGraph({
           {/* Action Buttons */}
           <div className="flex items-center gap-2 shrink-0">
             {mode === "teacher" ? (
-              <span className="text-xs text-muted-foreground bg-primary/10 border border-primary/20 px-3 py-1.5 rounded-lg font-medium">
+              <span className="text-xs text-foreground bg-primary/10 border-2 border-border px-3 py-1.5 rounded-xs font-bold shadow-[1px_1px_0px_var(--shadow-color)]">
                 Curriculum Node • Depth {selectedNode.depth}
               </span>
             ) : (
               <>
                 <Link
                   href={`/dashboard/gaps/${selectedNode.id}`}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium hover:bg-background transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-md border-2 border-border bg-card px-3 py-1.5 text-xs font-bold hover:bg-muted text-foreground transition-all shadow-[1px_1px_0px_var(--shadow-color)] hover:shadow-[2px_2px_0px_var(--shadow-color)]"
                 >
                   <Info className="h-3.5 w-3.5" />
                   Gap Analysis
@@ -458,7 +458,7 @@ export function InteractiveDagGraph({
                   href={`/dashboard/practice?conceptId=${selectedNode.id}${
                     courseId ? `&courseId=${courseId}` : ""
                   }`}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-primary text-primary-foreground px-3.5 py-1.5 text-xs font-semibold hover:bg-primary/90 transition-colors shadow-sm"
+                  className="inline-flex items-center gap-1.5 rounded-md bg-primary text-primary-foreground border-2 border-border px-3.5 py-1.5 text-xs font-bold hover:bg-primary/90 transition-all shadow-[2px_2px_0px_var(--shadow-color)] hover:shadow-[3px_3px_0px_var(--shadow-color)]"
                 >
                   <Zap className="h-3.5 w-3.5" />
                   Practice Concept

@@ -1,8 +1,9 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { Sun, Moon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface ThemeToggleProps {
   className?: string;
@@ -27,8 +28,6 @@ function getServerSnapshot(): "dark" | "light" {
   return "dark";
 }
 
-import { Button } from "@/components/ui/button";
-
 export function ThemeToggle({ className }: ThemeToggleProps) {
   const theme = useSyncExternalStore(subscribeTheme, getThemeSnapshot, getServerSnapshot);
   const mounted = useSyncExternalStore(
@@ -36,6 +35,14 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
     () => true,
     () => false
   );
+
+  useEffect(() => {
+    if (theme === "light") {
+      document.documentElement.classList.remove("dark");
+    } else {
+      document.documentElement.classList.add("dark");
+    }
+  }, [theme]);
 
   function toggleTheme() {
     const nextTheme = theme === "dark" ? "light" : "dark";
@@ -48,26 +55,28 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
     window.dispatchEvent(new Event("learnpulse-theme-change"));
   }
 
+  const currentTheme = mounted ? theme : "dark";
+
   return (
     <Button
       type="button"
       variant="outline"
-      size="icon-sm"
+      size="icon"
       onClick={toggleTheme}
       id="theme-toggle-btn"
-      aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-      title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+      aria-label={`Switch to ${currentTheme === "dark" ? "light" : "dark"} mode`}
+      title={`Switch to ${currentTheme === "dark" ? "light" : "dark"} mode`}
       className={cn(
-        "relative rounded-xl border-border bg-card text-foreground/80 shadow-xs transition-all duration-200 hover:text-foreground hover:bg-accent hover:scale-105 active:scale-95 cursor-pointer",
+        "relative rounded-md border-2 border-border bg-card text-foreground shadow-[2px_2px_0px_var(--shadow-color)] hover:shadow-[3px_3px_0px_var(--shadow-color)] cursor-pointer font-medium",
         className
       )}
     >
       {!mounted ? (
         <span className="h-4 w-4" />
       ) : theme === "dark" ? (
-        <Sun className="h-4.5 w-4.5 text-amber-400 transition-transform duration-300 hover:rotate-45" />
+        <Sun className="h-4.5 w-4.5 text-[#FCCC42] transition-transform duration-200 stroke-[2.5]" />
       ) : (
-        <Moon className="h-4.5 w-4.5 text-indigo-500 transition-transform duration-300 hover:-rotate-12" />
+        <Moon className="h-4.5 w-4.5 text-[#151313] transition-transform duration-200 stroke-[2.5]" />
       )}
     </Button>
   );

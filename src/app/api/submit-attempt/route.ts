@@ -172,7 +172,7 @@ export async function POST(req: NextRequest) {
         // ATOMICITY ROLLBACK: If mastery upsert failed, delete the inserted attempt
         console.error("[/api/submit-attempt] Mastery calculation/upsert failed. Executing atomic rollback on attempt:", upsertErr);
         await supabase.from("attempts").delete().eq("id", insertedAttempt.id);
-        return NextResponse.json({ error: "Atomic transaction failed: rolled back attempt" }, { status: 500 });
+        return NextResponse.json({ error: "Failed to record quiz attempt. Please try again." }, { status: 500 });
       }
     }
 

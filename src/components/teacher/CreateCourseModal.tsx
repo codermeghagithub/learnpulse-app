@@ -48,18 +48,18 @@ export function CreateCourseModal() {
         onClick={handleOpen}
         className={cn(
           buttonVariants(),
-          "gap-2 rounded-xl text-sm font-semibold self-start sm:self-auto shadow-sm cursor-pointer"
+          "gap-2 rounded-md font-bold text-sm self-start sm:self-auto border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] hover:shadow-[3px_3px_0px_var(--shadow-color)] cursor-pointer"
         )}
       >
         <GraduationCap className="h-4 w-4" />
-        Create Course
+        New Class
       </DialogTrigger>
 
       {/* Modal Dialog Content */}
       <DialogContent
         showCloseButton={true}
         className={cn(
-          "w-full rounded-2xl border border-border bg-card text-card-foreground shadow-2xl transition-all duration-200 z-50 overflow-hidden sm:max-w-none",
+          "w-full rounded-xl border-2 border-border bg-card text-card-foreground shadow-[4px_4px_0px_var(--shadow-color)] transition-all duration-200 z-50 overflow-hidden sm:max-w-none",
           mode === "choose"
             ? "max-w-2xl sm:max-w-2xl p-6 sm:p-8"
             : "max-w-3xl sm:max-w-3xl p-6 sm:p-7 max-h-[92vh] overflow-y-auto",
@@ -79,7 +79,7 @@ export function CreateCourseModal() {
               Back to Creation Options
             </Button>
           ) : (
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-xs text-xs font-bold bg-primary/10 text-primary border-2 border-border shadow-[1px_1px_0px_var(--shadow-color)]">
               <GraduationCap className="h-3.5 w-3.5" />
               Course Creation Studio
             </div>
@@ -114,16 +114,16 @@ export function CreateCourseModal() {
                     setMode("ai");
                   }
                 }}
-                className="group relative flex flex-col justify-between rounded-2xl border-2 border-primary/30 hover:border-primary bg-primary/4 hover:bg-primary/8 dark:hover:bg-primary/[0.14] p-5 transition-all duration-200 cursor-pointer text-left shadow-xs hover:shadow-md hover:shadow-primary/10 focus:outline-none focus:ring-2 focus:ring-primary"
+                className="group relative flex flex-col justify-between rounded-xl border-2 border-border hover:border-primary bg-card p-5 transition-all duration-200 cursor-pointer text-left shadow-[2px_2px_0px_var(--shadow-color)] hover:shadow-[4px_4px_0px_var(--shadow-color)] focus:outline-none"
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
-                      <Sparkles className="h-5 w-5" />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-md bg-accent-yellow/20 text-foreground border-2 border-border shadow-[1px_1px_0px_var(--shadow-color)]">
+                      <Sparkles className="h-5 w-5 text-primary" />
                     </div>
                     <Badge
                       variant="secondary"
-                      className="gap-1 text-[10px] font-semibold bg-primary/15 text-primary border-transparent"
+                      className="gap-1 text-[10px] font-bold bg-primary/15 text-primary border-1.5 border-border rounded-xs"
                     >
                       Recommended
                     </Badge>
@@ -133,14 +133,14 @@ export function CreateCourseModal() {
                     <h3 className="font-bold text-base text-foreground group-hover:text-primary transition-colors flex items-center gap-1.5">
                       Create with AI
                     </h3>
-                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                    <p className="text-xs text-muted-foreground mt-1 leading-relaxed font-medium">
                       Paste any academic subject or syllabus. AI automatically
                       synthesizes the complete prerequisite DAG and 4–5
                       diagnostic questions per concept.
                     </p>
                   </div>
 
-                  <ul className="space-y-2 text-xs text-muted-foreground pt-3 border-t border-primary/20">
+                  <ul className="space-y-2 text-xs text-muted-foreground font-medium pt-3 border-t-2 border-border/40">
                     <li className="flex items-center gap-2">
                       <BrainCircuit className="h-3.5 w-3.5 text-primary shrink-0" />
                       <span>Zero manual graph charting</span>
@@ -160,7 +160,7 @@ export function CreateCourseModal() {
                   <Button
                     type="button"
                     tabIndex={-1}
-                    className="w-full text-xs font-semibold gap-1.5 shadow-xs pointer-events-none"
+                    className="w-full text-xs font-bold gap-1.5 shadow-[2px_2px_0px_var(--shadow-color)] pointer-events-none rounded-md"
                   >
                     Synthesize with AI
                     <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
@@ -172,16 +172,16 @@ export function CreateCourseModal() {
               <Link
                 href="/teacher/courses/new"
                 onClick={handleClose}
-                className="group relative flex flex-col justify-between rounded-2xl border border-border hover:border-foreground/30 bg-muted/40 hover:bg-muted/70 dark:hover:bg-muted/40 p-5 transition-all duration-200 text-left shadow-xs hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary"
+                className="group relative flex flex-col justify-between rounded-xl border-2 border-border hover:border-foreground/60 bg-card p-5 transition-all duration-200 text-left shadow-[2px_2px_0px_var(--shadow-color)] hover:shadow-[4px_4px_0px_var(--shadow-color)] focus:outline-none"
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-background text-foreground border border-border shadow-xs">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-md bg-accent-blue/20 text-foreground border-2 border-border shadow-[1px_1px_0px_var(--shadow-color)]">
                       <BookPlus className="h-5 w-5 text-primary" />
                     </div>
                     <Badge
                       variant="outline"
-                      className="text-[10px] font-medium bg-background text-muted-foreground"
+                      className="text-[10px] font-bold bg-muted text-foreground border-1.5 border-border rounded-xs"
                     >
                       Manual Setup
                     </Badge>

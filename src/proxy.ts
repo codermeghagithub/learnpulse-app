@@ -28,11 +28,39 @@ export async function proxy(request: NextRequest) {
   );
 
   // Refresh session — DO NOT remove this getUser call
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user = null;
+  try {
+    const { data, error } = await supabase.auth.getUser();
+    if (error) {
+      // If the refresh token is missing or invalid, clear stale supabase auth cookies
+      if (
+        error.code === "refresh_token_not_found" ||
+        error.status === 400 ||
+        error.message?.toLowerCase().includes("refresh token")
+      ) {
+        request.cookies.getAll().forEach((cookie) => {
+          if (cookie.name.startsWith("sb-")) {
+            supabaseResponse.cookies.delete(cookie.name);
+          }
+        });
+      }
+    } else {
+      user = data?.user ?? null;
+    }
+  } catch {
+    user = null;
+  }
 
   const { pathname } = request.nextUrl;
+
+  // Helper to preserve cookies (including deletions) on redirects
+  const createRedirectResponse = (url: URL) => {
+    const redirectResponse = NextResponse.redirect(url);
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie);
+    });
+    return redirectResponse;
+  };
 
   // Auth routes that don't need protection
   const isAuthRoute =
@@ -43,7 +71,7 @@ export async function proxy(request: NextRequest) {
   if (!user && !isAuthRoute && !isApiRoute) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
-    return NextResponse.redirect(url);
+    return createRedirectResponse(url);
   }
 
   // Redirect authenticated users away from auth pages
@@ -52,7 +80,7 @@ export async function proxy(request: NextRequest) {
     // Middleware just prevents re-visiting auth pages
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
-    return NextResponse.redirect(url);
+    return createRedirectResponse(url);
   }
 
   return supabaseResponse;

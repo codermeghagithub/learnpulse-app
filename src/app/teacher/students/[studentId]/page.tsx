@@ -153,49 +153,51 @@ export default async function TeacherStudentPage({
       : 0;
 
   return (
-    <div className="px-8 py-8 max-w-4xl mx-auto space-y-8 animate-fade-in">
+    <div className="w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 animate-fade-in">
       {/* Back button and Explainer */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <Link
           href={selectedCourseId ? `/teacher?courseId=${selectedCourseId}` : "/teacher"}
           id="back-to-class"
           className={cn(
             buttonVariants({ variant: "ghost", size: "sm" }),
-            "gap-2 text-sm text-muted-foreground hover:text-foreground"
+            "gap-2 text-sm text-muted-foreground hover:text-foreground min-h-11 sm:min-h-0 items-center"
           )}
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Class Overview
         </Link>
-        <MasteryExplainerModal
-          buttonText="How is Mastery calculated?"
-          variant="button"
-        />
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+          <MasteryExplainerModal
+            buttonText="How do these scores work?"
+            variant="button"
+          />
+        </div>
       </div>
 
       {/* Student header */}
-      <div className="glass-card rounded-2xl p-6 sm:p-7 space-y-5 animate-slide-up">
+      <div className="rounded-xl p-6 sm:p-7 space-y-5 animate-slide-up border-2 border-border bg-card shadow-[3px_3px_0px_var(--shadow-color)]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 text-base font-display font-semibold shadow-xs">
+            <div className="flex h-11 w-11 items-center justify-center rounded-md bg-primary/10 text-primary border-2 border-border text-base font-display font-bold shadow-[1px_1px_0px_var(--shadow-color)]">
               {studentProfile.full_name.charAt(0).toUpperCase()}
             </div>
             <div>
               <h1 className="text-xl font-bold text-foreground">{studentProfile.full_name}</h1>
-              <p className="text-xs text-muted-foreground">
-                Individual student diagnostic profile
+              <p className="text-xs text-muted-foreground font-medium">
+                Student learning overview &amp; progress
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground border border-border rounded-lg px-3 py-1.5 bg-background/50">
+          <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground border-2 border-border rounded-xs px-3 py-1.5 bg-background/50 shadow-[1px_1px_0px_var(--shadow-color)]">
             <Shield className="h-3.5 w-3.5 text-primary" />
-            Teacher Read-Only
+            Teacher View
           </div>
         </div>
 
         {/* Subject switcher tabs */}
         {validCourses.length > 0 && selectedCourseId && (
-          <div className="pt-1 border-t border-border/60">
+          <div className="pt-1 border-t-2 border-border/40">
             <CourseSelector
               courses={validCourses}
               selectedCourseId={selectedCourseId}
@@ -207,19 +209,19 @@ export default async function TeacherStudentPage({
 
         {/* Average Mastery for selected subject */}
         {selectedCourse && (
-          <div className="space-y-2 pt-2 border-t border-border/60">
+          <div className="space-y-2 pt-2 border-t-2 border-border/40">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">
-                Mastery in {selectedCourse.title}
+              <span className="text-muted-foreground font-bold">
+                Average Score in {selectedCourse.title}
               </span>
               <div className="flex items-center gap-2">
-                <span className="font-display font-semibold text-base text-foreground tabular-nums">
+                <span className="font-display font-bold text-base text-foreground tabular-nums">
                   {avgMastery.toFixed(0)}%
                 </span>
-                <span className="text-xs text-muted-foreground font-medium">
+                <span className="text-xs text-muted-foreground font-bold">
                   {attemptedConcepts.length > 0
                     ? getMasteryStage(avgMastery, attemptedConcepts.length).stageName
-                    : "No Practice Yet"}
+                    : "No Quizzes Taken Yet"}
                 </span>
               </div>
             </div>
@@ -234,14 +236,14 @@ export default async function TeacherStudentPage({
       </div>
 
       {validCourses.length === 0 ? (
-        <div className="glass-card rounded-2xl p-8 text-center space-y-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-muted border border-border text-muted-foreground mx-auto">
+        <div className="rounded-xl p-8 text-center space-y-4 border-2 border-dashed border-border bg-card shadow-[2px_2px_0px_var(--shadow-color)]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-md bg-muted border-2 border-border text-muted-foreground mx-auto shadow-[1px_1px_0px_var(--shadow-color)]">
             <BookOpen className="h-6 w-6" />
           </div>
-          <h2 className="text-lg font-semibold text-foreground">
+          <h2 className="text-lg font-bold text-foreground">
             No Enrolled Courses
           </h2>
-          <p className="text-sm text-muted-foreground max-w-md mx-auto">
+          <p className="text-sm text-muted-foreground max-w-md mx-auto font-medium">
             {studentProfile.full_name} has not enrolled in any of your courses yet.
           </p>
           <div className="pt-2">
@@ -264,9 +266,9 @@ export default async function TeacherStudentPage({
         <div className="animate-slide-up space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold text-base text-destructive flex items-center gap-2">
-              Concepts Needing Attention
-              <Badge variant="destructive" className="text-xs">
-                {weakConcepts.length} Weak
+              Topics Needing Extra Help
+              <Badge variant="destructive" className="text-xs text-white">
+                {weakConcepts.length} Needs Help
               </Badge>
             </h2>
           </div>
@@ -275,16 +277,16 @@ export default async function TeacherStudentPage({
               <div
                 key={concept.id}
                 id={`teacher-concept-weak-${idx}`}
-                className="glass-card rounded-xl p-4 space-y-2.5 border-destructive/30"
+                className="rounded-xl border-2 border-destructive/60 bg-card p-4 space-y-2.5 shadow-[2px_2px_0px_var(--shadow-color)]"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm text-foreground">
+                    <span className="font-bold text-sm text-foreground">
                       {concept.name}
                     </span>
                     <span
                       className={cn(
-                        "text-[10px] px-2 py-0.5 rounded-full border font-medium capitalize",
+                        "text-[10px] px-2 py-0.5 rounded-xs border-1.5 border-border font-bold capitalize shadow-[1px_1px_0px_var(--shadow-color)]",
                         DIFFICULTY_COLOR[concept.difficulty] ?? "bg-muted text-muted-foreground",
                       )}
                     >
@@ -312,13 +314,13 @@ export default async function TeacherStudentPage({
         </div>
       )}
 
-      {/* Complete Curriculum Breakdown: Displays ALL 4, 5, or 6 Concepts of the Subject */}
+      {/* Complete Curriculum Breakdown: Displays ALL Concepts of the Subject */}
       <div className="animate-slide-up space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="font-semibold text-base flex items-center gap-2">
-            All Curriculum Concepts
+          <h2 className="font-bold text-base flex items-center gap-2 text-foreground font-heading">
+            All Class Topics
             <span className="text-xs font-normal text-muted-foreground">
-              ({conceptsWithRisk.length} concepts in {selectedCourse?.title ?? "Course"})
+              ({conceptsWithRisk.length} topics in {selectedCourse?.title ?? "Course"})
             </span>
           </h2>
         </div>
@@ -329,8 +331,8 @@ export default async function TeacherStudentPage({
               <div
                 key={concept.id}
                 className={cn(
-                  "glass-card rounded-xl p-4 space-y-2.5 transition-colors",
-                  !concept.isAttempted && "opacity-70 bg-background/30",
+                  "rounded-xl border-2 border-border bg-card p-4 space-y-2.5 shadow-[2px_2px_0px_var(--shadow-color)] transition-colors",
+                  !concept.isAttempted && "opacity-75 bg-muted/20",
                 )}
               >
                 <div className="flex items-center justify-between">
@@ -340,7 +342,7 @@ export default async function TeacherStudentPage({
                     </span>
                     <span
                       className={cn(
-                        "text-[10px] px-2 py-0.5 rounded-full border font-medium capitalize",
+                        "text-[10px] px-2 py-0.5 rounded-xs border font-medium capitalize",
                         DIFFICULTY_COLOR[concept.difficulty] ?? "bg-muted text-muted-foreground",
                       )}
                     >
@@ -384,7 +386,7 @@ export default async function TeacherStudentPage({
             ))}
           </div>
         ) : (
-          <div className="glass-card rounded-2xl p-8 text-center text-muted-foreground text-sm">
+          <div className="glass-card rounded-xl p-8 text-center text-muted-foreground text-sm border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)]">
             <BookOpen className="h-8 w-8 mx-auto mb-3 opacity-40" />
             No concepts authored for this course yet.
           </div>

@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -10,7 +10,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-heading);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -40,13 +40,22 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-xs: 0.1875rem; /* 3px - micro badges, indicators */
+  --radius-sm: 0.25rem;   /* 4px - badges, sub-tags, progress bars */
+  --radius-md: 0.375rem;  /* 6px - buttons, inputs, segmented tabs */
+  --radius-lg: 0.5rem;    /* 8px - outer cards, panels, modals */
+  --radius-xl: 0.5rem;    /* 8px clamped */
+  --radius-2xl: 0.5rem;   /* 8px clamped */
+  --radius-3xl: 0.5rem;   /* 8px clamped */
+  --radius-4xl: 0.5rem;   /* 8px clamped */
+  --radius: 0.375rem;     /* 6px base component radius */
+
+  /* Playful Neo-Brutalist Palette */
+  --color-accent-purple: var(--accent-purple);
+  --color-accent-yellow: var(--accent-yellow);
+  --color-accent-blue: var(--accent-blue);
+  --color-shadow-color: var(--shadow-color);
+
   /* LearnPulse brand tokens */
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
@@ -57,194 +66,255 @@
 }
 
 :root {
-  /* Light Theme */
-  --background: oklch(0.985 0.005 264);
-  --foreground: oklch(0.18 0.02 264);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.02 264);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.02 264);
-  --primary: oklch(0.55 0.22 264);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.94 0.01 264);
-  --secondary-foreground: oklch(0.25 0.02 264);
-  --muted: oklch(0.94 0.01 264);
-  --muted-foreground: oklch(0.48 0.02 264);
-  --accent: oklch(0.93 0.02 264);
-  --accent-foreground: oklch(0.20 0.02 264);
-  --destructive: oklch(0.62 0.23 27);
-  --border: oklch(0.88 0.015 264);
-  --input: oklch(0.90 0.015 264);
-  --ring: oklch(0.55 0.22 264);
-  --radius: 0.75rem;
+  /* Outfit Neo-Brutalist Light Theme */
+  --background: #F7F7F5;
+  --foreground: #151313;
+  --card: #FFFFFF;
+  --card-foreground: #151313;
+  --popover: #FFFFFF;
+  --popover-foreground: #151313;
+  --primary: #FF5734;
+  --primary-foreground: #151313;
+  --secondary: #F0EFEA;
+  --secondary-foreground: #151313;
+  --muted: #EBEAE5;
+  --muted-foreground: #5C5856;
+  --accent: #EFEFE9;
+  --accent-foreground: #151313;
+  --destructive: #E53935;
+  --destructive-foreground: #FFFFFF;
+  --border: #151313;
+  --input: #FFFFFF;
+  --ring: #FF5734;
+  --radius: 0.375rem;     /* 6px base component radius */
+  --radius-sm: 0.25rem;   /* 4px small tags & badges */
+  --radius-md: 0.375rem;  /* 6px form inputs & buttons */
+  --radius-lg: 0.5rem;    /* 8px cards & panels */
+  --radius-xl: 0.5rem;    /* 8px clamped */
+
+  /* Category accents */
+  --accent-purple: #BE94F5;
+  --accent-yellow: #FCCC42;
+  --accent-blue: #C0E6FF;
+  --shadow-color: #151313;
+
+  /* Typography */
+  --font-sans: 'Outfit', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Outfit', system-ui, -apple-system, sans-serif;
 
   /* Charts */
-  --chart-1: oklch(0.55 0.22 264);
-  --chart-2: oklch(0.60 0.19 200);
-  --chart-3: oklch(0.65 0.18 150);
-  --chart-4: oklch(0.58 0.21 320);
-  --chart-5: oklch(0.65 0.20 50);
+  --chart-1: #FF5734;
+  --chart-2: #BE94F5;
+  --chart-3: #FCCC42;
+  --chart-4: #C0E6FF;
+  --chart-5: #151313;
 
   /* Sidebar */
-  --sidebar: oklch(0.97 0.008 264);
-  --sidebar-foreground: oklch(0.25 0.02 264);
-  --sidebar-primary: oklch(0.55 0.22 264);
-  --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.92 0.015 264);
-  --sidebar-accent-foreground: oklch(0.18 0.02 264);
-  --sidebar-border: oklch(0.88 0.015 264);
-  --sidebar-ring: oklch(0.55 0.22 264);
+  --sidebar: #F7F7F5;
+  --sidebar-foreground: #151313;
+  --sidebar-primary: #FF5734;
+  --sidebar-primary-foreground: #151313;
+  --sidebar-accent: #EBEAE5;
+  --sidebar-accent-foreground: #151313;
+  --sidebar-border: #151313;
+  --sidebar-ring: #FF5734;
 
   /* LearnPulse brand */
-  --brand: oklch(0.55 0.22 264);
-  --brand-foreground: oklch(0.99 0 0);
-  --brand-muted: oklch(0.55 0.22 264 / 12%);
-  --mastery-low: oklch(0.60 0.22 27);
-  --mastery-mid: oklch(0.68 0.18 70);
-  --mastery-high: oklch(0.62 0.18 145);
+  --brand: #FF5734;
+  --brand-foreground: #151313;
+  --brand-muted: #FF573426;
+  --mastery-low: #FF5734;
+  --mastery-mid: #FCCC42;
+  --mastery-high: #22C55E;
 }
 
 .dark {
-  /* Dark Theme */
-  --background: oklch(0.10 0.015 264);
-  --foreground: oklch(0.97 0.005 264);
-  --card: oklch(0.14 0.018 264);
-  --card-foreground: oklch(0.97 0.005 264);
-  --popover: oklch(0.14 0.018 264);
-  --popover-foreground: oklch(0.97 0.005 264);
-  --primary: oklch(0.65 0.22 264);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.20 0.020 264);
-  --secondary-foreground: oklch(0.85 0.01 264);
-  --muted: oklch(0.18 0.015 264);
-  --muted-foreground: oklch(0.60 0.01 264);
-  --accent: oklch(0.20 0.025 264);
-  --accent-foreground: oklch(0.97 0.005 264);
-  --destructive: oklch(0.62 0.23 27);
-  --border: oklch(0.24 0.018 264);
-  --input: oklch(0.18 0.015 264);
-  --ring: oklch(0.65 0.22 264);
+  /* Outfit Neo-Brutalist Dark Theme */
+  --background: #121111;
+  --foreground: #F7F7F5;
+  --card: #1C1A1A;
+  --card-foreground: #F7F7F5;
+  --popover: #1C1A1A;
+  --popover-foreground: #F7F7F5;
+  --primary: #FF5734;
+  --primary-foreground: #151313;
+  --secondary: #262424;
+  --secondary-foreground: #F7F7F5;
+  --muted: #222020;
+  --muted-foreground: #A19D99;
+  --accent: #262424;
+  --accent-foreground: #F7F7F5;
+  --destructive: #EF4444;
+  --destructive-foreground: #F7F7F5;
+  --border: #F7F7F5;
+  --input: #1C1A1A;
+  --ring: #FF5734;
+  --radius: 0.375rem;     /* 6px base component radius */
+  --radius-sm: 0.25rem;   /* 4px small tags & badges */
+  --radius-md: 0.375rem;  /* 6px form inputs & buttons */
+  --radius-lg: 0.5rem;    /* 8px cards & panels */
+  --radius-xl: 0.5rem;    /* 8px clamped */
 
-  --chart-1: oklch(0.65 0.22 264);
-  --chart-2: oklch(0.72 0.19 200);
-  --chart-3: oklch(0.78 0.18 150);
-  --chart-4: oklch(0.68 0.21 320);
-  --chart-5: oklch(0.75 0.20 50);
+  /* Category accents */
+  --accent-purple: #4D366B;
+  --accent-yellow: #614B14;
+  --accent-blue: #234559;
+  --shadow-color: #000000;
 
-  --sidebar: oklch(0.12 0.016 264);
-  --sidebar-foreground: oklch(0.90 0.008 264);
-  --sidebar-primary: oklch(0.65 0.22 264);
-  --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.18 0.02 264);
-  --sidebar-accent-foreground: oklch(0.90 0.008 264);
-  --sidebar-border: oklch(0.22 0.018 264);
-  --sidebar-ring: oklch(0.65 0.22 264);
+  /* Typography */
+  --font-sans: 'Outfit', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Outfit', system-ui, -apple-system, sans-serif;
 
-  --brand: oklch(0.65 0.22 264);
-  --brand-foreground: oklch(0.99 0 0);
-  --brand-muted: oklch(0.65 0.22 264 / 15%);
-  --mastery-low: oklch(0.62 0.23 27);
-  --mastery-mid: oklch(0.75 0.20 70);
-  --mastery-high: oklch(0.72 0.19 145);
+  --chart-1: #FF5734;
+  --chart-2: #BE94F5;
+  --chart-3: #FCCC42;
+  --chart-4: #C0E6FF;
+  --chart-5: #F7F7F5;
+
+  /* Sidebar */
+  --sidebar: #121111;
+  --sidebar-foreground: #F7F7F5;
+  --sidebar-primary: #FF5734;
+  --sidebar-primary-foreground: #151313;
+  --sidebar-accent: #222020;
+  --sidebar-accent-foreground: #F7F7F5;
+  --sidebar-border: #F7F7F5;
+  --sidebar-ring: #FF5734;
+
+  /* Brand tokens */
+  --brand: #FF5734;
+  --brand-foreground: #151313;
+  --brand-muted: #FF573426;
+  --mastery-low: #FF5734;
+  --mastery-mid: #FCCC42;
+  --mastery-high: #22C55E;
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
-  }
-  html {
-    font-family: 'Inter', system-ui, sans-serif;
+    border-color: var(--border);
+    outline-color: var(--ring);
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 400;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+  html {
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 400;
+    overflow-x: hidden;
+  }
+  h1, h2, h3 {
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 600;
+  }
+  h4, h5, h6 {
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 500;
+  }
+  button, [role="tab"], .font-medium {
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 500;
+  }
+  p, span, label, input, textarea, select, .text-sm, .text-xs {
+    font-weight: 400;
   }
 }
 
-/* ── Custom utility classes ── */
+/* ── Neo-Brutalist custom utility classes ── */
 @layer utilities {
-  .glass {
-    background: color-mix(in oklab, var(--card) 85%, transparent);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid color-mix(in oklab, var(--border) 75%, transparent);
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  .neo-shadow {
+    box-shadow: 2px 2px 0px var(--shadow-color);
+  }
+  .neo-shadow-lg {
+    box-shadow: 3px 3px 0px var(--shadow-color);
+  }
+  .neo-shadow-xl {
+    box-shadow: 4px 4px 0px var(--shadow-color);
+  }
+  .neo-shadow-primary {
+    box-shadow: 2px 2px 0px var(--primary);
+  }
+  .neo-shadow-accent {
+    box-shadow: 2px 2px 0px var(--border);
+  }
+  .neo-border {
+    border: 2px solid var(--border);
+  }
+  .neo-border-sm {
+    border: 1.5px solid var(--border);
   }
 
-  /* Linear & Framer style multi-layered glass card */
+  /* Neo-brutalist tactile button press */
+  .neo-button {
+    border: 2px solid var(--border);
+    box-shadow: 2px 2px 0px var(--shadow-color);
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+  }
+  .neo-button:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0px var(--shadow-color);
+  }
+  .neo-button:active {
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0px var(--shadow-color);
+  }
+
+  /* Playful Neo-Brutalist card */
+  .glass,
   .glass-card {
-    background: color-mix(in oklab, var(--card) 92%, transparent);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid color-mix(in oklab, var(--border) 80%, transparent);
-    box-shadow:
-      0 1px 2px 0 rgba(0, 0, 0, 0.05),
-      0 4px 16px -2px rgba(0, 0, 0, 0.08);
+    background-color: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 0.5rem;
+    box-shadow: 2px 2px 0px var(--shadow-color);
   }
 
-  .dark .glass-card {
-    background: color-mix(in oklab, var(--card) 88%, transparent);
-    border: 1px solid color-mix(in oklab, var(--border) 75%, transparent);
-    box-shadow:
-      0 1px 0 0 rgba(255, 255, 255, 0.05) inset,
-      0 0 0 1px rgba(255, 255, 255, 0.02) inset,
-      0 8px 32px -8px rgba(0, 0, 0, 0.6);
+  .card-hover {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .card-hover:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0px var(--shadow-color);
+  }
+
+  /* Highlight text in brand red-orange */
+  .text-accent-highlight {
+    color: var(--primary);
   }
 
   .gradient-brand {
-    background: linear-gradient(135deg, var(--primary), color-mix(in oklab, var(--primary) 85%, var(--info) 15%));
+    background-color: var(--primary);
   }
 
   .gradient-text {
-    background: linear-gradient(135deg, var(--foreground), color-mix(in oklab, var(--foreground) 75%, var(--primary) 25%));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  /* Duolingo inspired tactile button feel */
-  .tactile-button {
-    box-shadow: 0 4px 0 0 color-mix(in oklab, var(--primary) 70%, black 30%);
-    transition: all 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-
-  .tactile-button:active {
-    transform: translateY(3px);
-    box-shadow: 0 1px 0 0 color-mix(in oklab, var(--primary) 70%, black 30%);
-  }
-
-  .glow-brand {
-    box-shadow: 0 0 30px oklch(0.65 0.22 264 / 25%);
-  }
-
-  .glow-brand-subtle {
-    box-shadow: 0 4px 20px -2px oklch(0.65 0.22 264 / 15%);
-  }
-
-  .glow-danger-subtle {
-    box-shadow: 0 4px 20px -2px oklch(0.62 0.23 27 / 15%);
-  }
-
-  /* Linear-style smooth lift and border glow on hover */
-  .card-hover {
-    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-                box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-                border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .card-hover:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.35);
-    border-color: color-mix(in oklab, var(--border) 50%, var(--primary) 50%);
-  }
-
-  .animate-pulse-slow {
-    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    color: var(--primary);
   }
 
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: oklch(0.30 0.015 264) transparent;
+    scrollbar-color: var(--border) transparent;
   }
 }
 
@@ -264,17 +334,12 @@
   50% { transform: translateY(-4px); }
 }
 
-@keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
 .animate-slide-up {
-  animation: slide-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .animate-fade-in {
-  animation: fade-in 0.3s ease both;
+  animation: fade-in 0.25s ease both;
 }
 
 .animate-float {
@@ -289,13 +354,13 @@
 
 /* ── Mastery bar animation ── */
 .mastery-bar-fill {
-  transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ── React Flow Custom Theme ── */
 .react-flow__controls {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
-  border: 1px solid var(--border) !important;
+  box-shadow: 2px 2px 0px var(--shadow-color) !important;
+  border: 2px solid var(--border) !important;
   background: var(--card) !important;
   border-radius: 0.75rem !important;
   overflow: hidden;
@@ -303,7 +368,7 @@
 
 .react-flow__controls-button {
   background: var(--card) !important;
-  border-bottom: 1px solid var(--border) !important;
+  border-bottom: 1.5px solid var(--border) !important;
   fill: var(--foreground) !important;
 }
 
@@ -321,12 +386,12 @@
 
 /* ── React Toastify Theme Integration ── */
 .Toastify__toast {
-  border-radius: 1rem !important;
-  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, sans-serif !important;
-  border: 1px solid var(--border) !important;
+  border-radius: 0.5rem !important;
+  font-family: 'Outfit', system-ui, sans-serif !important;
+  border: 2px solid var(--border) !important;
   background: var(--card) !important;
   color: var(--card-foreground) !important;
-  box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.25) !important;
+  box-shadow: 3px 3px 0px var(--shadow-color) !important;
   padding: 14px 16px !important;
 }
 

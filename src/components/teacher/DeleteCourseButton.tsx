@@ -69,10 +69,10 @@ export function DeleteCourseButton({
             </div>
             <div className="space-y-1">
               <h4 className="text-sm font-bold text-foreground">
-                Delete &ldquo;{courseTitle}&rdquo;?
+                Remove &ldquo;{courseTitle}&rdquo;?
               </h4>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                This will permanently remove the course, along with all its concepts, prerequisite dependencies, and practice questions.
+                This will permanently remove this class, including all lessons and quiz questions.
               </p>
             </div>
           </div>
@@ -98,7 +98,7 @@ export function DeleteCourseButton({
               className="text-xs rounded-lg font-semibold shadow-xs cursor-pointer inline-flex items-center gap-1.5 h-8"
             >
               <Trash2 className="h-3.5 w-3.5" />
-              Yes, Delete Course
+              Yes, Remove Class
             </Button>
           </div>
         </div>
@@ -129,7 +129,7 @@ export function DeleteCourseButton({
       ) : (
         <Trash2 className="h-3.5 w-3.5" />
       )}
-      Delete Course
+      Remove Class
     </Button>
   );
 }

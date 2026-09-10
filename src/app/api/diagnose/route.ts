@@ -5,6 +5,7 @@ import { rankRootCauses, type RootCauseCandidate } from "@/lib/algorithms/rootCa
 import { z } from "zod";
 
 const requestSchema = z.object({
+  userId: z.string().uuid("Invalid user ID").optional(),
   targetConceptId: z.string().uuid("Invalid target concept ID"),
   targetConceptName: z.string().trim().min(1).max(200),
   targetMastery: z.number().min(0).max(100),

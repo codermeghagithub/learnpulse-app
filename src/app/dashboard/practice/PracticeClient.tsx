@@ -261,7 +261,7 @@ export function PracticeClient({
   const isEmpty = activeQuestions.length === 0;
 
   return (
-    <div className="px-8 py-8 pb-16 max-w-3xl mx-auto space-y-8">
+    <div className="w-full max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 pb-16 space-y-6 sm:space-y-8">
       {/* Header */}
       <div className="animate-slide-up flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
@@ -271,7 +271,7 @@ export function PracticeClient({
               Practice
             </h1>
             {(isOfflineMode || pendingSyncCount > 0) && (
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-300 text-xs font-medium animate-fade-in">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xs border-1.5 border-border bg-accent-yellow/20 text-foreground text-xs font-bold animate-fade-in shadow-[1px_1px_0px_var(--shadow-color)]">
                 {isOfflineMode ? (
                   <WifiOff className="h-3.5 w-3.5 text-amber-400" />
                 ) : (
@@ -279,8 +279,8 @@ export function PracticeClient({
                 )}
                 <span>
                   {pendingSyncCount > 0
-                    ? `${pendingSyncCount} cached offline`
-                    : "Offline Practice"}
+                    ? `${pendingSyncCount} saved locally • Ready to sync`
+                    : "Practicing Offline"}
                 </span>
                 {pendingSyncCount > 0 && (
                   <button
@@ -292,20 +292,22 @@ export function PracticeClient({
                     <RefreshCw
                       className={cn("h-3 w-3", isSyncing && "animate-spin")}
                     />
-                    Sync
+                    Save Progress
                   </button>
                 )}
               </div>
             )}
           </div>
           <p className="text-muted-foreground text-sm mt-1">
-            Answer questions to improve your mastery scores
+            Answer quiz questions to build skills and improve your score
           </p>
         </div>
-        <MasteryExplainerModal
-          buttonText="How is Mastery calculated?"
-          variant="button"
-        />
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+          <MasteryExplainerModal
+            buttonText="How do these scores work?"
+            variant="button"
+          />
+        </div>
       </div>
 
       {/* Course selector tabs */}
@@ -319,21 +321,21 @@ export function PracticeClient({
         </div>
       )}
 
-      {/* Concept selector */}
+      {/* Concept selector horizontally swipeable pill bar */}
       {conceptList.length > 1 && (
-        <div className="animate-slide-up flex gap-2 flex-wrap">
+        <div className="animate-slide-up flex w-full items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth py-1 snap-x">
           {conceptList.map((c) => (
             <Link
               key={c.id}
               href={`/dashboard/practice?conceptId=${c.id}${selectedCourseId ? `&courseId=${selectedCourseId}` : ""}`}
               id={`concept-tab-${c.id}`}
               className={cn(
-                "rounded-xl border px-4 py-2 text-sm font-medium transition-all flex items-center gap-1.5",
+                "rounded-md border-2 px-3.5 py-2 min-h-11 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 snap-start shadow-[1px_1px_0px_var(--shadow-color)]",
                 c.id === activeConcept.id
-                  ? "border-primary bg-primary/15 text-primary"
+                  ? "border-border bg-primary text-primary-foreground shadow-[2px_2px_0px_var(--shadow-color)]"
                   : c.isDue
                     ? "border-amber-500/40 bg-amber-500/10 text-amber-500 hover:border-amber-500/60"
-                    : "border-border text-muted-foreground hover:border-primary/30",
+                    : "border-border bg-card text-foreground hover:bg-muted hover:shadow-[2px_2px_0px_var(--shadow-color)]",
               )}
             >
               <span>{c.name}</span>
@@ -347,14 +349,16 @@ export function PracticeClient({
               )}
               <span
                 className={cn(
-                  "ml-1 text-xs",
-                  c.isDue
-                    ? "text-amber-500 font-semibold"
-                    : c.score < 40
-                      ? "text-mastery-low"
-                      : c.score < 70
-                        ? "text-mastery-mid"
-                        : "text-mastery-high",
+                  "ml-1 text-xs tabular-nums font-bold",
+                  c.id === activeConcept.id
+                    ? "text-primary-foreground opacity-90"
+                    : c.isDue
+                      ? "text-amber-500"
+                      : c.score < 40
+                        ? "text-mastery-low"
+                        : c.score < 70
+                          ? "text-mastery-mid"
+                          : "text-mastery-high",
                 )}
               >
                 {c.score.toFixed(0)}%
@@ -365,7 +369,7 @@ export function PracticeClient({
       )}
 
       {/* Mastery tracker */}
-      <div className="glass-card rounded-2xl p-5 animate-slide-up space-y-3">
+      <div className="glass-card rounded-xl p-5 animate-slide-up space-y-3 border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)]">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="flex items-center gap-2.5 flex-wrap">
             <span className="font-bold text-base">{activeConcept.name}</span>
@@ -437,15 +441,15 @@ export function PracticeClient({
 
       {/* Quiz, completed state, or empty */}
       {isEmpty ? (
-        <div className="glass-card rounded-2xl p-10 text-center space-y-4">
+        <div className="glass-card rounded-xl p-10 text-center space-y-4 border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)]">
           <Brain className="h-10 w-10 text-muted-foreground mx-auto" />
-          <p className="text-muted-foreground text-sm">
+          <p className="text-muted-foreground text-sm font-medium">
             No questions available for this concept yet.
           </p>
         </div>
       ) : isCompleted ? (
-        <div className="glass-card rounded-2xl p-8 text-center space-y-6 animate-slide-up border border-primary/20">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-500 mx-auto border border-emerald-500/20">
+        <div className="glass-card rounded-xl p-8 text-center space-y-6 animate-slide-up border-2 border-border shadow-[3px_3px_0px_var(--shadow-color)]">
+          <div className="flex h-16 w-16 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-500 mx-auto border-2 border-border shadow-[1px_1px_0px_var(--shadow-color)]">
             <CheckCircle2 className="h-8 w-8" />
           </div>
 
@@ -617,15 +621,14 @@ export function PracticeClient({
       {answeredCount >= 3 && !isCompleted && (
         <div className="glass-card rounded-xl p-4 text-center animate-slide-up">
           <p className="text-sm text-muted-foreground mb-3">
-            You&apos;ve answered {answeredCount} questions. Check your gap
-            analysis?
+            You&apos;ve answered {answeredCount} questions. Want to review how you did?
           </p>
           <Link
             href={`/dashboard/gaps/${activeConcept.id}`}
             id="reassess-prompt-btn"
             className="inline-flex items-center gap-2 text-sm text-primary font-medium hover:underline"
           >
-            View Gap Analysis
+            See Lesson Details &amp; Help
             <ArrowRight className="h-3 w-3" />
           </Link>
         </div>
