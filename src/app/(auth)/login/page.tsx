@@ -76,8 +76,8 @@ export default function LoginPage() {
   return (
     <>
       <div className="mb-7">
-        <h2 className="text-2xl font-bold tracking-tight text-foreground">Welcome back</h2>
-        <p className="text-sm text-muted-foreground mt-1">
+        <h2 className="text-2xl font-bold tracking-tight text-foreground font-heading">Welcome back</h2>
+        <p className="text-sm font-medium text-muted-foreground mt-1">
           Sign in to continue your learning journey.
         </p>
       </div>
@@ -85,7 +85,7 @@ export default function LoginPage() {
       <form onSubmit={handleLogin} className="space-y-4" id="login-form">
         {/* Email */}
         <div className="space-y-1.5">
-          <Label htmlFor="login-email" className="text-sm font-medium text-foreground">
+          <Label htmlFor="login-email" className="text-xs font-bold text-foreground uppercase tracking-wider">
             Email
           </Label>
           <Input
@@ -97,13 +97,13 @@ export default function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
-            className="rounded-xl border-border bg-muted/40 px-4 py-3 h-11 text-sm placeholder:text-muted-foreground/60"
+            className="h-11 px-4"
           />
         </div>
 
         {/* Password */}
         <div className="space-y-1.5">
-          <Label htmlFor="login-password" className="text-sm font-medium text-foreground">
+          <Label htmlFor="login-password" className="text-xs font-bold text-foreground uppercase tracking-wider">
             Password
           </Label>
           <div className="relative">
@@ -116,7 +116,7 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="rounded-xl border-border bg-muted/40 px-4 py-3 pr-10 h-11 text-sm placeholder:text-muted-foreground/60"
+              className="h-11 px-4 pr-10"
             />
             <Button
               type="button"
@@ -124,9 +124,9 @@ export default function LoginPage() {
               size="icon-xs"
               id="toggle-password-visibility"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer shadow-none border-transparent hover:border-transparent"
             >
-              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              {showPassword ? <EyeOff className="h-4 w-4 stroke-[2.5]" /> : <Eye className="h-4 w-4 stroke-[2.5]" />}
             </Button>
           </div>
         </div>
@@ -135,7 +135,7 @@ export default function LoginPage() {
           <div
             id="login-error"
             role="alert"
-            className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+            className="rounded-md border-2 border-destructive bg-destructive/10 px-4 py-3 text-xs font-bold text-destructive shadow-[2px_2px_0px_var(--shadow-color)]"
           >
             {error}
           </div>
@@ -145,28 +145,28 @@ export default function LoginPage() {
           id="login-submit-btn"
           type="submit"
           disabled={loading}
-          className="w-full h-11 rounded-xl font-semibold shadow-sm cursor-pointer"
+          className="w-full h-11 rounded-md font-bold shadow-[2px_2px_0px_var(--shadow-color)] cursor-pointer mt-2"
         >
           {loading ? (
             <>
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
               Signing in…
             </>
           ) : (
             <>
               Sign in
-              <ArrowRight className="h-4 w-4 ml-1" />
+              <ArrowRight className="h-4 w-4 ml-1.5 stroke-[2.5]" />
             </>
           )}
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-muted-foreground">
+      <p className="mt-6 text-center text-sm font-medium text-muted-foreground">
         Don&apos;t have an account?{" "}
         <Link
           href="/signup"
           id="signup-link"
-          className="font-medium text-primary hover:underline"
+          className="font-bold text-primary underline underline-offset-4 hover:opacity-80 transition-opacity"
         >
           Sign up
         </Link>

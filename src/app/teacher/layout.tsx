@@ -23,10 +23,10 @@ export default async function TeacherLayout({
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background relative">
+    <div className="flex flex-col lg:flex-row min-h-screen overflow-x-hidden bg-background relative">
       <AnimatedBackground />
       <Sidebar role="teacher" fullName={profile.full_name} />
-      <main className="flex-1 overflow-y-auto scrollbar-thin relative z-10 pt-14 md:pt-0">
+      <main className="flex-1 min-w-0 lg:h-screen lg:overflow-y-auto scrollbar-thin relative z-10 pb-safe">
         {children}
       </main>
     </div>

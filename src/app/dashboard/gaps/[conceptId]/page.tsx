@@ -151,21 +151,23 @@ export default async function GapPage({ params }: PageProps) {
   };
 
   return (
-    <div className="px-8 py-8 max-w-3xl mx-auto space-y-8">
+    <div className="w-full max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
       {/* Back */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <Link
           href={`/dashboard?courseId=${targetConcept.course_id}`}
           id="back-to-dashboard"
           className={cn(
             buttonVariants({ variant: "ghost", size: "sm" }),
-            "gap-2 text-sm text-muted-foreground hover:text-foreground"
+            "gap-2 text-sm text-muted-foreground hover:text-foreground min-h-11 sm:min-h-0 items-center"
           )}
         >
           <ArrowLeft className="h-4 w-4" />
           Back to dashboard
         </Link>
-        <MasteryExplainerModal buttonText="How is Mastery calculated?" variant="button" />
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+          <MasteryExplainerModal buttonText="How is Mastery calculated?" variant="button" />
+        </div>
       </div>
 
       {/* Course selector tabs */}
@@ -180,12 +182,12 @@ export default async function GapPage({ params }: PageProps) {
       )}
 
       {/* Target concept header */}
-      <div className="glass-card rounded-2xl p-6 space-y-4 animate-slide-up">
+      <div className="rounded-xl border-2 border-border bg-card p-6 space-y-4 animate-slide-up shadow-[4px_4px_0px_var(--shadow-color)]">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold">{targetConcept.name}</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">{targetConcept.name}</h1>
             {targetConcept.description && (
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-sm text-muted-foreground mt-1 font-medium">
                 {targetConcept.description}
               </p>
             )}
@@ -201,9 +203,9 @@ export default async function GapPage({ params }: PageProps) {
           size="lg"
         />
 
-        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-          <span className="flex items-center gap-1">
-            <BookOpen className="h-3 w-3" />
+        <div className="flex items-center gap-4 text-xs text-muted-foreground font-medium pt-1 border-t-2 border-border/40">
+          <span className="flex items-center gap-1.5">
+            <BookOpen className="h-4 w-4 text-primary" />
             {targetMastery?.attempts_count ?? 0} attempts
           </span>
           <span className="capitalize">{targetConcept.difficulty} difficulty</span>
@@ -236,7 +238,7 @@ export default async function GapPage({ params }: PageProps) {
 
 
       {/* Actions */}
-      <div className="flex gap-3 animate-slide-up">
+      <div className="flex flex-wrap gap-3 animate-slide-up">
         <RunDiagnosisButton
           diagnosisInput={diagnosisInput}
           userId={user.id}
@@ -246,7 +248,7 @@ export default async function GapPage({ params }: PageProps) {
           id="gap-practice-btn"
           className={cn(
             buttonVariants({ variant: "outline", size: "lg" }),
-            "gap-2 text-sm font-medium"
+            "gap-2 text-sm font-bold rounded-md border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] hover:shadow-[3px_3px_0px_var(--shadow-color)] cursor-pointer"
           )}
         >
           <Zap className="h-4 w-4" />

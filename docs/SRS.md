@@ -69,7 +69,7 @@ This Software Requirements Specification (SRS) provides a complete, unambiguous 
 - **SIH Evaluators & Academic Reviewers:** For reviewing algorithmic correctness, architectural robustness, and pedagogical alignment.
 
 ### 1.4 Project Scope
-LearnPulse is an autonomous educational engine designed to eliminate rote memorization and unaddressed prerequisite gaps in technical higher education. The system provides real-time prerequisite backtracking via directed acyclic graphs, cognitive misconception reverse-engineering via Gemini 2.5 Flash, 60-second recovery bites, Ebbinghaus forgetting curve spaced reviews, teacher 1-click syllabus ingestion, and offline resilience.
+LearnPulse is an autonomous educational engine designed to eliminate rote memorization and unaddressed prerequisite gaps in technical higher education. The system provides real-time prerequisite backtracking via directed acyclic graphs, cognitive misconception reverse-engineering via Gemini 3.6 Flash, 60-second recovery bites, Ebbinghaus forgetting curve spaced reviews, teacher 1-click syllabus ingestion, and offline resilience.
 
 ### 1.5 References
 1. IEEE Std 830-1998: *IEEE Recommended Practice for Software Requirements Specifications*.
@@ -86,7 +86,7 @@ LearnPulse is a cloud-native, responsive web application operating on a decouple
 - **Client Tier:** Next.js 16 App Router with React 19, Tailwind CSS v4, and `@xyflow/react` hardware-accelerated interactive canvas.
 - **Application Tier:** Server Components, Server Actions, and Next.js Route Handlers with strict runtime Zod validation.
 - **Algorithmic Engine:** Pure TypeScript algorithmic modules for BFS graph backtracking, Kahn's topological sort, scaled mastery computation, and Ebbinghaus decay modeling.
-- **Data & Intelligence Tier:** Supabase PostgreSQL 15 with Row-Level Security (RLS) and Google Gemini 2.5 Flash AI.
+- **Data & Intelligence Tier:** Supabase PostgreSQL 15 with Row-Level Security (RLS) and Google Gemini 3.6 Flash AI.
 
 ### 2.2 Product Functions
 1. **Interactive DAG Graph Visualization:** Hardware-accelerated visual representation of course prerequisites with node color-coding based on live mastery scores.
@@ -132,7 +132,7 @@ No specialized hardware required; runs standard WebGL/Canvas 2D on client GPUs f
 
 ### 3.3 Software Interfaces
 - **Supabase PostgreSQL Interface:** Communicates via PostgREST and `@supabase/supabase-js` using connection pooling and RLS-scoped JWTs.
-- **Google Gemini 2.5 Flash Interface:** Communicates via `@google/genai` SDK using structured JSON schema output (`responseMimeType: "application/json"`).
+- **Google Gemini 3.6 Flash Interface:** Communicates via `@google/genai` SDK using structured JSON schema output (`responseMimeType: "application/json"`).
 
 ### 3.4 Communications Interfaces
 - **Protocols:** HTTPS over TLS 1.3 for all client-to-server and server-to-external requests.
@@ -187,7 +187,7 @@ graph TD
 #### Functional Requirements
 - **FR-MM-01:** When a student submits an incorrect option key $K_{\text{selected}}$, the system SHALL call the misconception endpoint `/api/ai/misconception`.
 - **FR-MM-02:** The system SHALL query an in-memory cache keyed by `${questionId}_${selectedKey}`. If present, the cached result SHALL be returned in $< 1\text{ ms}$.
-- **FR-MM-03:** If cache misses, Gemini 2.5 Flash SHALL synthesize:
+- **FR-MM-03:** If cache misses, Gemini 3.6 Flash SHALL synthesize:
   1. `thoughtTrap`: Cognitive analysis of the false heuristic.
   2. `cognitiveDissonance`: A paradoxical scenario and counter-question that proves the student's premise wrong.
   3. `mentalAnchor`: A 10-second memorable heuristic formula.

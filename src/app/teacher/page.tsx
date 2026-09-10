@@ -229,7 +229,7 @@ export default async function TeacherPage({ searchParams }: PageProps) {
   const displayAttemptsCount = activeStudentsInCourse.length;
 
   return (
-    <div className="px-8 py-8 max-w-5xl mx-auto space-y-8">
+    <div className="w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -237,13 +237,12 @@ export default async function TeacherPage({ searchParams }: PageProps) {
             Class Overview
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Read-only analytical view of class mastery, retention, and student
-            risk
+            See how your class is learning, improving, and who needs help.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
           <MasteryExplainerModal
-            buttonText="How is Mastery calculated?"
+            buttonText="How do these scores work?"
             variant="button"
           />
           <CreateCourseModal />
@@ -259,7 +258,7 @@ export default async function TeacherPage({ searchParams }: PageProps) {
             basePath="/teacher"
           />
         </div>
-        <div className="flex items-center justify-end gap-2.5">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 w-full">
           <DeleteCourseButton
             courseId={selectedCourseId}
             courseTitle={selectedCourse?.title ?? "Course"}
@@ -269,31 +268,33 @@ export default async function TeacherPage({ searchParams }: PageProps) {
             id="manage-curriculum-btn"
             className={cn(
               buttonVariants({ variant: "outline", size: "sm" }),
-              "gap-1.5 text-xs text-primary font-medium cursor-pointer"
+              "gap-1.5 text-xs text-primary font-bold rounded-md border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] hover:shadow-[3px_3px_0px_var(--shadow-color)] cursor-pointer min-h-11 sm:min-h-0 justify-center"
             )}
           >
-            Author Concepts, Prerequisites & Questions
+            Add Lessons & Quiz Questions
             <ArrowRight className="h-3 w-3" />
           </Link>
         </div>
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Card 1: Class Average */}
-        <div className="glass-card rounded-2xl p-5 space-y-2">
+        <div className="rounded-xl border-2 border-border bg-card p-5 space-y-2 shadow-[2px_2px_0px_var(--shadow-color)]">
           <div className="flex items-center justify-between text-muted-foreground text-sm">
-            <div className="flex items-center gap-2 font-medium text-foreground">
-              <TrendingUp className="h-4 w-4 text-primary" />
-              Class Average
+            <div className="flex items-center gap-2 font-bold text-foreground">
+              <div className="p-2 rounded-md bg-accent-yellow/20 text-foreground border-2 border-border shadow-[1px_1px_0px_var(--shadow-color)]">
+                <TrendingUp className="h-4 w-4" />
+              </div>
+              Average Score
             </div>
             <MasteryExplainerModal variant="icon" />
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl sm:text-4xl font-display font-semibold tracking-tight text-foreground tabular-nums">
+            <span className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground tabular-nums">
               {displayClassAvg.toFixed(0)}%
             </span>
-            <span className="text-xs text-muted-foreground font-medium">
+            <span className="text-xs text-muted-foreground font-bold">
               {getMasteryStage(displayClassAvg, displayAttemptsCount).stageName}
             </span>
           </div>
@@ -303,55 +304,61 @@ export default async function TeacherPage({ searchParams }: PageProps) {
             showLabel={false}
             size="sm"
           />
-          <p className="text-[11px] text-muted-foreground truncate">
+          <p className="text-[11px] text-muted-foreground truncate font-medium">
             {activeStudentsInCourse.length > 0
               ? `In ${selectedCourse.title}`
-              : `In ${selectedCourse.title} (no attempts yet)`}
+              : `In ${selectedCourse.title} (no quizzes taken yet)`}
           </p>
         </div>
 
         {/* Card 2: Total Students */}
-        <div className="glass-card rounded-2xl p-5 space-y-1">
-          <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium">
-            <Users className="h-4 w-4 text-primary" />
-            Enrolled Students
+        <div className="rounded-xl border-2 border-border bg-card p-5 space-y-1 shadow-[2px_2px_0px_var(--shadow-color)]">
+          <div className="flex items-center gap-2 text-foreground text-sm font-bold">
+            <div className="p-2 rounded-md bg-accent-blue/20 text-foreground border-2 border-border shadow-[1px_1px_0px_var(--shadow-color)]">
+              <Users className="h-4 w-4" />
+            </div>
+            Total Students
           </div>
-          <div className="text-3xl sm:text-4xl font-display font-semibold tracking-tight text-foreground tabular-nums pt-1">
+          <div className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground tabular-nums pt-1">
             {classStudents.length}
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground font-medium">
             {classStudents.length === 1
-              ? "student enrolled"
-              : "students enrolled"}
+              ? "student joined"
+              : "students joined"}
           </p>
         </div>
 
-        {/* Card 3: At Risk */}
-        <div className="glass-card rounded-2xl p-5 space-y-1">
-          <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium">
-            <AlertTriangle className="h-4 w-4 text-warning" />
-            At-Risk Students
+        {/* Card 3: Needs Help */}
+        <div className="rounded-xl border-2 border-border bg-card p-5 space-y-1 shadow-[2px_2px_0px_var(--shadow-color)]">
+          <div className="flex items-center gap-2 text-foreground text-sm font-bold">
+            <div className="p-2 rounded-md bg-accent-yellow/30 text-foreground border-2 border-border shadow-[1px_1px_0px_var(--shadow-color)]">
+              <AlertTriangle className="h-4 w-4 text-primary" />
+            </div>
+            Needs Help
           </div>
           <div
             className={cn(
-              "text-3xl sm:text-4xl font-display font-semibold tracking-tight tabular-nums pt-1",
+              "text-3xl sm:text-4xl font-bold tracking-tight tabular-nums pt-1",
               atRiskStudentsInCourse.length > 0
-                ? "text-destructive"
+                ? "text-primary"
                 : "text-success",
             )}
           >
             {atRiskStudentsInCourse.length}
           </div>
-          <p className="text-xs text-muted-foreground">
-            {atRiskStudentsInCourse.length} flagged in {selectedCourse.title}
+          <p className="text-xs text-muted-foreground font-medium">
+            {atRiskStudentsInCourse.length === 0
+              ? `No students need help in ${selectedCourse.title}`
+              : `${atRiskStudentsInCourse.length} student${atRiskStudentsInCourse.length !== 1 ? "s" : ""} need extra support right now`}
           </p>
         </div>
       </div>
 
       {/* Concept averages */}
-      <div className="animate-slide-up">
+      <div className="animate-slide-up space-y-3">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-base">Concept Mastery Averages</h2>
+          <h2 className="font-bold text-base text-foreground">Topic Progress</h2>
           <MasteryExplainerModal variant="badge" />
         </div>
         <div className="space-y-3">
@@ -359,14 +366,14 @@ export default async function TeacherPage({ searchParams }: PageProps) {
             conceptAverages.map((concept) => (
               <div
                 key={concept.id}
-                className="glass-card rounded-xl p-4 space-y-2"
+                className="rounded-xl border-2 border-border bg-card p-4 space-y-2 shadow-[2px_2px_0px_var(--shadow-color)]"
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-sm">{concept.name}</span>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="font-bold text-sm text-foreground">{concept.name}</span>
+                  <span className="text-xs text-muted-foreground font-medium">
                     {concept.studentCount === 0
-                      ? "No attempts yet"
-                      : `${concept.studentCount} student${concept.studentCount !== 1 ? "s" : ""} active`}
+                      ? "No quizzes taken yet"
+                      : `${concept.studentCount} student${concept.studentCount !== 1 ? "s" : ""} learning`}
                   </span>
                 </div>
                 <MasteryBar
@@ -377,9 +384,8 @@ export default async function TeacherPage({ searchParams }: PageProps) {
               </div>
             ))
           ) : (
-            <div className="glass-card rounded-xl p-6 text-center text-xs text-muted-foreground">
-              No concepts defined for this course yet. Use &ldquo;Author
-              Concepts&rdquo; above to add curriculum.
+            <div className="rounded-xl border-2 border-dashed border-border bg-card p-6 text-center text-xs text-muted-foreground font-medium shadow-[2px_2px_0px_var(--shadow-color)]">
+              No lessons created for this course yet. Click &ldquo;Add Lessons &amp; Quiz Questions&rdquo; above to get started.
             </div>
           )}
         </div>
@@ -389,30 +395,29 @@ export default async function TeacherPage({ searchParams }: PageProps) {
       <div className="animate-slide-up space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
-            <h2 className="font-semibold text-base flex items-center gap-2">
-              Student Performance & Learning Health
-              <span className="text-xs font-normal text-muted-foreground">
-                ({studentRoster.length} students enrolled)
+            <h2 className="font-bold text-base flex items-center gap-2 text-foreground">
+              Student Progress &amp; Support
+              <span className="text-xs font-semibold text-muted-foreground">
+                ({studentRoster.length} joined)
               </span>
             </h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Live concept mastery, cognitive risk indicators, and individual
-              drill-down profiles.
+            <p className="text-xs text-muted-foreground font-medium mt-0.5">
+              Live student scores, learning progress, and individual student profiles.
             </p>
           </div>
         </div>
 
         {/* Informational notice when course has no attempts yet */}
         {studentRoster.length > 0 && activeStudentsInCourse.length === 0 && (
-          <div className="rounded-xl border border-primary/25 bg-primary/5 p-4 flex items-start gap-3">
-            <Sparkles className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-            <div className="text-xs text-muted-foreground space-y-0.5">
-              <p className="font-semibold text-foreground">
-                No student practice recorded in {selectedCourse.title} yet
+          <div className="rounded-xl border-2 border-border bg-accent-yellow/15 p-4 flex items-start gap-3 shadow-[2px_2px_0px_var(--shadow-color)]">
+            <Sparkles className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+            <div className="text-xs text-muted-foreground space-y-0.5 font-medium">
+              <p className="font-bold text-foreground">
+                No quizzes taken in {selectedCourse.title} yet
               </p>
               <p>
-                All {studentRoster.length} enrolled class students are listed
-                below with their overall platform progress.
+                All {studentRoster.length} enrolled students are listed
+                below with their overall progress.
               </p>
             </div>
           </div>
@@ -420,17 +425,16 @@ export default async function TeacherPage({ searchParams }: PageProps) {
 
         {/* Empty state when 0 students enrolled in this course */}
         {studentRoster.length === 0 ? (
-          <div className="glass-card rounded-2xl p-10 text-center space-y-3 border-dashed border-2 border-border/80">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-primary mx-auto">
+          <div className="rounded-xl p-10 text-center space-y-3 border-2 border-dashed border-border bg-card shadow-[2px_2px_0px_var(--shadow-color)]">
+            <div className="flex h-12 w-12 items-center justify-center rounded-md bg-accent-blue/20 border-2 border-border text-foreground mx-auto shadow-[1px_1px_0px_var(--shadow-color)]">
               <Users className="h-6 w-6" />
             </div>
-            <p className="font-semibold text-sm text-foreground">
+            <p className="font-bold text-sm text-foreground">
               No students enrolled in this course yet
             </p>
-            <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-              Students have the freedom to self-enroll in {selectedCourse.title}{" "}
-              from their Course Catalog. Once enrolled, their live mastery and
-              cognitive risk will appear here.
+            <p className="text-xs text-muted-foreground max-w-sm mx-auto font-medium">
+              Students can pick {selectedCourse.title} from their Course Catalog.
+              Once enrolled, their learning progress and scores will appear here.
             </p>
           </div>
         ) : (
@@ -441,33 +445,33 @@ export default async function TeacherPage({ searchParams }: PageProps) {
                 key={student.id}
                 href={`/teacher/students/${student.id}?courseId=${selectedCourseId}`}
                 id={`student-card-${idx}`}
-                className="group flex items-center justify-between glass-card rounded-xl p-4 hover:border-primary/40 hover:bg-card/80 transition-all duration-200"
+                className="group flex items-center justify-between rounded-xl border-2 border-border bg-card p-4 hover:-translate-x-px hover:-translate-y-px shadow-[2px_2px_0px_var(--shadow-color)] hover:shadow-[3px_3px_0px_var(--shadow-color)] transition-all duration-150"
               >
                 <div className="flex items-center gap-4 min-w-0 flex-1 pr-4">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary border border-primary/20 font-semibold text-sm font-display">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-accent-yellow/30 text-foreground border-2 border-border font-bold text-sm shadow-[1px_1px_0px_var(--shadow-color)]">
                     {student.name.charAt(0).toUpperCase()}
                   </div>
                   <div className="min-w-0 flex-1 space-y-1">
                     <div className="flex items-center gap-2">
-                      <p className="font-semibold text-sm group-hover:text-primary transition-colors truncate text-foreground">
+                      <p className="font-bold text-sm group-hover:text-primary transition-colors truncate text-foreground">
                         {student.name}
                       </p>
                       {!student.hasCourseAttempts && (
-                        <Badge variant="outline" className="text-[10px]">
-                          Not started
+                        <Badge variant="outline" className="text-[10px] font-bold rounded-xs border-1.5 border-border">
+                          Not started yet
                         </Badge>
                       )}
                     </div>
 
                     {student.hasCourseAttempts ? (
                       <div className="flex items-center text-xs text-muted-foreground">
-                        <span className="font-medium text-foreground">
-                          {student.courseAvgMastery.toFixed(0)}% course mastery
+                        <span className="font-bold text-foreground">
+                          {student.courseAvgMastery.toFixed(0)}% score in this class
                         </span>
                       </div>
                     ) : (
-                      <p className="text-xs text-muted-foreground">
-                        0% mastery in this course (no attempts)
+                      <p className="text-xs text-muted-foreground font-medium">
+                        Not started yet (no quizzes taken)
                       </p>
                     )}
                   </div>
@@ -477,7 +481,7 @@ export default async function TeacherPage({ searchParams }: PageProps) {
                   {student.hasCourseAttempts ? (
                     <RiskBadge bucket={student.courseRisk.bucket} />
                   ) : (
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-xs font-bold rounded-xs border-1.5 border-border">
                       Unranked
                     </Badge>
                   )}

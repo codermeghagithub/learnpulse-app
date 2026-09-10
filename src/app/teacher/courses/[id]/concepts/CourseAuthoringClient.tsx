@@ -351,25 +351,25 @@ export function CourseAuthoringClient({
   }
 
   return (
-    <div className="px-8 py-8 max-w-5xl mx-auto space-y-8 animate-slide-up">
+    <div className="w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 animate-slide-up">
       {/* Top navigation */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <Link
           href={`/teacher?courseId=${course.id}`}
           id="back-to-class-overview"
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors min-h-11 sm:min-h-0"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Class Overview
         </Link>
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-start sm:justify-end">
           <SyllabusIngestionModal
             courseId={course.id}
             courseTitle={course.title}
             courseSubject={course.subject}
             onSuccess={() => router.refresh()}
           />
-          <Badge variant="outline" className="text-xs font-semibold px-3 py-1 rounded-full border-primary/30 bg-primary/10 text-primary">
+          <Badge variant="outline" className="text-xs font-bold px-3 py-1 rounded-xs border-2 border-border bg-accent-yellow/20 text-foreground shadow-[1px_1px_0px_var(--shadow-color)]">
             {course.subject}
           </Badge>
 
@@ -380,7 +380,7 @@ export function CourseAuthoringClient({
             size="sm"
             onClick={handleDeleteCourse}
             disabled={deletingCourse}
-            className="inline-flex items-center gap-1.5 text-xs text-destructive hover:text-destructive font-medium bg-destructive/10 hover:bg-destructive/15 border-destructive/20 h-8 px-3 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-xs text-destructive hover:text-destructive font-medium bg-destructive/10 hover:bg-destructive/15 border-destructive/20 h-9 sm:h-8 px-3 rounded-lg transition-colors disabled:opacity-50 cursor-pointer min-h-10 sm:min-h-0"
             title="Delete this course"
           >
             {deletingCourse ? (
@@ -394,52 +394,52 @@ export function CourseAuthoringClient({
       </div>
 
       {/* Header */}
-      <div className="glass-card rounded-2xl p-6 sm:p-8 space-y-3">
+      <div className="glass-card rounded-xl p-6 sm:p-8 space-y-3">
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 shadow-xs">
+          <div className="flex h-12 w-12 items-center justify-center rounded-md bg-primary/10 text-primary border border-primary/20 shadow-xs shrink-0">
             <BookOpen className="h-6 w-6" />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">{course.title}</h1>
+          <div className="min-w-0">
+            <h1 className="text-2xl font-bold text-foreground truncate">{course.title}</h1>
             <p className="text-sm text-muted-foreground">
-              Author course curriculum, prerequisite dependencies with cycle check, and practice MCQs.
+              Add lessons, set up recommended learning order, and write practice quiz questions.
             </p>
           </div>
         </div>
 
         {/* Quick Stats Bar */}
-        <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border">
-          <div className="text-center p-2 rounded-xl bg-background/50 border border-border/50">
-            <p className="text-xs text-muted-foreground">Concepts</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 border-t border-border">
+          <div className="text-center p-3 rounded-xl bg-background/50 border border-border/50">
+            <p className="text-xs text-muted-foreground">Lessons</p>
             <p className="text-lg font-bold text-foreground">{concepts.length}</p>
           </div>
-          <div className="text-center p-2 rounded-xl bg-background/50 border border-border/50">
-            <p className="text-xs text-muted-foreground">Prerequisites (DAG)</p>
+          <div className="text-center p-3 rounded-xl bg-background/50 border border-border/50">
+            <p className="text-xs text-muted-foreground">Recommended Order</p>
             <p className="text-lg font-bold text-foreground">{edges.length}</p>
           </div>
-          <div className="text-center p-2 rounded-xl bg-background/50 border border-border/50">
-            <p className="text-xs text-muted-foreground">MCQ Questions</p>
+          <div className="text-center p-3 rounded-xl bg-background/50 border border-border/50">
+            <p className="text-xs text-muted-foreground">Quiz Questions</p>
             <p className="text-lg font-bold text-foreground">{questions.length}</p>
           </div>
         </div>
       </div>
 
-      {/* Authoring Tabs */}
-      <div className="flex border-b border-border gap-2">
+      {/* Authoring Tabs (Swipeable Pill/Underline Bar) */}
+      <div className="flex border-b border-border gap-2 overflow-x-auto no-scrollbar scroll-smooth py-1 snap-x">
         <Button
           type="button"
           variant="ghost"
           onClick={() => setActiveTab("concepts")}
           id="tab-concepts"
           className={cn(
-            "flex items-center gap-2 px-5 py-3 text-sm font-semibold rounded-none border-b-2 transition-all cursor-pointer h-auto",
+            "flex items-center gap-2 px-5 py-3 text-sm font-semibold rounded-none border-b-2 transition-all cursor-pointer h-auto shrink-0 snap-start min-h-11",
             activeTab === "concepts"
               ? "border-primary text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
           )}
         >
           <Layers className="h-4 w-4" />
-          1. Concepts ({concepts.length})
+          1. Lessons ({concepts.length})
         </Button>
 
         <Button
@@ -448,14 +448,14 @@ export function CourseAuthoringClient({
           onClick={() => setActiveTab("prerequisites")}
           id="tab-prerequisites"
           className={cn(
-            "flex items-center gap-2 px-5 py-3 text-sm font-semibold rounded-none border-b-2 transition-all cursor-pointer h-auto",
+            "flex items-center gap-2 px-5 py-3 text-sm font-semibold rounded-none border-b-2 transition-all cursor-pointer h-auto shrink-0 snap-start min-h-11",
             activeTab === "prerequisites"
               ? "border-primary text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
           )}
         >
           <GitFork className="h-4 w-4" />
-          2. Prerequisites DAG ({edges.length})
+          2. Lesson Order &amp; Prerequisites ({edges.length})
         </Button>
 
         <Button
@@ -464,7 +464,7 @@ export function CourseAuthoringClient({
           onClick={() => setActiveTab("questions")}
           id="tab-questions"
           className={cn(
-            "flex items-center gap-2 px-5 py-3 text-sm font-semibold rounded-none border-b-2 transition-all cursor-pointer h-auto",
+            "flex items-center gap-2 px-5 py-3 text-sm font-semibold rounded-none border-b-2 transition-all cursor-pointer h-auto shrink-0 snap-start min-h-11",
             activeTab === "questions"
               ? "border-primary text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
@@ -481,7 +481,7 @@ export function CourseAuthoringClient({
       {activeTab === "concepts" && (
         <div className="space-y-8 animate-fade-in">
           {/* Add Concept Form */}
-          <div className="glass-card rounded-2xl p-6 space-y-4">
+          <div className="glass-card rounded-xl p-6 space-y-4">
             <h2 className="text-base font-semibold flex items-center gap-2">
               <Plus className="h-4 w-4 text-primary" />
               Add Concept to Course
@@ -560,7 +560,7 @@ export function CourseAuthoringClient({
             </h2>
 
             {concepts.length === 0 ? (
-              <div className="glass-card rounded-2xl p-10 text-center space-y-3">
+              <div className="glass-card rounded-xl p-10 text-center space-y-3">
                 <Layers className="h-8 w-8 text-muted-foreground mx-auto" />
                 <p className="font-semibold">No concepts added yet</p>
                 <p className="text-xs text-muted-foreground max-w-sm mx-auto">
@@ -574,7 +574,7 @@ export function CourseAuthoringClient({
                   return (
                     <div
                       key={c.id}
-                      className="glass-card rounded-xl p-4 flex flex-col justify-between space-y-3 border hover:border-primary/30 transition-all"
+                      className="glass-card rounded-xl p-4 flex flex-col justify-between space-y-3 border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] hover:shadow-[3px_3px_0px_var(--shadow-color)] transition-all"
                     >
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between">
@@ -628,7 +628,7 @@ export function CourseAuthoringClient({
       {activeTab === "prerequisites" && (
         <div className="space-y-8 animate-fade-in">
           {concepts.length < 2 ? (
-            <div className="glass-card rounded-2xl p-10 text-center space-y-4">
+            <div className="glass-card rounded-xl p-10 text-center space-y-4">
               <GitFork className="h-8 w-8 text-muted-foreground mx-auto" />
               <p className="font-semibold">At least 2 concepts required</p>
               <p className="text-xs text-muted-foreground max-w-sm mx-auto">
@@ -666,7 +666,7 @@ export function CourseAuthoringClient({
               />
 
               {/* Add Prerequisite Edge Form */}
-              <div className="glass-card rounded-2xl p-6 space-y-4">
+              <div className="glass-card rounded-xl p-6 space-y-4">
                 <div className="space-y-1">
                   <h2 className="text-base font-semibold flex items-center gap-2">
                     <GitFork className="h-4 w-4 text-primary" />
@@ -792,7 +792,7 @@ export function CourseAuthoringClient({
                 </h2>
 
                 {edges.length === 0 ? (
-                  <div className="glass-card rounded-2xl p-8 text-center space-y-2 text-muted-foreground text-sm">
+                  <div className="glass-card rounded-xl p-8 text-center space-y-2 text-muted-foreground text-sm">
                     No prerequisites declared yet. All concepts currently behave as foundational roots.
                   </div>
                 ) : (
@@ -803,7 +803,7 @@ export function CourseAuthoringClient({
                       return (
                         <div
                           key={e.id}
-                          className="glass-card rounded-xl p-3.5 flex items-center justify-between border hover:border-primary/30 transition-all text-sm"
+                          className="glass-card rounded-xl p-3.5 flex items-center justify-between border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] hover:shadow-[3px_3px_0px_var(--shadow-color)] transition-all text-sm"
                         >
                           <div className="flex items-center gap-3">
                             <span className="font-semibold text-primary">{nameA}</span>
@@ -842,7 +842,7 @@ export function CourseAuthoringClient({
       {activeTab === "questions" && (
         <div className="space-y-8 animate-fade-in">
           {concepts.length === 0 ? (
-            <div className="glass-card rounded-2xl p-10 text-center space-y-3">
+            <div className="glass-card rounded-xl p-10 text-center space-y-3">
               <HelpCircle className="h-8 w-8 text-muted-foreground mx-auto" />
               <p className="font-semibold">No concepts available</p>
               <p className="text-xs text-muted-foreground max-w-sm mx-auto">
@@ -852,7 +852,7 @@ export function CourseAuthoringClient({
           ) : (
             <>
               {/* Add Question Form */}
-              <div className="glass-card rounded-2xl p-6 space-y-4">
+              <div className="glass-card rounded-xl p-6 space-y-4">
                 <div className="space-y-1">
                   <h2 className="text-base font-semibold flex items-center gap-2">
                     <Plus className="h-4 w-4 text-primary" />
@@ -998,7 +998,7 @@ export function CourseAuthoringClient({
                 </h2>
 
                 {questions.length === 0 ? (
-                  <div className="glass-card rounded-2xl p-8 text-center space-y-2 text-muted-foreground text-sm">
+                  <div className="glass-card rounded-xl p-8 text-center space-y-2 text-muted-foreground text-sm">
                     No questions added yet for this course. Add at least 1-2 questions per concept so students can practice.
                   </div>
                 ) : (
@@ -1008,7 +1008,7 @@ export function CourseAuthoringClient({
                       return (
                         <div
                           key={q.id}
-                          className="glass-card rounded-xl p-4 space-y-3 border hover:border-primary/30 transition-all text-sm"
+                          className="glass-card rounded-xl p-4 space-y-3 border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] hover:shadow-[3px_3px_0px_var(--shadow-color)] transition-all text-sm"
                         >
                           <div className="flex items-start justify-between gap-4">
                             <div className="space-y-1 min-w-0">

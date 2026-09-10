@@ -120,37 +120,36 @@ export function SyllabusIngestionModal({
         id="open-syllabus-ingest-btn"
         className={cn(
           buttonVariants({ size: "sm" }),
-          "gap-2 rounded-xl text-xs font-semibold shadow-sm cursor-pointer"
+          "gap-2 rounded-md text-xs font-bold border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] hover:shadow-[3px_3px_0px_var(--shadow-color)] cursor-pointer"
         )}
       >
         <Sparkles className="h-4 w-4" />
         <span>1-Click AI Ingestion</span>
       </DialogTrigger>
 
-      <DialogContent className="max-w-xl sm:max-w-xl p-6 sm:p-7 space-y-5 rounded-2xl border-primary/30">
+      <DialogContent className="max-w-xl sm:max-w-xl p-6 sm:p-7 space-y-5 rounded-xl border-2 border-border bg-card shadow-[4px_4px_0px_var(--shadow-color)]">
         {/* Header */}
         <DialogHeader className="space-y-1">
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-primary/20 bg-primary/10 text-[10px] font-semibold text-primary w-fit">
-            <Zap className="h-3 w-3" />
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-xs border-2 border-border bg-accent-yellow/20 text-[10px] font-bold text-foreground w-fit shadow-[1px_1px_0px_var(--shadow-color)]">
+            <Zap className="h-3 w-3 text-primary" />
             <span>AICTE Smart Curriculum Engine</span>
           </div>
           <DialogTitle className="text-lg font-bold text-foreground">
             1-Click Syllabus Ingestion
           </DialogTitle>
-          <DialogDescription className="text-xs text-muted-foreground">
+          <DialogDescription className="text-xs text-muted-foreground font-medium">
             Synthesize atomic concepts, prerequisite DAG edges, and diagnostic
             MCQs for{" "}
-            <span className="font-semibold text-foreground">
+            <span className="font-bold text-foreground">
               {courseTitle}
             </span>
-            .
           </DialogDescription>
         </DialogHeader>
 
         {/* AICTE Presets */}
         <div className="space-y-2">
-          <Label className="text-xs font-semibold text-muted-foreground">
-            Choose an AICTE Standard Curriculum Preset:
+          <Label className="text-xs font-bold text-foreground uppercase tracking-wider">
+            AICTE Standard Curriculum Presets:
           </Label>
           <div className="flex flex-wrap gap-1.5">
             {AICTE_PRESETS.map((preset) => (
@@ -164,10 +163,10 @@ export function SyllabusIngestionModal({
                   setTopicText(preset.text);
                 }}
                 className={cn(
-                  "text-[11px] px-2.5 py-1.5 h-auto rounded-lg cursor-pointer font-medium text-left",
+                  "text-[11px] px-2.5 py-1.5 h-auto rounded-xs cursor-pointer font-bold border-1.5 text-left shadow-[1px_1px_0px_var(--shadow-color)]",
                   topicText === preset.text
-                    ? "border-primary bg-primary/15 text-primary font-bold shadow-xs"
-                    : "border-border/80 hover:border-primary/40 hover:bg-primary/5 text-muted-foreground hover:text-foreground",
+                    ? "border-primary bg-primary text-primary-foreground font-bold"
+                    : "border-border bg-card hover:bg-muted text-foreground",
                 )}
               >
                 {preset.title}
@@ -176,32 +175,37 @@ export function SyllabusIngestionModal({
           </div>
         </div>
 
-        {/* Textarea */}
-        <div className="space-y-1.5">
-          <Label className="text-xs font-semibold text-muted-foreground">
+        {/* Input */}
+        <div className="space-y-2">
+          <label
+            htmlFor="syllabus-topic-input"
+            className="text-xs font-bold text-foreground block uppercase tracking-wider"
+          >
             Or Paste Syllabus Topics / Module Notes:
-          </Label>
+          </label>
           <Textarea
+            id="syllabus-topic-input"
             value={topicText}
             onChange={(e) => setTopicText(e.target.value)}
             disabled={loading}
-            rows={4}
-            placeholder="e.g. Unit 1: Memory Management, Paging, Segmentation, Page Faults, Virtual Memory, Inverted Page Tables..."
-            className="w-full text-xs p-3 rounded-xl border border-border/80 bg-background/60 focus:outline-hidden transition-colors resize-none"
+            rows={5}
+            maxLength={1000}
+            placeholder="e.g. Unit 1: Pointers and Memory Allocation, Unit 2: Linked Lists & Node Traversal, Unit 3: Binary Search Trees, Unit 4: Graph Theory & DFS/BFS..."
+            className="w-full text-xs p-3 rounded-md border-2 border-border bg-card focus:outline-hidden transition-colors resize-none font-medium"
           />
         </div>
 
         {/* Error / Success Feedback */}
         {error && (
-          <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive flex items-center gap-2">
+          <div className="rounded-md border-2 border-destructive bg-destructive/10 p-3 text-xs font-bold text-destructive flex items-center gap-2 shadow-[2px_2px_0px_var(--shadow-color)]">
             <AlertTriangle className="h-4 w-4 shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
         {success && (
-          <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs text-emerald-400 flex items-center gap-2 animate-fade-in">
-            <CheckCircle2 className="h-4 w-4 shrink-0" />
+          <div className="rounded-md border-2 border-success bg-success/15 p-3 text-xs font-bold text-foreground flex items-center gap-2 animate-fade-in shadow-[2px_2px_0px_var(--shadow-color)]">
+            <CheckCircle2 className="h-4 w-4 shrink-0 text-success" />
             <span>
               Concepts & Prerequisite DAG synthesized and saved to database!
             </span>
@@ -216,7 +220,7 @@ export function SyllabusIngestionModal({
             size="sm"
             onClick={() => setIsOpen(false)}
             disabled={loading}
-            className="rounded-xl text-xs font-medium cursor-pointer"
+            className="rounded-md text-xs font-bold cursor-pointer border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)]"
           >
             Cancel
           </Button>
@@ -226,7 +230,7 @@ export function SyllabusIngestionModal({
             size="sm"
             onClick={() => handleIngest()}
             disabled={loading || !topicText.trim()}
-            className="gap-2 rounded-xl text-xs font-semibold disabled:opacity-50 cursor-pointer shadow-sm"
+            className="gap-2 rounded-md text-xs font-bold disabled:opacity-50 cursor-pointer border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] hover:shadow-[3px_3px_0px_var(--shadow-color)]"
           >
             {loading ? (
               <>

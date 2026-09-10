@@ -102,21 +102,19 @@ export function CourseCatalogClient({
   });
 
   return (
-    <div className="px-6 sm:px-8 py-8 max-w-5xl mx-auto space-y-8 animate-fade-in">
+    <div className="w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8 animate-fade-in">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20 mb-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-xs text-xs font-bold bg-primary text-primary-foreground border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] mb-3">
             <Sparkles className="h-3.5 w-3.5" />
-            Student Freedom of Choice
+            Explore &amp; Learn
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
             Course Catalog
           </h1>
-          <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
-            Choose the courses you want to take. LearnPulse only tracks your
-            mastery, diagnostic gaps, and prerequisite health for the courses
-            you actively enroll in.
+          <p className="text-sm text-muted-foreground mt-1 max-w-2xl font-medium">
+            Choose the courses you want to study. LearnPulse will personalize your practice quizzes and help you track your progress.
           </p>
         </div>
 
@@ -124,7 +122,7 @@ export function CourseCatalogClient({
           href="/dashboard"
           className={cn(
             buttonVariants({ variant: "outline", size: "sm" }),
-            "self-start sm:self-auto bg-primary/10 hover:bg-primary/15 text-primary border-primary/20 rounded-xl transition-colors shrink-0 font-semibold cursor-pointer"
+            "self-stretch sm:self-auto rounded-md font-bold border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] hover:shadow-[3px_3px_0px_var(--shadow-color)] transition-all shrink-0 cursor-pointer min-h-11 sm:min-h-0 justify-center"
           )}
         >
           Back to Dashboard
@@ -134,14 +132,14 @@ export function CourseCatalogClient({
 
       {/* Action feedback toast */}
       {actionFeedback && (
-        <div className="flex items-center justify-between rounded-xl border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-foreground animate-fade-in shadow-xs">
+        <div className="flex items-center justify-between rounded-md border-2 border-border bg-card px-4 py-3 text-sm font-semibold text-foreground animate-fade-in shadow-[2px_2px_0px_var(--shadow-color)]">
           <span>{actionFeedback}</span>
           <Button
             type="button"
             variant="ghost"
             size="icon-xs"
             onClick={() => setActionFeedback(null)}
-            className="text-muted-foreground hover:text-foreground cursor-pointer"
+            className="text-muted-foreground hover:text-foreground cursor-pointer rounded-sm"
           >
             <X className="h-4 w-4" />
           </Button>
@@ -157,31 +155,35 @@ export function CourseCatalogClient({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by course title or department..."
-            className="w-full rounded-xl pl-10 pr-4 py-2.5 h-10 text-xs sm:text-sm bg-muted/40 border-border"
+            className="w-full rounded-md pl-10 pr-4 py-2.5 h-11 sm:h-10 text-xs sm:text-sm bg-input border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] focus:shadow-[3px_3px_0px_var(--shadow-color)]"
           />
         </div>
 
-        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-muted/50 border border-border shrink-0 self-start sm:self-auto">
+        <div className="flex items-center gap-1.5 p-1 rounded-md bg-muted border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] shrink-0 self-stretch sm:self-auto overflow-x-auto no-scrollbar">
           <Button
             type="button"
-            variant={filter === "all" ? "secondary" : "ghost"}
+            variant={filter === "all" ? "default" : "ghost"}
             size="sm"
             onClick={() => setFilter("all")}
             className={cn(
-              "rounded-lg text-xs font-medium h-8 cursor-pointer",
-              filter === "all" ? "bg-card text-foreground shadow-xs font-semibold" : "text-muted-foreground"
+              "flex-1 sm:flex-none rounded-sm text-xs font-bold min-h-10 sm:min-h-0 h-9 sm:h-8 px-3.5 cursor-pointer transition-all whitespace-nowrap",
+              filter === "all"
+                ? "bg-foreground text-background shadow-[1px_1px_0px_var(--shadow-color)]"
+                : "text-muted-foreground hover:text-foreground"
             )}
           >
             All Courses ({courses.length})
           </Button>
           <Button
             type="button"
-            variant={filter === "enrolled" ? "secondary" : "ghost"}
+            variant={filter === "enrolled" ? "default" : "ghost"}
             size="sm"
             onClick={() => setFilter("enrolled")}
             className={cn(
-              "rounded-lg text-xs font-medium h-8 cursor-pointer",
-              filter === "enrolled" ? "bg-card text-foreground shadow-xs font-semibold" : "text-muted-foreground"
+              "flex-1 sm:flex-none rounded-sm text-xs font-bold min-h-10 sm:min-h-0 h-9 sm:h-8 px-3.5 cursor-pointer transition-all whitespace-nowrap",
+              filter === "enrolled"
+                ? "bg-foreground text-background shadow-[1px_1px_0px_var(--shadow-color)]"
+                : "text-muted-foreground hover:text-foreground"
             )}
           >
             My Enrolled ({enrolledIds.size})
@@ -191,16 +193,16 @@ export function CourseCatalogClient({
 
       {/* Course Grid */}
       {filteredCourses.length === 0 ? (
-        <Card className="glass-card rounded-2xl p-12 text-center space-y-4 border-dashed border-2 border-border/80 ring-0">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 mx-auto">
+        <Card className="rounded-xl p-12 text-center space-y-4 border-2 border-dashed border-border bg-card shadow-[2px_2px_0px_var(--shadow-color)]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-md bg-accent-yellow/20 text-foreground border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] mx-auto">
             <GraduationCap className="h-6 w-6" />
           </div>
-          <h3 className="font-semibold text-base text-foreground">
+          <h3 className="font-bold text-lg text-foreground">
             {filter === "enrolled"
               ? "No enrolled courses yet"
               : "No courses found"}
           </h3>
-          <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mx-auto">
+          <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mx-auto font-medium">
             {filter === "enrolled"
               ? "Browse all available courses and enroll in the ones you want to study."
               : "No courses match your search. Try another search term or check back later."}
@@ -208,9 +210,9 @@ export function CourseCatalogClient({
           {filter === "enrolled" && courses.length > 0 && (
             <Button
               type="button"
-              variant="link"
+              variant="outline"
               onClick={() => setFilter("all")}
-              className="text-xs font-semibold text-primary pt-2 cursor-pointer h-auto p-0"
+              className="text-xs font-bold rounded-md border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] mt-2"
             >
               Browse All Courses
             </Button>
@@ -226,25 +228,23 @@ export function CourseCatalogClient({
               <Card
                 key={course.id}
                 className={cn(
-                  "group relative flex flex-col justify-between glass-card rounded-2xl p-6 transition-all duration-200 border hover:border-primary/40 shadow-xs hover:shadow-md ring-0",
-                  isEnrolled
-                    ? "border-primary/30 bg-primary/2"
-                    : "border-border",
+                  "group relative flex flex-col justify-between rounded-xl p-6 transition-all duration-150 border-2 border-border bg-card shadow-[2px_2px_0px_var(--shadow-color)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_var(--shadow-color)]",
+                  isEnrolled && "border-primary/80 bg-primary/5"
                 )}
               >
                 <div className="space-y-4">
                   {/* Top badges */}
                   <div className="flex items-center justify-between gap-2">
-                    <Badge variant="outline" className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-muted border-border text-muted-foreground">
+                    <Badge variant="outline" className="text-[11px] font-bold px-2.5 py-0.5 rounded-xs bg-muted border-1.5 border-border text-foreground">
                       {course.subject}
                     </Badge>
                     {isEnrolled ? (
-                      <Badge variant="outline" className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-success/15 text-success border-success/30">
+                      <Badge variant="outline" className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-xs bg-success/20 text-success border-1.5 border-success">
                         <CheckCircle2 className="h-3 w-3" />
                         Enrolled
                       </Badge>
                     ) : (
-                      <span className="text-[11px] font-medium text-muted-foreground">
+                      <span className="text-[11px] font-semibold text-muted-foreground">
                         Not Enrolled
                       </span>
                     )}
@@ -255,25 +255,25 @@ export function CourseCatalogClient({
                     <h3 className="font-bold text-lg text-foreground group-hover:text-primary transition-colors">
                       {course.title}
                     </h3>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground font-medium">
                       Instructor:{" "}
-                      <span className="font-medium text-foreground">
+                      <span className="font-bold text-foreground">
                         {course.teacherName}
                       </span>
                     </p>
                   </div>
 
                   {/* Course stats */}
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground pt-2 border-t border-border/60">
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground font-medium pt-3 border-t-2 border-border/40">
                     <div className="flex items-center gap-1.5">
-                      <Layers className="h-3.5 w-3.5 text-primary" />
+                      <Layers className="h-4 w-4 text-primary" />
                       <span>
                         {course.conceptCount}{" "}
                         {course.conceptCount === 1 ? "Concept" : "Concepts"}
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <HelpCircle className="h-3.5 w-3.5 text-primary" />
+                      <HelpCircle className="h-4 w-4 text-primary" />
                       <span>
                         {course.questionCount}{" "}
                         {course.questionCount === 1 ? "Question" : "Questions"}
@@ -283,12 +283,12 @@ export function CourseCatalogClient({
                 </div>
 
                 {/* Bottom Actions */}
-                <div className="pt-6 mt-4 border-t border-border/60 flex items-center justify-between gap-3">
+                <div className="pt-6 mt-4 border-t-2 border-border/40 flex items-center justify-between gap-3">
                   {isEnrolled ? (
                     <>
                       <Link
                         href={`/dashboard?courseId=${course.id}`}
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline py-2"
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline py-2"
                       >
                         Open in Dashboard
                         <ArrowRight className="h-3.5 w-3.5" />
@@ -296,11 +296,11 @@ export function CourseCatalogClient({
 
                       <Button
                         type="button"
-                        variant="ghost"
+                        variant="outline"
                         size="sm"
                         onClick={() => handleToggleEnroll(course)}
                         disabled={isLoading}
-                        className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 px-3 py-1.5 rounded-lg transition-colors cursor-pointer disabled:opacity-50 h-8"
+                        className="inline-flex items-center gap-1 text-xs font-bold text-muted-foreground hover:text-destructive hover:bg-destructive/10 px-3 py-1.5 rounded-md border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] transition-all cursor-pointer disabled:opacity-50 h-8"
                       >
                         {isLoading ? (
                           <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" />
@@ -315,7 +315,7 @@ export function CourseCatalogClient({
                       size="default"
                       onClick={() => handleToggleEnroll(course)}
                       disabled={isLoading}
-                      className="w-full rounded-xl py-2.5 text-xs font-semibold shadow-xs cursor-pointer"
+                      className="w-full rounded-md py-2.5 text-xs font-bold border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] cursor-pointer"
                     >
                       {isLoading ? (
                         <>

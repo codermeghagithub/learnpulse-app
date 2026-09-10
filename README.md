@@ -6,7 +6,7 @@
 [![Next.js](https://img.shields.io/badge/Next.js-16.3.4_(Turbopack)-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict_5.x-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL_15_%2B_RLS-emerald?logo=supabase)](https://supabase.com/)
-[![Google Gemini](https://img.shields.io/badge/Google_Gemini-2.5_Flash-orange?logo=google)](https://ai.google.dev/)
+[![Google Gemini](https://img.shields.io/badge/Google_Gemini-3.6_Flash-orange?logo=google)](https://ai.google.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4_Modern_Design-38bdf8?logo=tailwindcss)](https://tailwindcss.com/)
 [![Vitest](https://img.shields.io/badge/Tests-105%2F105_Passing_(12_Suites)-brightgreen?logo=vitest)](https://vitest.dev/)
 [![ESLint](https://img.shields.io/badge/ESLint-0_Errors_%7C_0_Warnings-purple?logo=eslint)](https://eslint.org/)
@@ -137,7 +137,7 @@ graph TB
 
     subgraph InfraLayer["Data & AI Infrastructure"]
         DB[("Supabase PostgreSQL 15<br/>• Row-Level Security (RLS)<br/>• Atomic transactions & zero drift<br/>• Idempotent relational schema")]
-        AI["Google Gemini 2.5 Flash<br/>• Mental Mirror cognitive deconstruction<br/>• 60-sec bilingual concept bites<br/>• 1-Click syllabus DAG synthesis<br/>• Sub-ms in-memory cache"]
+        AI["Google Gemini 3.6 Flash<br/>• Mental Mirror cognitive deconstruction<br/>• 60-sec bilingual concept bites<br/>• 1-Click syllabus DAG synthesis<br/>• Sub-ms in-memory cache"]
     end
 
     UI --> Actions
@@ -196,7 +196,7 @@ Where:
 | **Fullstack Framework** | **Next.js** | `16.3.4` (Turbopack) | Server Components, Streaming SSR, API Routes, Edge Routing |
 | **Runtime & Core** | **Node.js** / **TypeScript** | `v20+` / `5.x Strict` | Strict type safety, 0 runtime type errors |
 | **Database & Auth** | **Supabase** (PostgreSQL 15) | Latest | Relational schema, ACID compliance, Row-Level Security (RLS) |
-| **AI Diagnosis & Synthesis** | **Google Gemini** | `2.5 Flash` | Sub-second cognitive analysis, bilingual synthesis, structured JSON |
+| **AI Diagnosis & Synthesis** | **Google Gemini** | `3.6 Flash` | Sub-second cognitive analysis, bilingual synthesis, structured JSON |
 | **Graph Visualization** | **@xyflow/react** | `12.4.x` | Hardware-accelerated interactive canvas DAG graph |
 | **Schema Validation** | **Zod** | `3.24.x` | Strict input bounds, payload sanitization, AI schema validation |
 | **Styling & Design System** | **Tailwind CSS + Vanilla CSS** | `v4.x` | Modern glassmorphism, responsive themes, accessible color palette |
