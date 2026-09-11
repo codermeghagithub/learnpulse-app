@@ -66,14 +66,28 @@ export function inactivityScore(daysSinceLastAttempt: number): number {
   return Math.min(daysSinceLastAttempt / 30, 1);
 }
 
-// Computes mastery drop comparing the last 3 attempts against previous 3
+// Computes mastery drop comparing recent attempts against previous attempts
 export function declineScore(masteryHistory: number[]): number {
   if (masteryHistory.length < 2) return 0;
-  const recent = masteryHistory.slice(-3);
-  const older = masteryHistory.slice(-6, -3);
-  if (older.length === 0) return 0;
+
+  let recent: number[];
+  let older: number[];
+
+  if (masteryHistory.length < 6) {
+    const mid = Math.floor(masteryHistory.length / 2);
+    older = masteryHistory.slice(0, mid);
+    recent = masteryHistory.slice(mid);
+  } else {
+    recent = masteryHistory.slice(-3);
+    older = masteryHistory.slice(-6, -3);
+  }
+
+  if (older.length === 0 || recent.length === 0) return 0;
+
   const recentAvg = recent.reduce((a, b) => a + b, 0) / recent.length;
   const olderAvg = older.reduce((a, b) => a + b, 0) / older.length;
   const declineAmount = olderAvg - recentAvg;
+
   return Math.max(0, Math.min(declineAmount / 100, 1));
 }
+
