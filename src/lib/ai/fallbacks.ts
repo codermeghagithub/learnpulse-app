@@ -974,8 +974,343 @@ export function buildDeterministicConceptBiteFallback(
     };
   }
 
-  // 4. CPU & Process Scheduling
-  if (lower.includes("schedul") || lower.includes("process")) {
+  // 4. File Systems & Storage Management (must match before generic scheduling to prevent "disk scheduling" collision)
+  if (
+    lower.includes("file system") ||
+    lower.includes("storage management") ||
+    lower.includes("inode") ||
+    lower.includes("file allocation") ||
+    lower.includes("directory structure") ||
+    (lower.includes("disk") && lower.includes("schedul"))
+  ) {
+    const anchorEn =
+      "Remember: Inodes store file metadata and data block pointers, not filenames — directory entries map human-readable names to inode numbers.";
+    const anchorHi =
+      "याद रखें: Inode में फ़ाइल का मेटाडेटा और डिस्क ब्लॉक पॉइंटर होते हैं, नाम नहीं — डायरेक्टरी केवल नाम को Inode नंबर से जोड़ती है।";
+
+    const intuitionEn =
+      "File Systems abstract raw physical disk blocks into a logical hierarchy of files and directories, managing allocation, permissions, and metadata persistence through Inodes and allocation tables.";
+    const intuitionHi =
+      "फ़ाइल सिस्टम हार्ड डिस्क के असंगठित सेक्टर्स को फाइलों और फ़ोल्डरों की तार्किक संरचना में बदलता है, ताकि डेटा को सुरक्षित रखा जा सके और तेजी से पढ़ा जा सके।";
+
+    const analogyEn =
+      "Like a library catalog: the title card (directory entry) holds only the call number (inode), which directs you to the exact aisle and shelf coordinates (disk blocks) where the physical book pages are stored.";
+    const analogyHi =
+      "जैसे लाइब्रेरी का इंडेक्स कार्ड: कार्ड पर किताब का नाम (डायरेक्टरी) केवल एक इंडेक्स नंबर (inode) बताता है, जो आपको उस अलमारी और शेल्फ (डेटा ब्लॉक्स) तक पहुँचाता है जहाँ पन्ने रखे हैं।";
+
+    const challengePool: BilingualChallenge[] = [
+      {
+        en: {
+          question:
+            "A system administrator creates millions of 10-byte text files on a 2 TB ext4 file system. Suddenly, writes fail with 'ENOSPC' (No space left on device), but `df -h` reports 94% free storage capacity. What is the root cause?",
+          options: [
+            {
+              key: "A",
+              text: "The file system exhausted its pre-allocated Inode table (`df -i` is at 100%), even though raw storage data blocks remain abundant.",
+            },
+            { key: "B", text: "The disk drive controller hardware encountered an unrecoverable head crash." },
+            { key: "C", text: "ext4 file systems cannot store files smaller than 4096 bytes." },
+          ],
+          correctAnswer: "A",
+          explanation:
+            "In Unix file systems, every file requires a discrete inode structure regardless of its size. Millions of tiny files consume all available inodes before consuming physical disk blocks.",
+        },
+        hi: {
+          question:
+            "एक 2 TB ext4 फ़ाइल सिस्टम पर 10-बाइट की फ़ाइल लिखते समय 'ENOSPC' (No space left on device) एरर आता है, जबकि `df -h` दिखाता है कि 94% डिस्क खाली है। इसका मूल कारण क्या है?",
+          options: [
+            {
+              key: "A",
+              text: "सिस्टम में Inodes की संख्या समाप्त हो गई है (`df -i` 100% भर गया है), भले ही डिस्क का स्टोरेज स्पेस खाली हो।",
+            },
+            { key: "B", text: "हार्ड डिस्क का रीड/राइट हेड खराब हो चुका है।" },
+            { key: "C", text: "ext4 फ़ाइल सिस्टम 4096 बाइट से छोटी फ़ाइलों को सपोर्ट नहीं करता।" },
+          ],
+          correctAnswer: "A",
+          explanation:
+            "हर फ़ाइल के लिए एक Inode की आवश्यकता होती है। लाखों छोटी फ़ाइलें बनाने से Inode टेबल भर जाती है, जिससे नया डेटा नहीं लिखा जा सकता।",
+        },
+      },
+      {
+        en: {
+          question:
+            "An engineer creates both a Hard Link (`ln target.txt hard.txt`) and a Symbolic Link (`ln -s target.txt sym.txt`). If `target.txt` is deleted, what happens upon reading each link?",
+          options: [
+            {
+              key: "A",
+              text: "`hard.txt` reads successfully because it points directly to the inode (hard link count decremented from 2 to 1); `sym.txt` becomes a broken dangling link.",
+            },
+            { key: "B", text: "Both links fail immediately because the target inode was destroyed." },
+            { key: "C", text: "`sym.txt` succeeds by copying data, while `hard.txt` is automatically deleted." },
+          ],
+          correctAnswer: "A",
+          explanation:
+            "Hard links reference the underlying inode directly; data blocks persist until the inode link count reaches 0. Symbolic links store only the target filepath string, breaking when the path is removed.",
+        },
+        hi: {
+          question:
+            "एक फ़ाइल `target.txt` के लिए हार्ड लिंक (`ln target.txt hard.txt`) और सॉफ्ट लिंक (`ln -s target.txt sym.txt`) बनाया गया। मूल `target.txt` डिलीट करने के बाद क्या होगा?",
+          options: [
+            {
+              key: "A",
+              text: "`hard.txt` डेटा पढ़ेगा क्योंकि वह सीधे Inode से जुड़ा है (लिंक काउंट 2 से 1 हुआ); जबकि `sym.txt` डैंगलिंग लिंक बनकर विफल होगा।",
+            },
+            { key: "B", text: "दोनों लिंक तुरंत फेल हो जाएँगे क्योंकि मूल फ़ाइल हट चुकी है।" },
+            { key: "C", text: "`sym.txt` डेटा को कॉपी कर लेगा और `hard.txt` डिलीट हो जाएगा।" },
+          ],
+          correctAnswer: "A",
+          explanation:
+            "हार्ड लिंक सीधे Inode की ओर इशारा करता है, इसलिए डेटा तब तक बना रहता है जब तक सारे हार्ड लिंक न हटें। सॉफ्ट लिंक केवल पाथ का नाम रखता है, इसलिए पाथ मिटने पर टूट जाता है।",
+        },
+      },
+      {
+        en: {
+          question:
+            "In mechanical disk scheduling, why is the SCAN (Elevator) algorithm preferred over Shortest Seek Time First (SSTF)?",
+          options: [
+            {
+              key: "A",
+              text: "SCAN sweeps across cylinders uniformly in one direction before reversing, preventing starvation of requests on distant tracks during localized I/O bursts.",
+            },
+            { key: "B", text: "SCAN doubles the rotational spindle motor RPM speed." },
+            { key: "C", text: "SSTF cannot execute read operations on rotating magnetic platters." },
+          ],
+          correctAnswer: "A",
+          explanation:
+            "SSTF continually serves tracks near the head, causing starvation for distant tracks under heavy load. SCAN guarantees bounded waiting times by servicing tracks sequentially in an elevator sweep.",
+        },
+        hi: {
+          question:
+            "डिस्क शेड्यूलिंग में SSTF के मुकाबले SCAN (एलिवेटर) एल्गोरिदम को प्राथमिकता क्यों दी जाती है?",
+          options: [
+            {
+              key: "A",
+              text: "SCAN डिस्क हेड को एक सिरे से दूसरे सिरे तक झाड़ू की तरह चलाता है, जिससे दूर के ट्रैक्स की रिक्वेस्ट कभी भी भूख (starvation) से नहीं अटकतीं।",
+            },
+            { key: "B", text: "SCAN डिस्क की घूमने की गति को दोगुना कर देता है।" },
+            { key: "C", text: "SSTF मैग्नेटिक डिस्क पर रीड ऑपरेशन नहीं कर सकता।" },
+          ],
+          correctAnswer: "A",
+          explanation:
+            "SSTF केवल पास की रिक्वेस्ट पूरी करता रहता है जिससे दूर वाले ट्रैक्स हमेशा अटके रह सकते हैं। SCAN लिफ्ट की तरह सबको बारी-बारी से सेवा देता है।",
+        },
+      },
+    ];
+
+    const chosenIndex =
+      typeof preferredIndex === "number"
+        ? Math.abs(preferredIndex) % challengePool.length
+        : Math.floor(Math.random() * challengePool.length);
+    const chosenChallenge = challengePool[chosenIndex];
+
+    return {
+      conceptName,
+      intuition: intuitionEn,
+      analogy: analogyEn,
+      anchorEn,
+      anchorHi,
+      vernacularAnchor: anchorHi,
+      quickCheck: chosenChallenge.en,
+      en: {
+        intuition: intuitionEn,
+        analogy: analogyEn,
+        anchor: anchorEn,
+        quickCheck: chosenChallenge.en,
+      },
+      hi: {
+        intuition: intuitionHi,
+        analogy: analogyHi,
+        anchor: anchorHi,
+        quickCheck: chosenChallenge.hi,
+      },
+      challengePool,
+    };
+  }
+
+  // 5. Memory Management & Paging
+  if (
+    (lower.includes("memory") && (lower.includes("paging") || lower.includes("page table") || lower.includes("segment") || lower.includes("tlb") || lower.includes("address translation"))) ||
+    lower.includes("paging") ||
+    lower.includes("segmentation")
+  ) {
+    const anchorEn =
+      "Remember: Paging eliminates external fragmentation by using fixed-size frames, while the Translation Lookaside Buffer (TLB) caches page table lookups to prevent double memory accesses.";
+    const anchorHi =
+      "याद रखें: Paging बाहरी विखंडन (external fragmentation) मिटाती है, और TLB कैश पेज टेबल लुकअप को तेज़ बनाकर दोहरे मेमोरी एक्सेस से बचाता है।";
+
+    const intuitionEn =
+      "Memory Management maps a process's contiguous virtual address space to non-contiguous physical RAM frames, translating addresses at hardware speeds while enforcing process isolation.";
+    const intuitionHi =
+      "मेमोरी मैनेजमेंट हर प्रोसेस को एक स्वतंत्र और बड़ा वर्चुअल एड्रेस स्पेस दिखाता है, जिसे हार्डवेयर (MMU) द्वारा वास्तविक रैम के अलग-अलग टुकड़ों (फ्रेम्स) में मैप किया जाता है।";
+
+    const analogyEn =
+      "Like an apartment building mailbox bank: incoming mail uses apartment numbers (virtual addresses), but the mail carrier delivers letters to physical lockboxes on different wall racks (physical frames).";
+    const analogyHi =
+      "जैसे किसी बड़े होटल का कमरा नंबर: मेहमान को सिर्फ कमरा नंबर (वर्चुअल एड्रेस) पता होता है, जबकि होटल का सिस्टम (MMU) उसे वास्तविक विंग और फ्लोर (फिजिकल फ्रेम) पर भेजता है।";
+
+    const challengePool: BilingualChallenge[] = [
+      {
+        en: {
+          question:
+            "A system uses single-level paging with 100ns RAM access time. The TLB has an 80% hit ratio and 20ns lookup time. What is the Effective Memory Access Time (EMAT)?",
+          options: [
+            {
+              key: "A",
+              text: "140 ns (Hit: 20ns + 100ns = 120ns; Miss: 20ns + 100ns for page table + 100ns for data = 220ns; EMAT = 0.8*120 + 0.2*220 = 140ns).",
+            },
+            { key: "B", text: "100 ns because TLB hits completely eliminate RAM latency." },
+            { key: "C", text: "220 ns because every memory reference requires two serial RAM reads." },
+          ],
+          correctAnswer: "A",
+          explanation:
+            "On TLB hit (80%), memory is accessed once (20+100=120ns). On miss (20%), the page table in RAM is accessed first, then the target frame (20+100+100=220ns). Average = 0.8(120) + 0.2(220) = 140ns.",
+        },
+        hi: {
+          question:
+            "एक सिस्टम में RAM एक्सेस का समय 100ns है। TLB का हिट अनुपात 80% और लुकअप समय 20ns है। प्रभावी मेमोरी एक्सेस समय (EMAT) क्या होगा?",
+          options: [
+            {
+              key: "A",
+              text: "140 ns (हिट पर: 20+100=120ns; मिस पर: 20+100+100=220ns; EMAT = 0.8*120 + 0.2*220 = 140ns)।",
+            },
+            { key: "B", text: "100 ns क्योंकि TLB हिट से रैम का समय शून्य हो जाता है।" },
+            { key: "C", text: "220 ns क्योंकि हर बार दो बार रैम पढ़ना पड़ता है।" },
+          ],
+          correctAnswer: "A",
+          explanation:
+            "TLB हिट पर एक बार RAM पढ़ी जाती है (120ns), जबकि मिस होने पर पेज टेबल और डेटा दोनों के लिए RAM पढ़नी पड़ती है (220ns)। औसत समय 140ns आता है।",
+        },
+      },
+    ];
+
+    const chosenIndex =
+      typeof preferredIndex === "number"
+        ? Math.abs(preferredIndex) % challengePool.length
+        : Math.floor(Math.random() * challengePool.length);
+    const chosenChallenge = challengePool[chosenIndex];
+
+    return {
+      conceptName,
+      intuition: intuitionEn,
+      analogy: analogyEn,
+      anchorEn,
+      anchorHi,
+      vernacularAnchor: anchorHi,
+      quickCheck: chosenChallenge.en,
+      en: {
+        intuition: intuitionEn,
+        analogy: analogyEn,
+        anchor: anchorEn,
+        quickCheck: chosenChallenge.en,
+      },
+      hi: {
+        intuition: intuitionHi,
+        analogy: analogyHi,
+        anchor: anchorHi,
+        quickCheck: chosenChallenge.hi,
+      },
+      challengePool,
+    };
+  }
+
+  // 6. Virtual Memory & Page Replacement
+  if (
+    lower.includes("virtual memory") ||
+    lower.includes("page replacement") ||
+    lower.includes("demand paging") ||
+    lower.includes("thrashing") ||
+    lower.includes("belady")
+  ) {
+    const anchorEn =
+      "Remember: Thrashing occurs when active working sets exceed physical RAM, causing the OS to spend more time swapping pages than executing instructions.";
+    const anchorHi =
+      "याद रखें: थ्रैशिंग (Thrashing) तब होती है जब सक्रिय प्रक्रियाओं की मेमोरी जरूरत रैम से ज्यादा हो जाती है, जिससे सिस्टम काम करने के बजाय सिर्फ पेज बदलने में उलझ जाता है।";
+
+    const intuitionEn =
+      "Virtual Memory gives processes the illusion of contiguous, unbounded memory by dynamically swapping inactive pages to disk storage and swapping them back into RAM upon page faults.";
+    const intuitionHi =
+      "वर्चुअल मेमोरी प्रक्रियाओं को बड़ी मेमोरी का भ्रम देती है: जो पेज इस्तेमाल में नहीं हैं उन्हें हार्ड डिस्क में भेज दिया जाता है और ज़रूरत पड़ने पर पेज फॉल्ट के ज़रिये वापस रैम में लाया जाता है।";
+
+    const analogyEn =
+      "Like a student studying with a small desk (RAM) and a large personal library (disk): only currently needed textbooks stay on the desk; when a new subject is opened, an unread book is returned to the shelf.";
+    const analogyHi =
+      "जैसे एक छोटी पढ़ाई की मेज़ (रैम) और पीछे रखी किताबों की बड़ी अलमारी (डिस्क): मेज़ पर केवल वही किताबें रखी जाती हैं जिनकी अभी ज़रूरत है, बाकी अलमारी में रहती हैं।";
+
+    const challengePool: BilingualChallenge[] = [
+      {
+        en: {
+          question:
+            "Why is the First-In-First-Out (FIFO) page replacement algorithm susceptible to Belady's Anomaly (where increasing physical page frames increases page faults)?",
+          options: [
+            {
+              key: "A",
+              text: "FIFO is not a stack algorithm: the set of pages in an n-frame allocation is not necessarily a subset of pages in an (n+1)-frame allocation.",
+            },
+            { key: "B", text: "FIFO requires hardware timestamp support which causes clock skew." },
+            { key: "C", text: "Belady's anomaly only occurs on distributed network storage." },
+          ],
+          correctAnswer: "A",
+          explanation:
+            "In stack algorithms like LRU and Optimal, increasing memory capacity always retains previously cached pages. FIFO discards pages based purely on arrival time, regardless of how frequently they are referenced.",
+        },
+        hi: {
+          question:
+            "FIFO (First-In-First-Out) पेज रिप्लेसमेंट एल्गोरिदम में बेलाडी की विसंगति (Belady's Anomaly) क्यों हो सकती है, जहाँ रैम के फ्रेम बढ़ाने पर भी पेज फॉल्ट बढ़ जाते हैं?",
+          options: [
+            {
+              key: "A",
+              text: "FIFO स्टैक एल्गोरिदम नहीं है: n फ्रेम्स वाले पेजों का सेट जरूरी नहीं कि (n+1) फ्रेम्स वाले सेट का सबसेट हो।",
+            },
+            { key: "B", text: "FIFO में टाइमस्टैम्प की समस्या होती है।" },
+            { key: "C", text: "यह विसंगति सिर्फ नेटवर्क स्टोरेज पर होती है।" },
+          ],
+          correctAnswer: "A",
+          explanation:
+            "LRU जैसे स्टैक एल्गोरिदम में अधिक फ्रेम देने पर पुराने जरूरी पेज सुरक्षित रहते हैं। FIFO सिर्फ आने के क्रम पर पेज हटाता है, जिससे महत्वपूर्ण पेज बार-बार बाहर हो जाते हैं।",
+        },
+      },
+    ];
+
+    const chosenIndex =
+      typeof preferredIndex === "number"
+        ? Math.abs(preferredIndex) % challengePool.length
+        : Math.floor(Math.random() * challengePool.length);
+    const chosenChallenge = challengePool[chosenIndex];
+
+    return {
+      conceptName,
+      intuition: intuitionEn,
+      analogy: analogyEn,
+      anchorEn,
+      anchorHi,
+      vernacularAnchor: anchorHi,
+      quickCheck: chosenChallenge.en,
+      en: {
+        intuition: intuitionEn,
+        analogy: analogyEn,
+        anchor: anchorEn,
+        quickCheck: chosenChallenge.en,
+      },
+      hi: {
+        intuition: intuitionHi,
+        analogy: analogyHi,
+        anchor: anchorHi,
+        quickCheck: chosenChallenge.hi,
+      },
+      challengePool,
+    };
+  }
+
+  // 7. CPU & Process Scheduling (guaranteed not to collide with File Systems, Disk Scheduling, or Preprocessing)
+  const isCpuScheduling =
+    !lower.includes("preprocess") &&
+    (
+      (lower.includes("schedul") && (lower.includes("cpu") || lower.includes("process") || lower.includes("thread") || lower.includes("round robin") || lower.includes("fcfs") || lower.includes("sjf") || lower.includes("time quantum"))) ||
+      (lower.includes("process") && (lower.includes("management") || lower.includes("lifecycle") || lower.includes("context switch") || lower.includes("pcb"))) ||
+      lower.includes("process management")
+    );
+
+  if (isCpuScheduling) {
     const anchorEn =
       "Remember: CPU Scheduling balances responsiveness vs throughput — small time quantums reduce UI latency at the expense of context-switch thrashing.";
     const anchorHi =

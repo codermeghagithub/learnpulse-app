@@ -20,6 +20,56 @@ interface PersistedQuickCheck {
   challengePool?: BilingualChallenge[];
 }
 
+// Detects if a cached concept bite was poisoned by an earlier keyword collision (e.g. CPU scheduling on File Systems)
+function isMismatchedCache(
+  conceptName: string,
+  bite: { intuition?: string | null; quick_check?: unknown; vernacular_anchor?: string | null }
+): boolean {
+  const cLower = conceptName.toLowerCase();
+  const intuitionLower = (bite.intuition || "").toLowerCase();
+  const qc = bite.quick_check as PersistedQuickCheck | null;
+  const anchorLower = (
+    (bite.vernacular_anchor || "") + " " +
+    (qc?.anchorEn || "") + " " +
+    (qc?.en?.anchor || "")
+  ).toLowerCase();
+  const textCombined = intuitionLower + " " + anchorLower;
+
+  // 1. File Systems cached as CPU Scheduling
+  if (
+    (cLower.includes("file") || cLower.includes("storage") || cLower.includes("inode") || cLower.includes("directory")) &&
+    (textCombined.includes("cpu scheduling") || textCombined.includes("round robin") || textCombined.includes("time quantum") || textCombined.includes("ready thread"))
+  ) {
+    return true;
+  }
+
+  // 2. Memory Management / Paging cached as CPU Scheduling
+  if (
+    (cLower.includes("memory") || cLower.includes("paging") || cLower.includes("tlb") || cLower.includes("segment")) &&
+    (textCombined.includes("cpu scheduling") || textCombined.includes("round robin") || textCombined.includes("time quantum"))
+  ) {
+    return true;
+  }
+
+  // 3. Data Preprocessing cached as CPU Scheduling
+  if (
+    cLower.includes("preprocess") &&
+    (textCombined.includes("cpu scheduling") || textCombined.includes("round robin") || textCombined.includes("time quantum"))
+  ) {
+    return true;
+  }
+
+  // 4. Deadlock / Concurrency cached as CPU Scheduling
+  if (
+    (cLower.includes("deadlock") || cLower.includes("concurrency") || cLower.includes("synchronization")) &&
+    (textCombined.includes("cpu scheduling") || textCombined.includes("time quantum"))
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient();
@@ -55,7 +105,13 @@ export async function POST(req: NextRequest) {
           .maybeSingle();
 
         if (!dbReadError && data) {
-          existingBite = data;
+          if (!isMismatchedCache(conceptName, data)) {
+            existingBite = data;
+          } else {
+            console.warn(
+              `[/api/ai/concept-bite] Stale/mismatched cache detected for "${conceptName}", auto-regenerating clean bite.`
+            );
+          }
         }
       } catch {
         // Continue gracefully if table does not exist or read fails

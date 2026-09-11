@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   XCircle,
   HelpCircle,
+  RotateCw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -281,6 +282,19 @@ export function ConceptBiteCard({
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Force Refresh Button */}
+          <Button
+            type="button"
+            variant="ghost"
+            size="xs"
+            onClick={() => fetchBite(true)}
+            disabled={loading}
+            className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground border-1.5 border-border rounded-md bg-card shadow-[1px_1px_0px_var(--shadow-color)] cursor-pointer"
+            title={isHi ? "नया विवरण लोड करें (ताज़ा करें)" : "Refresh concept bite"}
+          >
+            <RotateCw className={cn("h-3.5 w-3.5", loading && "animate-spin")} />
+          </Button>
+
           {/* Working Language Toggle */}
           <div className="flex items-center bg-muted border-2 border-border rounded-md p-1 text-[11px] shadow-[2px_2px_0px_var(--shadow-color)]">
             <Button
