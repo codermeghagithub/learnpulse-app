@@ -55,10 +55,24 @@ export default function LoginPage() {
       }
 
       // Fetch role server-side via profile
-      const { data: profile } = await supabase
+      let { data: profile } = await supabase
         .from("profiles")
         .select("role")
         .single();
+
+      if (!profile?.role) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const fallbackRole = (user.user_metadata?.role as "student" | "teacher") || "student";
+          const fullName = user.user_metadata?.full_name || user.email?.split("@")[0] || "User";
+          await supabase.from("profiles").upsert({
+            id: user.id,
+            full_name: fullName,
+            role: fallbackRole,
+          });
+          profile = { role: fallbackRole };
+        }
+      }
 
       if (profile?.role === "teacher") {
         router.push("/teacher");

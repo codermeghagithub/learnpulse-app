@@ -64,7 +64,9 @@ export async function proxy(request: NextRequest) {
 
   // Auth routes that don't need protection
   const isAuthRoute =
-    pathname.startsWith("/login") || pathname.startsWith("/signup");
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/signup") ||
+    pathname.startsWith("/auth");
   const isApiRoute = pathname.startsWith("/api");
 
   // Redirect unauthenticated users to login (API routes handle their own auth and return JSON)
@@ -74,8 +76,9 @@ export async function proxy(request: NextRequest) {
     return createRedirectResponse(url);
   }
 
-  // Redirect authenticated users away from auth pages
-  if (user && isAuthRoute) {
+  // Redirect authenticated users away from login/signup pages (keep callback route accessible)
+  const isLoginPage = pathname.startsWith("/login") || pathname.startsWith("/signup");
+  if (user && isLoginPage) {
     // Role-based redirect happens client-side after login
     // Middleware just prevents re-visiting auth pages
     const url = request.nextUrl.clone();
