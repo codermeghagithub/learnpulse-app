@@ -175,10 +175,41 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // If this was a decay review question, reset the forgetting curve on the origin concept
+    if (isReviewQuestion && originConceptId) {
+      try {
+        const { data: originMastery } = await supabase
+          .from("mastery")
+          .select("attempts_count, correct_count, score")
+          .eq("user_id", user.id)
+          .eq("concept_id", originConceptId)
+          .maybeSingle();
+
+        if (originMastery) {
+          await supabase
+            .from("mastery")
+            .update({
+              updated_at: new Date().toISOString(),
+              attempts_count: (originMastery.attempts_count ?? 0) + 1,
+              correct_count: isCorrect
+                ? (originMastery.correct_count ?? 0) + 1
+                : (originMastery.correct_count ?? 0),
+            })
+            .eq("user_id", user.id)
+            .eq("concept_id", originConceptId);
+        }
+      } catch (decayUpdateErr) {
+        console.warn("[/api/submit-attempt] Failed to touch origin concept mastery:", decayUpdateErr);
+      }
+    }
+
     // Revalidate cached paths
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/gaps", "layout");
     revalidatePath(`/dashboard/gaps/${conceptId}`);
+    if (originConceptId) {
+      revalidatePath(`/dashboard/gaps/${originConceptId}`);
+    }
     revalidatePath("/dashboard/practice");
     revalidatePath("/teacher");
 

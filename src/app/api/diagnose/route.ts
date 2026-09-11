@@ -58,10 +58,11 @@ export async function POST(req: NextRequest) {
       .select(`
         selected_answer,
         is_correct,
-        questions!inner(question_text, correct_answer)
+        questions!inner(concept_id, question_text, correct_answer)
       `)
       .eq("user_id", user.id)
       .eq("is_correct", false)
+      .eq("questions.concept_id", targetConceptId)
       .order("created_at", { ascending: false })
       .limit(5);
 
