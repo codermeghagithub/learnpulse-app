@@ -6,6 +6,10 @@ export const metadata: Metadata = {
   description:
     "LearnPulse uses adaptive learning and AI-powered diagnostics to identify your knowledge gaps, trace them to root causes, and build a personalized recovery plan.",
   keywords: ["adaptive learning", "learning assistant", "knowledge gaps", "education", "student success"],
+  icons: {
+    icon: "/icon.svg",
+    shortcut: "/favicon.ico",
+  },
 };
 
 import { ToastProvider } from "@/components/ToastProvider";
