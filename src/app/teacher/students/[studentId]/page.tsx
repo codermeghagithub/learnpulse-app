@@ -48,37 +48,37 @@ export default async function TeacherStudentPage({
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  // Role check — must be teacher
-  const { data: teacherProfile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-  if (teacherProfile?.role !== "teacher") redirect("/login");
+  // Parallelize initial queries (teacher role, student profile, student enrollments, teacher courses)
+  const [
+    teacherProfileRes,
+    studentProfileRes,
+    studentEnrolledCourseIds,
+    coursesRes,
+  ] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single(),
+    supabase
+      .from("profiles")
+      .select("full_name, role")
+      .eq("id", studentId)
+      .single(),
+    getStudentEnrolledCourseIds(supabase, studentId),
+    supabase
+      .from("courses")
+      .select("id, title, subject")
+      .eq("teacher_id", user.id)
+      .order("title"),
+  ]);
 
-  // Verify student profile
-  const { data: studentProfile } = await supabase
-    .from("profiles")
-    .select("full_name, role")
-    .eq("id", studentId)
-    .single();
+  if (teacherProfileRes.data?.role !== "teacher") redirect("/login");
 
+  const studentProfile = studentProfileRes.data;
   if (!studentProfile || studentProfile.role !== "student") notFound();
 
-  // Fetch course IDs that this student is actively enrolled in
-  const studentEnrolledCourseIds = await getStudentEnrolledCourseIds(
-    supabase,
-    studentId
-  );
-
-  // Fetch all teacher courses to support subject switching, filtered strictly to student's enrolled courses
-  const { data: courses } = await supabase
-    .from("courses")
-    .select("id, title, subject")
-    .eq("teacher_id", user.id)
-    .order("title");
-
-  const allTeacherCourses = courses ?? [];
+  const allTeacherCourses = coursesRes.data ?? [];
   const validCourses = allTeacherCourses.filter((c) =>
     studentEnrolledCourseIds.includes(c.id)
   );

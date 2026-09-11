@@ -81,23 +81,17 @@ export async function getTeacherDashboardData(
     validCourses.find((c) => c.id === activeCourseId) ?? validCourses[0];
   const selectedCourseId = selectedCourse.id;
 
-  if (selectedCourseId && selectedCourseId !== userMetadataCourseId) {
-    await supabase.auth.updateUser({
-      data: { selectedCourseId },
-    });
-  }
+  // Parallelize concepts and enrolled student profiles for the selected course
+  const [conceptsRes, classStudents] = await Promise.all([
+    supabase
+      .from("concepts")
+      .select("id, name, difficulty, course_id")
+      .eq("course_id", selectedCourseId),
+    getEnrolledStudentsForCourse(supabase, selectedCourseId),
+  ]);
 
-  // Fetch all concepts in selected course
-  const { data: concepts } = await supabase
-    .from("concepts")
-    .select("id, name, difficulty, course_id")
-    .eq("course_id", selectedCourseId);
-
-  const conceptList = concepts ?? [];
+  const conceptList = conceptsRes.data ?? [];
   const conceptIds = conceptList.map((c) => c.id);
-
-  // Fetch student profiles actively enrolled in the selected course
-  const classStudents = await getEnrolledStudentsForCourse(supabase, selectedCourseId);
 
   // Fetch mastery records in the selected course
   const { data: courseMastery } =

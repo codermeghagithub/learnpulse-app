@@ -146,6 +146,7 @@ export function Sidebar({ role, fullName }: SidebarProps) {
               key={item.href}
               href={item.href}
               id={item.id}
+              prefetch={true}
               onClick={() => setMobileOpen(false)}
               className={cn(
                 "group relative flex items-center justify-between rounded-md px-3.5 py-2.5 min-h-11 text-sm font-medium transition-all duration-100 cursor-pointer",

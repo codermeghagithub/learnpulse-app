@@ -18,47 +18,48 @@ export default async function CourseCatalogPage() {
 
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
+  // 1. Parallelize initial queries (profile, enrollments, courses)
+  const [profileRes, enrolledIds, coursesDataRes] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single(),
+    getStudentEnrolledCourseIds(
+      supabase,
+      user.id,
+      user.user_metadata
+    ),
+    supabase
+      .from("courses")
+      .select("id, title, subject, teacher_id")
+      .order("title"),
+  ]);
 
-  if (profile?.role !== "student") redirect("/login");
+  if (profileRes.data?.role !== "student") redirect("/login");
 
-  // 1. Fetch student's enrolled course IDs
-  const enrolledIds = await getStudentEnrolledCourseIds(
-    supabase,
-    user.id,
-    user.user_metadata
-  );
+  const courses = coursesDataRes.data ?? [];
 
-  // 2. Fetch all published courses
-  const { data: coursesData } = await supabase
-    .from("courses")
-    .select("id, title, subject, teacher_id")
-    .order("title");
-
-  const courses = coursesData ?? [];
-
-  // 3. Fetch teacher names
+  // 2. Fetch teacher profiles and concepts concurrently
   const teacherIds = Array.from(new Set(courses.map((c) => c.teacher_id).filter(Boolean)));
-  const { data: teachersData } =
+  const courseIds = courses.map((c) => c.id);
+
+  const [teachersRes, conceptsRes] = await Promise.all([
     teacherIds.length > 0
-      ? await supabase.from("profiles").select("id, full_name").in("id", teacherIds)
-      : { data: [] };
+      ? supabase.from("profiles").select("id, full_name").in("id", teacherIds)
+      : Promise.resolve({ data: [] as Array<{ id: string; full_name: string }> }),
+    courseIds.length > 0
+      ? supabase.from("concepts").select("id, course_id").in("course_id", courseIds)
+      : Promise.resolve({ data: [] as Array<{ id: string; course_id: string }> }),
+  ]);
+
+  const teachersData = teachersRes.data ?? [];
+  const conceptsData = conceptsRes.data ?? [];
 
   const teacherMap = new Map<string, string>();
-  for (const t of teachersData ?? []) {
+  for (const t of teachersData) {
     teacherMap.set(t.id, t.full_name);
   }
-
-  // 4. Fetch concept & question counts per course
-  const courseIds = courses.map((c) => c.id);
-  const { data: conceptsData } =
-    courseIds.length > 0
-      ? await supabase.from("concepts").select("id, course_id").in("course_id", courseIds)
-      : { data: [] };
 
   const conceptCountMap = new Map<string, number>();
   const allConceptIds: string[] = [];

@@ -25,29 +25,29 @@ export default async function PracticePage({ searchParams }: PageProps) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-  if (profile?.role !== "student") redirect("/login");
-
   const { conceptId, courseId: paramCourseId } = (await searchParams) ?? {};
 
-  // Fetch student's enrolled course IDs
-  const enrolledCourseIds = await getStudentEnrolledCourseIds(
-    supabase,
-    user.id,
-    user.user_metadata
-  );
+  // Parallelize profile check, enrolled courses, and platform courses
+  const [profileRes, enrolledCourseIds, coursesRes] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single(),
+    getStudentEnrolledCourseIds(
+      supabase,
+      user.id,
+      user.user_metadata
+    ),
+    supabase
+      .from("courses")
+      .select("id, title, subject")
+      .order("title"),
+  ]);
 
-  // Fetch available courses
-  const { data: courses } = await supabase
-    .from("courses")
-    .select("id, title, subject")
-    .order("title");
+  if (profileRes.data?.role !== "student") redirect("/login");
 
-  const allCourses = courses ?? [];
+  const allCourses = coursesRes.data ?? [];
   const validCourses = allCourses.filter((c) => enrolledCourseIds.includes(c.id));
 
   if (validCourses.length === 0) {

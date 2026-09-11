@@ -36,45 +36,38 @@ export default async function GapPage({ params }: PageProps) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-  if (profile?.role !== "student") redirect("/login");
+  // Parallelize initial queries (profile, targetConcept, courses, targetMastery)
+  const [profileRes, targetConceptRes, coursesRes, targetMasteryRes] =
+    await Promise.all([
+      supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single(),
+      supabase
+        .from("concepts")
+        .select("id, name, description, difficulty, course_id")
+        .eq("id", conceptId)
+        .single(),
+      supabase
+        .from("courses")
+        .select("id, title, subject")
+        .order("title"),
+      supabase
+        .from("mastery")
+        .select("score, attempts_count, correct_count, updated_at")
+        .eq("user_id", user.id)
+        .eq("concept_id", conceptId)
+        .maybeSingle(),
+    ]);
 
-  // Fetch target concept
-  const { data: targetConcept } = await supabase
-    .from("concepts")
-    .select("id, name, description, difficulty, course_id")
-    .eq("id", conceptId)
-    .single();
+  if (profileRes.data?.role !== "student") redirect("/login");
 
+  const targetConcept = targetConceptRes.data;
   if (!targetConcept) notFound();
 
-  // Sync active course to database
-  const dbCourseId = (user.user_metadata?.selectedCourseId as string) || null;
-  if (targetConcept.course_id && targetConcept.course_id !== dbCourseId) {
-    await supabase.auth.updateUser({
-      data: { selectedCourseId: targetConcept.course_id },
-    });
-  }
-
-  // Fetch available courses
-  const { data: courses } = await supabase
-    .from("courses")
-    .select("id, title, subject")
-    .order("title");
-
-  const validCourses = courses ?? [];
-
-  // Fetch target mastery
-  const { data: targetMastery } = await supabase
-    .from("mastery")
-    .select("score, attempts_count, correct_count, updated_at")
-    .eq("user_id", user.id)
-    .eq("concept_id", conceptId)
-    .maybeSingle();
+  const validCourses = coursesRes.data ?? [];
+  const targetMastery = targetMasteryRes.data;
 
   // Fetch ALL edges for this course in one query (no N+1)
   const { data: edges } = await supabase
@@ -84,31 +77,31 @@ export default async function GapPage({ params }: PageProps) {
 
   const adj = buildAdjacencyList(edges ?? []);
   const prereqNodes = bfsPrerequisites(conceptId, adj);
-
-  // Fetch mastery for all prerequisite concepts in one query
   const prereqIds = prereqNodes.map((n) => n.id);
-  const { data: prereqMasteryRows } = prereqIds.length > 0
-    ? await supabase
-        .from("mastery")
-        .select("concept_id, score")
-        .eq("user_id", user.id)
-        .in("concept_id", prereqIds)
-    : { data: [] };
+
+  // Parallelize fetching prerequisite mastery and concept names
+  const [prereqMasteryRes, prereqConceptsRes] = await Promise.all([
+    prereqIds.length > 0
+      ? supabase
+          .from("mastery")
+          .select("concept_id, score")
+          .eq("user_id", user.id)
+          .in("concept_id", prereqIds)
+      : Promise.resolve({ data: [] as Array<{ concept_id: string; score: number }> }),
+    prereqIds.length > 0
+      ? supabase
+          .from("concepts")
+          .select("id, name, difficulty")
+          .in("id", prereqIds)
+      : Promise.resolve({ data: [] as Array<{ id: string; name: string; difficulty: string }> }),
+  ]);
 
   const masteryMap = new Map(
-    (prereqMasteryRows ?? []).map((m) => [m.concept_id, m.score])
+    (prereqMasteryRes.data ?? []).map((m) => [m.concept_id, m.score])
   );
 
-  // Fetch concept names for prerequisites
-  const { data: prereqConcepts } = prereqIds.length > 0
-    ? await supabase
-        .from("concepts")
-        .select("id, name, difficulty")
-        .in("id", prereqIds)
-    : { data: [] };
-
   const conceptNameMap = new Map(
-    (prereqConcepts ?? []).map((c) => [c.id, c.name])
+    (prereqConceptsRes.data ?? []).map((c) => [c.id, c.name])
   );
 
   // Build chain nodes for rendering

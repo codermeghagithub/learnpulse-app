@@ -23,29 +23,35 @@ export default async function DashboardPage({ searchParams }: PageProps) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  // Fetch profile
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("full_name, role")
-    .eq("id", user.id)
-    .single();
+  // Parallelize initial queries (profile, enrollments, courses, recent attempts)
+  const [profileRes, enrolledCourseIds, allCoursesRes, recentAttemptsRes] =
+    await Promise.all([
+      supabase
+        .from("profiles")
+        .select("full_name, role")
+        .eq("id", user.id)
+        .single(),
+      getStudentEnrolledCourseIds(
+        supabase,
+        user.id,
+        user.user_metadata
+      ),
+      supabase
+        .from("courses")
+        .select("id, title, subject")
+        .order("title"),
+      supabase
+        .from("attempts")
+        .select("is_correct, created_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(10),
+    ]);
 
+  const profile = profileRes.data;
   if (profile?.role !== "student") redirect("/login");
 
-  // Fetch student's enrolled course IDs
-  const enrolledCourseIds = await getStudentEnrolledCourseIds(
-    supabase,
-    user.id,
-    user.user_metadata
-  );
-
-  // Fetch all published courses on the platform
-  const { data: allCourses } = await supabase
-    .from("courses")
-    .select("id, title, subject")
-    .order("title");
-
-  const totalPlatformCourses = allCourses ?? [];
+  const totalPlatformCourses = allCoursesRes.data ?? [];
 
   // Only track and display courses the student has chosen to enroll in
   const validCourses = totalPlatformCourses.filter((c) =>
@@ -63,13 +69,6 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
   const selectedCourse = validCourses.find((c) => c.id === activeCourseId) ?? validCourses[0] ?? null;
   const selectedCourseId = selectedCourse?.id ?? null;
-
-  // Sync to database if selected course is different from DB record
-  if (selectedCourseId && selectedCourseId !== dbCourseId) {
-    await supabase.auth.updateUser({
-      data: { selectedCourseId },
-    });
-  }
 
   // Fetch all concepts for the selected course
   const { data: courseConcepts } = selectedCourseId
@@ -97,13 +96,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     (masteryRows ?? []).map((m) => [m.concept_id, m])
   );
 
-  // Fetch recent attempts for decline calculation
-  const { data: recentAttempts } = await supabase
-    .from("attempts")
-    .select("is_correct, created_at")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false })
-    .limit(10);
+  const recentAttempts = recentAttemptsRes.data;
 
   const masteryHistory = recentAttempts
     ? recentAttempts.map((a) => (a.is_correct ? 80 : 20))
