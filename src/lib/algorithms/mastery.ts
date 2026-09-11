@@ -1,12 +1,4 @@
-/**
- * mastery.ts — EWMA-based mastery score computation
- *
- * Formula: new_score = alpha * correct_value + (1 - alpha) * previous_score
- * alpha = 0.2 (learning rate)
- * correct_value = 100 * difficulty_multiplier if correct, 0 if wrong
- * difficulty_multiplier: easy = 0.8, medium = 1.0, hard = 1.2
- * Result clamped to [0, 100]
- */
+// EWMA-based mastery scoring with coverage and accuracy bonuses
 
 export type Difficulty = "easy" | "medium" | "hard";
 
@@ -18,14 +10,7 @@ const DIFFICULTY_MULTIPLIER: Record<Difficulty, number> = {
   hard: 1.2,
 };
 
-/**
- * Compute the new mastery score after a single attempt.
- *
- * @param previous - Previous mastery score [0, 100]
- * @param isCorrect - Whether the answer was correct
- * @param difficulty - Question difficulty
- * @returns New mastery score clamped to [0, 100]
- */
+// Updates student mastery after an attempt using EWMA: new = α * value + (1 - α) * prev
 export function updateMastery(
   previous: number,
   isCorrect: boolean,
@@ -37,13 +22,7 @@ export function updateMastery(
   return Math.max(0, Math.min(100, newScore));
 }
 
-/**
- * Compute mastery score from scratch given a full list of attempts.
- * Used in the seed script and for verification.
- *
- * @param attempts - Ordered list of {isCorrect, difficulty} records
- * @returns Final mastery score
- */
+// Replays an ordered list of attempts to compute cumulative mastery
 export function computeMasteryFromAttempts(
   attempts: Array<{ isCorrect: boolean; difficulty: Difficulty }>
 ): number {
@@ -61,16 +40,7 @@ export interface ScaledMasteryParams {
   totalCorrect: number;
 }
 
-/**
- * Compute scaled mastery based on completing all available questions in a concept.
- *
- * - If a concept has 1 question and it is answered correctly: 100%
- * - If a concept has 2 questions and both answered correctly: 100% (1/2 gives 50%)
- * - If a student makes mistakes along the way, accuracy gently modifies the bonus:
- *   Base coverage = 80 points * (uniqueCorrect / totalQuestions)
- *   Accuracy bonus = 20 points * (uniqueCorrect / totalQuestions) * (totalCorrect / totalAttempts)
- *   Sum is clamped to [0, 100].
- */
+// Computes mastery scaled by question coverage (80%) and attempt accuracy (20%)
 export function computeScaledMastery({
   totalConceptQuestions,
   uniqueQuestionsCorrect,

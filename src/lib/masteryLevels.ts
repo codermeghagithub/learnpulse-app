@@ -1,15 +1,4 @@
-/**
- * masteryLevels.ts — Mastery Level Stages & Accuracy Calculation
- *
- * Implements intuitive mastery progression stages:
- * - Level 0 • Not Started (0% or 0 attempts)
- * - Level 1 • Getting Started (1% - 39%)
- * - Level 2 • Developing (40% - 69%)
- * - Level 3 • Proficient (70% - 84%)
- * - Level 4 • Mastered (85% - 100%)
- *
- * Explains EWMA adaptive mastery with clear accuracy & level-up guidance.
- */
+// Mastery progression stages (Level 0 to 4) and accuracy helpers
 
 export interface MasteryLevelInfo {
   level: number;

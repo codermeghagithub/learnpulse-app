@@ -1,22 +1,11 @@
-/**
- * rootCause.ts — Deterministic root cause ranking
- *
- * Score = 0.45 * weakness + 0.25 * edgeWeight + 0.20 * evidence + 0.10 * recency
- * Returns top 3 candidates sorted by score descending.
- *
- * All inputs normalized to [0, 1] before scoring.
- */
+// Root-cause ranking: ranks upstream prerequisite gaps by weakness, weight, and error evidence
 
 export interface RootCauseCandidate {
   conceptId: string;
   conceptName: string;
-  /** Mastery score [0, 100] — will be inverted to weakness */
   masteryScore: number;
-  /** Edge weight from concept_edges [0, ∞] — normalized to [0, 1] */
   edgeWeight: number;
-  /** Number of failed attempts on this concept — normalized to [0, 1] */
   failedAttempts: number;
-  /** How recent the last failure was — 1 = very recent, 0 = old/never */
   recency: number;
 }
 
@@ -31,15 +20,10 @@ const WEIGHTS = {
   recency: 0.10,
 } as const;
 
-/**
- * Score a single root-cause candidate.
- * weakness = 1 - (masteryScore / 100) so low mastery = high weakness.
- */
+// Scores a candidate gap: weakness (inverted mastery) + edge weight + failed attempts + recency
 export function scoreCandidate(candidate: RootCauseCandidate): number {
   const weakness = 1 - candidate.masteryScore / 100;
-  // Normalize edgeWeight: assume max practical weight is 5
   const edgeWeightNorm = Math.min(candidate.edgeWeight / 5, 1);
-  // evidence: normalize failed attempts (assume max 20 is "full evidence")
   const evidenceNorm = Math.min(candidate.failedAttempts / 20, 1);
   const recencyNorm = Math.max(0, Math.min(candidate.recency, 1));
 
@@ -51,9 +35,7 @@ export function scoreCandidate(candidate: RootCauseCandidate): number {
   );
 }
 
-/**
- * Rank all candidates and return the top 3 by root cause score.
- */
+// Returns the top 3 root causes sorted by score descending
 export function rankRootCauses(
   candidates: RootCauseCandidate[]
 ): RankedCandidate[] {

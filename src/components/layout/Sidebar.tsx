@@ -74,7 +74,6 @@ export function Sidebar({ role, fullName }: SidebarProps) {
 
   const navItems = role === "teacher" ? TEACHER_NAV : STUDENT_NAV;
 
-  // Prevent background scrolling when mobile drawer is open
   useEffect(() => {
     if (mobileOpen) {
       document.body.style.overflow = "hidden";
@@ -95,7 +94,6 @@ export function Sidebar({ role, fullName }: SidebarProps) {
 
   const sidebarContent = (
     <div className="flex h-full w-full flex-col bg-sidebar border-r-2 border-border relative">
-      {/* Brand Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b-2 border-border">
         <Link
           href={role === "teacher" ? "/teacher" : "/dashboard"}
@@ -115,7 +113,6 @@ export function Sidebar({ role, fullName }: SidebarProps) {
           </div>
         </Link>
 
-        {/* Theme Toggle & Mobile Close */}
         <div className="flex items-center gap-1.5">
           <ThemeToggle />
           <Button
@@ -131,7 +128,6 @@ export function Sidebar({ role, fullName }: SidebarProps) {
         </div>
       </div>
 
-      {/* Nav List */}
       <nav
         className="flex-1 px-3.5 py-4 space-y-2 overflow-y-auto scrollbar-thin"
         aria-label="Main navigation"

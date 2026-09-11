@@ -9,7 +9,7 @@ import {
 import { buildAdjacencyList, topologicalSort } from "@/lib/algorithms/graph";
 import { z } from "zod";
 
-// ─── Request Validation ───────────────────────────────────────────────────────
+// Request validation schema
 
 const requestSchema = z
   .object({
@@ -45,7 +45,7 @@ const requestSchema = z
     }
   );
 
-// ─── Route Handler ────────────────────────────────────────────────────────────
+// POST route handler
 
 export async function POST(req: NextRequest) {
   try {
@@ -115,8 +115,7 @@ export async function POST(req: NextRequest) {
       finalCourseSubject = courseSubject?.trim() || dagResult.courseSubject;
     }
 
-    // ── Cycle Detection via Kahn's Algorithm ──────────────────────────────────
-    // Convert edges to the ConceptEdge format expected by graph.ts
+    // Cycle detection via Kahn's algorithm
     // We use concept names as temporary IDs for validation before DB insertion.
     const nameToTempId = new Map<string, string>();
     effectiveConcepts.forEach((c, i) => {
@@ -139,7 +138,7 @@ export async function POST(req: NextRequest) {
         { status: 422 }
       );
     }
-    // ─────────────────────────────────────────────────────────────────────────
+
 
     // Preview mode: return validated DAG without writing to the database
     if (!persist) {
@@ -155,7 +154,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // ── Persist to Database ───────────────────────────────────────────────────
+    // Persist validated course structure to database
     let effectiveCourseId: string;
 
     if (!targetCourseId) {

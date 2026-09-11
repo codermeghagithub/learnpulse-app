@@ -23,13 +23,13 @@ export async function POST(req: NextRequest) {
   try {
     const supabase = await createClient();
 
-    // Auth check — server-side always
+    // Verify session
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Role check — read from profiles, never trust client
+    // Verify student role
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
       return `${q.question_text} (answered ${a.selected_answer}, correct: ${q.correct_answer})`;
     });
 
-    // Rank root causes deterministically
+    // Rank root causes
     const candidates: RootCauseCandidate[] = prerequisites.map((p) => ({
       conceptId: p.conceptId,
       conceptName: p.concept,
@@ -104,7 +104,7 @@ export async function POST(req: NextRequest) {
       recentMistakes,
     };
 
-    // Call Gemini (with cache check)
+    // Diagnose via Gemini
     let diagnosisResult;
     let usedCache = false;
 
@@ -148,7 +148,7 @@ export async function POST(req: NextRequest) {
       ? matchedPrereq.concept
       : (diagnosisResult.blockingConcept || (ranked[0]?.conceptName ?? targetConceptName));
 
-    // Upsert intervention record (skip if using cache)
+    // Upsert intervention record
     if (!usedCache) {
       await supabase.from("interventions").upsert(
         {

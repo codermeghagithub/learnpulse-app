@@ -3,8 +3,7 @@ import { createClient } from "@/utils/supabase/server";
 import { diagnoseMisconception } from "@/lib/ai/gemini";
 import { z } from "zod";
 
-// ─── Request Validation ───────────────────────────────────────────────────────
-
+// Request validation
 const requestSchema = z.object({
   questionId: z.string().trim().min(1, "Question ID is required").max(100),
   questionText: z.string().trim().min(5, "Question text must be at least 5 characters").max(2000),
@@ -14,12 +13,10 @@ const requestSchema = z.object({
   }),
   correctOptionText: z.string().trim().min(1, "Correct option text is required").max(1000),
   conceptName: z.string().trim().min(1, "Concept name is required").max(200),
-  /** Optional: the student's self-reported reasoning for their answer. */
   studentReasoning: z.string().trim().max(500).optional(),
 });
 
-// ─── In-Memory Cache ──────────────────────────────────────────────────────────
-
+// In-memory cache for repeated misconceptions
 type MisconceptionDiagnosis = Awaited<ReturnType<typeof diagnoseMisconception>>;
 const misconceptionCache = new Map<string, MisconceptionDiagnosis>();
 
@@ -27,8 +24,6 @@ function buildCacheKey(questionId: string, selectedKey: string, studentReasoning
   const reasoningSlug = studentReasoning ? `_${studentReasoning.slice(0, 50)}` : "";
   return `${questionId}_${selectedKey}${reasoningSlug}`;
 }
-
-// ─── Route Handler ────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
   try {

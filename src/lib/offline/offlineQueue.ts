@@ -1,10 +1,4 @@
-/**
- * offlineQueue.ts — Resilient Offline Practice Queue
- *
- * Enables uninterrupted learning in low-connectivity college environments,
- * rural labs, or during network disruptions. Attempts are saved to localStorage
- * and replayed sequentially to /api/submit-attempt to maintain ACID consistency.
- */
+// Offline practice queue: stores quiz attempts in localStorage and replays on reconnection
 
 export interface OfflineAttempt {
   id: string;
@@ -18,7 +12,7 @@ export interface OfflineAttempt {
 
 const STORAGE_KEY = "learnpulse_offline_attempts_queue";
 
-// In-memory queue fallback for Node/SSR/testing when window.localStorage is not present
+// In-memory fallback when localStorage is unavailable
 let memoryStore: OfflineAttempt[] = [];
 
 function getStorage() {
@@ -42,15 +36,11 @@ function getStorage() {
   };
 }
 
-/** Check if browser reports online status. */
 export function isBrowserOnline(): boolean {
-  if (typeof window === "undefined" || typeof navigator === "undefined") {
-    return true;
-  }
+  if (typeof window === "undefined" || typeof navigator === "undefined") return true;
   return navigator.onLine;
 }
 
-/** Retrieve all pending attempts stored locally. */
 export function getQueuedAttempts(): OfflineAttempt[] {
   try {
     const raw = getStorage().getItem(STORAGE_KEY);
@@ -62,7 +52,6 @@ export function getQueuedAttempts(): OfflineAttempt[] {
   }
 }
 
-/** Save a new attempt to the offline queue. */
 export function enqueueOfflineAttempt(
   attempt: Omit<OfflineAttempt, "id" | "timestamp">
 ): OfflineAttempt {
@@ -83,7 +72,6 @@ export function enqueueOfflineAttempt(
   return item;
 }
 
-/** Remove an attempt after successful server sync. */
 export function removeQueuedAttempt(id: string): void {
   try {
     const current = getQueuedAttempts().filter((a) => a.id !== id);
@@ -93,7 +81,6 @@ export function removeQueuedAttempt(id: string): void {
   }
 }
 
-/** Clear all queued attempts. */
 export function clearQueuedAttempts(): void {
   try {
     getStorage().removeItem(STORAGE_KEY);
@@ -102,11 +89,7 @@ export function clearQueuedAttempts(): void {
   }
 }
 
-
-/**
- * Replay queued attempts to /api/submit-attempt sequentially in chronological order.
- * Ensures PostgreSQL mastery and attempt records are updated in order with ACID consistency.
- */
+// Replays queued attempts to /api/submit-attempt sequentially in chronological order
 export async function syncOfflineAttempts(): Promise<{
   syncedCount: number;
   failedCount: number;
@@ -114,7 +97,6 @@ export async function syncOfflineAttempts(): Promise<{
   const queue = getQueuedAttempts();
   if (queue.length === 0) return { syncedCount: 0, failedCount: 0 };
 
-  // Sort by timestamp ascending
   const sorted = [...queue].sort((a, b) => a.timestamp - b.timestamp);
   let syncedCount = 0;
   let failedCount = 0;
@@ -138,7 +120,6 @@ export async function syncOfflineAttempts(): Promise<{
         syncedCount++;
       } else {
         failedCount++;
-        // Stop on auth/server error so attempts aren't dropped prematurely
         break;
       }
     } catch {

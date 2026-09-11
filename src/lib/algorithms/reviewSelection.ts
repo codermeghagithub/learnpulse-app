@@ -1,16 +1,4 @@
-/**
- * reviewSelection.ts — Decay-Aware Review Question Selector
- *
- * When a concept's mastery has decayed (isDue=true), selects a review question
- * that tests retention through forward DAG application:
- * 1. Finds direct forward dependents via getForwardDependents, sorted by weight.
- * 2. Selects an unseen question from the highest-weight dependent's bank.
- * 3. Falls back to an unseen question from the decayed concept's own bank.
- * 4. Last resort: selects the least-recently-attempted question.
- *
- * Review questions are never the exact same question the student already answered
- * for the decayed concept when an alternative exists.
- */
+// Selects review questions for decayed concepts, prioritizing downstream dependents then local questions
 
 import { createClient } from "@/utils/supabase/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -35,10 +23,7 @@ export interface SelectReviewQuestionParams {
   supabase?: SupabaseClient;
 }
 
-/**
- * Filter questions to those with no successful attempts (is_correct=true).
- * Reusable across practice page and review selection.
- */
+// Filters out questions that already have a successful attempt
 export function filterUnmasteredQuestions<T extends { id: string }>(
   questions: T[],
   masteredIds: Set<string>
@@ -46,13 +31,7 @@ export function filterUnmasteredQuestions<T extends { id: string }>(
   return questions.filter((q) => !masteredIds.has(q.id));
 }
 
-/**
- * Select the optimal review question for a student whose concept has decayed.
- *
- * @param params Configuration and DAG graph
- * @param explicitClient Optional Supabase client for dependency injection / testing
- * @returns ReviewQuestion with originConceptId set, or null if no questions available
- */
+// Finds the best review question (forward dependents first, then own concept bank, then oldest attempted)
 export async function selectReviewQuestion(
   params: SelectReviewQuestionParams,
   explicitClient?: SupabaseClient
@@ -60,10 +39,8 @@ export async function selectReviewQuestion(
   const { studentId, decayedConceptId, graph } = params;
   const client = (explicitClient ?? params.supabase ?? (await createClient())) as SupabaseClient;
 
-  // 1. Get forward dependents sorted by weight descending
   const dependents = getForwardDependents(graph, decayedConceptId);
 
-  // Helper to fetch questions and student attempts for a concept
   async function getConceptQuestionsWithAttempts(conceptId: string) {
     const { data: questions } = await client
       .from("questions")
@@ -92,7 +69,7 @@ export async function selectReviewQuestion(
     };
   }
 
-  // 2. Try forward dependents in order of edge weight
+  // 1. Try questions from forward dependents (heaviest edge first)
   for (const dep of dependents) {
     const { questions, attempts } = await getConceptQuestionsWithAttempts(dep.concept_id);
     if (questions.length === 0) continue;
@@ -108,7 +85,6 @@ export async function selectReviewQuestion(
       };
     }
 
-    // If all attempted, check for unmastered (no correct attempt yet)
     const masteredIds = new Set(
       attempts.filter((a) => a.is_correct).map((a) => a.question_id)
     );
@@ -122,7 +98,7 @@ export async function selectReviewQuestion(
     }
   }
 
-  // 3. Fall back to decayed concept's own bank
+  // 2. Fall back to decayed concept's own question bank
   const own = await getConceptQuestionsWithAttempts(decayedConceptId);
   if (own.questions.length > 0) {
     const ownAttemptedIds = new Set(own.attempts.map((a) => a.question_id));
@@ -136,7 +112,6 @@ export async function selectReviewQuestion(
       };
     }
 
-    // Check unmastered
     const ownMasteredIds = new Set(
       own.attempts.filter((a) => a.is_correct).map((a) => a.question_id)
     );
@@ -150,13 +125,10 @@ export async function selectReviewQuestion(
     }
   }
 
-  // 4. Last resort: select the least-recently-seen question across own bank (or dependents)
+  // 3. Last resort: select least-recently attempted question
   const allCandidates = own.questions;
-  if (allCandidates.length === 0) {
-    return null;
-  }
+  if (allCandidates.length === 0) return null;
 
-  // Find latest attempt timestamp for each question
   const lastAttemptMap = new Map<string, number>();
   for (const a of own.attempts) {
     const time = new Date(a.created_at).getTime();
@@ -166,7 +138,6 @@ export async function selectReviewQuestion(
     }
   }
 
-  // Sort ascending by last attempt timestamp (oldest first)
   const sortedByLeastRecent = [...allCandidates].sort((a, b) => {
     const timeA = lastAttemptMap.get(a.id) ?? 0;
     const timeB = lastAttemptMap.get(b.id) ?? 0;

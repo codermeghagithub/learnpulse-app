@@ -475,9 +475,7 @@ export function CourseAuthoringClient({
         </Button>
       </div>
 
-      {/* ─────────────────────────────────────────────────────────────
-          TAB 1: CONCEPTS
-      ───────────────────────────────────────────────────────────── */}
+      {/* Tab 1: Concepts */}
       {activeTab === "concepts" && (
         <div className="space-y-8 animate-fade-in">
           {/* Add Concept Form */}
@@ -622,9 +620,7 @@ export function CourseAuthoringClient({
         </div>
       )}
 
-      {/* ─────────────────────────────────────────────────────────────
-          TAB 2: PREREQUISITES (DAG with Cycle Check)
-      ───────────────────────────────────────────────────────────── */}
+      {/* Tab 2: Prerequisites */}
       {activeTab === "prerequisites" && (
         <div className="space-y-8 animate-fade-in">
           {concepts.length < 2 ? (
@@ -836,9 +832,7 @@ export function CourseAuthoringClient({
         </div>
       )}
 
-      {/* ─────────────────────────────────────────────────────────────
-          TAB 3: PRACTICE QUESTIONS
-      ───────────────────────────────────────────────────────────── */}
+      {/* Tab 3: Practice Questions */}
       {activeTab === "questions" && (
         <div className="space-y-8 animate-fade-in">
           {concepts.length === 0 ? (

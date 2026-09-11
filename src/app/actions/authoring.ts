@@ -11,7 +11,7 @@ import {
 } from "@/lib/algorithms/graph";
 import { z } from "zod";
 
-// ─── Strict Input Validation Schemas ──────────────────────────────────────────
+// Input validation schemas
 
 const courseInputSchema = z.object({
   title: z
@@ -79,11 +79,9 @@ const questionInputSchema = z.object({
 
 const uuidSchema = z.string().uuid("Invalid identifier format.");
 
-// ─── Auth Helpers ─────────────────────────────────────────────────────────────
+// Auth helpers
 
-/**
- * Verify current session is an authenticated teacher.
- */
+// Verifies current session is an authenticated teacher
 async function getTeacherUser() {
   const supabase = await createClient();
   const {
@@ -104,9 +102,7 @@ async function getTeacherUser() {
   return { supabase, user };
 }
 
-/**
- * Verify teacher owns the specified course.
- */
+// Verifies teacher owns the specified course
 async function verifyCourseOwnership(
   supabase: Awaited<ReturnType<typeof createClient>>,
   courseId: string,
@@ -131,7 +127,7 @@ async function verifyCourseOwnership(
   return course;
 }
 
-// ─── 1. Create Course ─────────────────────────────────────────────────────────
+// Course operations
 
 export async function createCourseAction(formData: FormData) {
   let newCourseId: string | null = null;
@@ -180,7 +176,7 @@ export async function createCourseAction(formData: FormData) {
   }
 }
 
-// ─── 2. Create Concept ────────────────────────────────────────────────────────
+// Concept operations
 
 export async function createConceptAction(
   courseId: string,
@@ -232,8 +228,6 @@ export async function createConceptAction(
   }
 }
 
-// ─── 3. Delete Concept ────────────────────────────────────────────────────────
-
 export async function deleteConceptAction(courseId: string, conceptId: string) {
   try {
     const { supabase, user } = await getTeacherUser();
@@ -267,7 +261,7 @@ export async function deleteConceptAction(courseId: string, conceptId: string) {
   }
 }
 
-// ─── 4. Create Prerequisite Edge ──────────────────────────────────────────────
+// Edge operations
 
 export async function createPrerequisiteEdgeAction(
   courseId: string,
@@ -375,8 +369,6 @@ export async function createPrerequisiteEdgeAction(
   }
 }
 
-// ─── 5. Delete Prerequisite Edge ──────────────────────────────────────────────
-
 export async function deletePrerequisiteEdgeAction(courseId: string, edgeId: string) {
   try {
     const { supabase, user } = await getTeacherUser();
@@ -409,7 +401,7 @@ export async function deletePrerequisiteEdgeAction(courseId: string, edgeId: str
   }
 }
 
-// ─── 6. Create Question ───────────────────────────────────────────────────────
+// Question operations
 
 export async function createQuestionAction(
   courseId: string,
@@ -470,8 +462,6 @@ export async function createQuestionAction(
   }
 }
 
-// ─── 7. Delete Question ───────────────────────────────────────────────────────
-
 export async function deleteQuestionAction(courseId: string, questionId: string) {
   try {
     const { supabase, user } = await getTeacherUser();
@@ -502,8 +492,6 @@ export async function deleteQuestionAction(courseId: string, questionId: string)
     return { error: "An unexpected error occurred while deleting the question." };
   }
 }
-
-// ─── 8. Delete Course ─────────────────────────────────────────────────────────
 
 export async function deleteCourseAction(courseId: string) {
   try {

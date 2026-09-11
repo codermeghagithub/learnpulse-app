@@ -1,9 +1,4 @@
-/**
- * graph.ts — Prerequisite graph traversal algorithms
- *
- * Uses adjacency list representation from concept_edges table.
- * All operations are O(V+E) with single DB query per call (no N+1).
- */
+// Prerequisite graph traversal algorithms (BFS, Topological Sort, and adjacency builders)
 
 export interface ConceptEdge {
   prerequisite_id: string;
@@ -19,24 +14,18 @@ export interface ConceptNode {
 }
 
 export interface AdjacencyList {
-  /** concept_id → list of prerequisite concept_ids with weights */
   prerequisites: Map<string, Array<{ id: string; weight: number }>>;
-  /** prerequisite_id → list of dependent concept_ids */
   dependents: Map<string, Array<{ id: string; weight: number }>>;
 }
 
 export type Graph = AdjacencyList;
 
-/**
- * Build bidirectional adjacency lists from a flat edge list.
- * Call this once per page load using a single DB query.
- */
+// Builds bidirectional adjacency maps from flat concept edges
 export function buildAdjacencyList(edges: ConceptEdge[]): AdjacencyList {
   const prerequisites = new Map<string, Array<{ id: string; weight: number }>>();
   const dependents = new Map<string, Array<{ id: string; weight: number }>>();
 
   for (const edge of edges) {
-    // concept_id ← prerequisite_id
     if (!prerequisites.has(edge.concept_id)) {
       prerequisites.set(edge.concept_id, []);
     }
@@ -45,7 +34,6 @@ export function buildAdjacencyList(edges: ConceptEdge[]): AdjacencyList {
       weight: edge.weight,
     });
 
-    // prerequisite_id → concept_id
     if (!dependents.has(edge.prerequisite_id)) {
       dependents.set(edge.prerequisite_id, []);
     }
@@ -61,14 +49,10 @@ export function buildAdjacencyList(edges: ConceptEdge[]): AdjacencyList {
 export interface PrerequisiteNode {
   id: string;
   weight: number;
-  /** Distance from target in hops */
   depth: number;
 }
 
-/**
- * BFS backward from a target concept to find all prerequisites transitively.
- * Returns nodes in BFS order (closest prerequisites first).
- */
+// BFS traversal to retrieve all transitive prerequisites in hop order
 export function bfsPrerequisites(
   targetConceptId: string,
   adj: AdjacencyList
@@ -77,7 +61,6 @@ export function bfsPrerequisites(
   const result: PrerequisiteNode[] = [];
   const queue: Array<{ id: string; weight: number; depth: number }> = [];
 
-  // Seed with direct prerequisites of the target
   const directPrereqs = adj.prerequisites.get(targetConceptId) ?? [];
   for (const prereq of directPrereqs) {
     if (!visited.has(prereq.id)) {
@@ -90,7 +73,6 @@ export function bfsPrerequisites(
     const current = queue.shift()!;
     result.push(current);
 
-    // BFS further back
     const furtherPrereqs = adj.prerequisites.get(current.id) ?? [];
     for (const prereq of furtherPrereqs) {
       if (!visited.has(prereq.id)) {
@@ -103,11 +85,7 @@ export function bfsPrerequisites(
   return result;
 }
 
-/**
- * Kahn's algorithm topological sort.
- * Returns concept IDs in dependency-first order (prerequisites before dependents).
- * Returns null if a cycle is detected.
- */
+// Kahn's algorithm for topological ordering and cycle detection
 export function topologicalSort(
   conceptIds: string[],
   adj: AdjacencyList
@@ -115,12 +93,10 @@ export function topologicalSort(
   const inDegree = new Map<string, number>();
   const conceptSet = new Set(conceptIds);
 
-  // Initialize in-degrees
   for (const id of conceptIds) {
     inDegree.set(id, 0);
   }
 
-  // Count in-degrees (dependents within the set)
   for (const id of conceptIds) {
     const deps = adj.dependents.get(id) ?? [];
     for (const dep of deps) {
@@ -130,7 +106,6 @@ export function topologicalSort(
     }
   }
 
-  // Start with nodes that have no prerequisites (in-degree = 0)
   const queue: string[] = [];
   for (const [id, degree] of inDegree.entries()) {
     if (degree === 0) queue.push(id);
@@ -150,15 +125,11 @@ export function topologicalSort(
     }
   }
 
-  // Cycle detection
   if (sorted.length !== conceptIds.length) return null;
   return sorted;
 }
 
-/**
- * Return all direct forward dependents of a concept, sorted by edge weight descending.
- * Reads from the pre-built adj.dependents map — O(1) lookup + O(k log k) sort.
- */
+// Returns direct dependent concepts sorted by edge weight
 export function getForwardDependents(
   adj: AdjacencyList,
   conceptId: string
@@ -172,4 +143,3 @@ export function getForwardDependents(
     }))
     .sort((a, b) => b.weight - a.weight);
 }
-

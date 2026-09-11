@@ -1,9 +1,6 @@
 import { create } from "zustand";
 
-/**
- * Global course selection state for student and teacher views.
- * Simple, beginner-friendly in-memory state.
- */
+// Global course selection state for student and teacher views
 interface CourseState {
   selectedCourseId: string | null;
   setSelectedCourseId: (courseId: string) => void;

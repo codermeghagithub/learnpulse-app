@@ -1,15 +1,8 @@
-/**
- * prompts.ts — Gemini prompt construction
- *
- * RULES:
- * - Each function builds ONE specific prompt string — no side effects.
- * - Keep prompts focused; Gemini should ONLY return the requested JSON.
- * - Fallback prompts are shorter/simpler versions for retry calls.
- */
+// Gemini AI prompt builders for diagnostics, remediation, and DAG course synthesis
 
 import { type DiagnosisInput } from "./schemas";
 
-// ─── Diagnosis Prompts ────────────────────────────────────────────────────────
+// Diagnosis prompts
 
 export function buildDiagnosisPrompt(input: DiagnosisInput): string {
   const prereqLines = input.prerequisites
@@ -68,7 +61,7 @@ Respond ONLY with this JSON (no markdown):
 {"rootCause":"Student has insufficient mastery of ${blockingName} which is needed to understand ${input.targetConcept}","blockingConcept":"${blockingName}","confidence":0.7,"explanation":"Strengthening ${blockingName} foundational knowledge will directly improve understanding of ${input.targetConcept}.","actionPlan":[{"title":"Review ${blockingName} basics","description":"Go through the core concepts of ${blockingName} and practice fundamental examples.","estimatedMinutes":20},{"title":"Practice ${blockingName} problems","description":"Complete at least 5 practice problems focused on ${blockingName} before returning to ${input.targetConcept}.","estimatedMinutes":30},{"title":"Re-attempt ${input.targetConcept}","description":"With improved ${blockingName} skills, attempt ${input.targetConcept} problems again.","estimatedMinutes":20}]}`;
 }
 
-// ─── Misconception + Cognitive Dissonance Prompt ──────────────────────────────
+// Misconception and cognitive dissonance prompts
 
 /**
  * Builds the "Mental Mirror" prompt.
@@ -142,7 +135,7 @@ Respond with ONLY a JSON object in this exact format (no markdown, no backticks,
 `;
 }
 
-// ─── Concept Bite Prompt ──────────────────────────────────────────────────────
+// Concept bite remediation prompts
 
 /**
  * Builds a prompt for a bilingual 60-Second Concept Bite (English + Hindi/Hinglish)
@@ -229,7 +222,7 @@ Respond with ONLY a JSON object in this exact format (no markdown, no backticks,
 }
 
 
-// ─── DAG Synthesis Prompt ─────────────────────────────────────────────────────
+// DAG course synthesis prompts
 
 /**
  * Converts course title or syllabus text into an atomic concept list

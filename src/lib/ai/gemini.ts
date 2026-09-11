@@ -31,13 +31,11 @@ import {
 } from "./prompts";
 
 
-// ─── Config ───────────────────────────────────────────────────────────────────
-
+// Model configuration
 const MODEL_NAME = process.env.GEMINI_MODEL || "gemini-3.6-flash";
-/** If mastery hasn't shifted by this many points, skip AI regen and use cache. */
 const CACHE_THRESHOLD = 5;
 
-// ─── Shared Helpers ───────────────────────────────────────────────────────────
+// Shared client helpers
 
 /** Initialise the Gemini client (throws if API key is missing). */
 function getClient(): GoogleGenerativeAI {
@@ -143,7 +141,7 @@ async function callGeminiRaw(
   }
 }
 
-// ─── Diagnosis ────────────────────────────────────────────────────────────────
+// Diagnosis generation and deterministic fallbacks
 
 /** Builds a safe deterministic fallback when Gemini is unavailable. */
 function buildDeterministicDiagnosisFallback(input: DiagnosisInput): DiagnosisOutput {
@@ -214,7 +212,7 @@ export async function diagnose(
   return { ...buildDeterministicDiagnosisFallback(input), isAiGenerated: false };
 }
 
-// ─── Misconception + Cognitive Dissonance ─────────────────────────────────────
+// Misconception and cognitive dissonance analysis
 
 /** Fallback when Gemini is unavailable for misconception diagnosis. */
 export function buildDeterministicMisconceptionFallback(input: {
@@ -307,7 +305,7 @@ export async function diagnoseMisconception(input: {
   return { ...buildDeterministicMisconceptionFallback(input), isAiGenerated: false };
 }
 
-// ─── DAG Synthesis ────────────────────────────────────────────────────────────
+// Course DAG synthesis and curriculum extraction
 
 /** Fallback DAG when Gemini is unavailable during synthesis. */
 export function buildDeterministicDagFallback(
@@ -510,7 +508,7 @@ export async function synthesizeDag(
   return { ...buildDeterministicDagFallback(topicText, courseTitle), isAiGenerated: false };
 }
 
-// ─── Concept Bite Remediation ─────────────────────────────────────────────────
+// Concept bite remediation and bilingual learning anchors
 
 /**
  * Fallback concept bite when Gemini is unavailable, containing bilingual

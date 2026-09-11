@@ -50,7 +50,7 @@ interface InteractiveDagGraphProps {
   onSelectNode?: (nodeId: string) => void;
 }
 
-// ─── Custom Node Component ──────────────────────────────────────────────────
+// Custom DAG node component
 
 interface ConceptNodeData extends Record<string, unknown> {
   id: string;
@@ -155,7 +155,7 @@ const nodeTypes = {
   conceptNode: CustomConceptNode,
 };
 
-// ─── Main Component ─────────────────────────────────────────────────────────
+// Main DAG interactive graph component
 
 export function InteractiveDagGraph({
   nodes: rawNodes,

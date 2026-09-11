@@ -6,9 +6,7 @@ import { z } from "zod";
 
 const uuidSchema = z.string().uuid("Invalid course ID format.");
 
-/**
- * Verify current session is an authenticated student.
- */
+// Ensures current session belongs to an authenticated student
 async function getStudentUser() {
   const supabase = await createClient();
   const {
@@ -32,9 +30,7 @@ async function getStudentUser() {
   return { supabase, user, profile };
 }
 
-/**
- * Enroll in a course (Student freedom of choice)
- */
+// Enrolls the student in a course and synchronizes auth metadata
 export async function enrollInCourseAction(courseId: string) {
   try {
     const { supabase, user } = await getStudentUser();
@@ -46,7 +42,6 @@ export async function enrollInCourseAction(courseId: string) {
 
     const validCourseId = parsed.data;
 
-    // Verify course exists
     const { data: course, error: courseErr } = await supabase
       .from("courses")
       .select("id, title")
@@ -57,7 +52,6 @@ export async function enrollInCourseAction(courseId: string) {
       return { error: "Course not found or no longer available." };
     }
 
-    // 1. Insert into database enrollments table (if migrated)
     const { error: dbError } = await supabase.from("enrollments").insert({
       user_id: user.id,
       course_id: validCourseId,
@@ -72,7 +66,6 @@ export async function enrollInCourseAction(courseId: string) {
       console.warn("[enrollInCourseAction] Database enrollments insert note:", dbError.message);
     }
 
-    // 2. Synchronize user metadata for instant, reliable zero-latency state
     const currentEnrolled: string[] = Array.isArray(user.user_metadata?.enrolledCourseIds)
       ? user.user_metadata.enrolledCourseIds
       : [];
@@ -102,9 +95,7 @@ export async function enrollInCourseAction(courseId: string) {
   }
 }
 
-/**
- * Drop / Unenroll from a course
- */
+// Unenrolls the student from a course and updates default selection
 export async function unenrollFromCourseAction(courseId: string) {
   try {
     const { supabase, user } = await getStudentUser();
@@ -116,14 +107,12 @@ export async function unenrollFromCourseAction(courseId: string) {
 
     const validCourseId = parsed.data;
 
-    // 1. Remove from database enrollments table
     await supabase
       .from("enrollments")
       .delete()
       .eq("user_id", user.id)
       .eq("course_id", validCourseId);
 
-    // 2. Synchronize user metadata
     const currentEnrolled: string[] = Array.isArray(user.user_metadata?.enrolledCourseIds)
       ? user.user_metadata.enrolledCourseIds
       : [];

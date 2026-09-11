@@ -27,7 +27,6 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select } from "@/components/ui/select";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface SynthesizedConcept {
   name: string;
@@ -67,7 +66,6 @@ interface ExampleSubject {
   text: string;
 }
 
-// ─── Constants ────────────────────────────────────────────────────────────────
 
 const DIFFICULTY_COLOR: Record<SynthesizedConcept["difficulty"], string> = {
   easy: "text-success bg-success/10 border-success/20",
@@ -98,13 +96,7 @@ const EXAMPLE_SUBJECTS: ExampleSubject[] = [
   },
 ];
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
-/**
- * QuickCourseSynthesizer
- *
- * Lets a teacher paste any course subject or syllabus text and synthesize
- * a full knowledge graph AND diagnostic practice questions.
+/* QuickCourseSynthesizer: synthesizes curriculum drafts for teacher review before DB persistence.
  *
  * Strict Zero-Trust Architecture:
  * - Synthesis produces a draft in memory ONLY. Nothing is saved to DB.
@@ -144,8 +136,6 @@ export function QuickCourseSynthesizer({
   const [newConceptDiff, setNewConceptDiff] = useState<
     "easy" | "medium" | "hard"
   >("medium");
-
-  // ── Handlers ──────────────────────────────────────────────────────────────
 
   async function handleSynthesize() {
     const trimmed = topicText.trim();
@@ -318,8 +308,6 @@ export function QuickCourseSynthesizer({
     setStatus("idle");
     setErrorMessage("");
   }
-
-  // ── Render ────────────────────────────────────────────────────────────────
 
   return (
     <div

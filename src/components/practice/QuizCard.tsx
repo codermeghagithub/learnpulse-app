@@ -15,7 +15,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface QuizOption {
   key: string;
@@ -98,7 +97,6 @@ function buildClientFallback(
 }
 
 
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function QuizCard({
   questionId,
@@ -129,8 +127,6 @@ export function QuizCard({
   const isBusy = loading || isSubmitting;
 
   const isCorrect = selected === correctAnswer;
-
-  // ── Handlers ──────────────────────────────────────────────────────────────
 
   async function handleSubmit() {
     if (!selected || submitted) return;
@@ -190,11 +186,8 @@ export function QuizCard({
     setLoading(false);
   }
 
-  // ── Render ────────────────────────────────────────────────────────────────
-
   return (
     <div className="rounded-xl border-2 border-border bg-card p-6 space-y-6 animate-slide-up shadow-[4px_4px_0px_var(--shadow-color)]">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <span className="text-sm font-bold text-muted-foreground">
           Question {questionNumber} of {totalQuestions}
@@ -210,10 +203,8 @@ export function QuizCard({
         </Badge>
       </div>
 
-      {/* Question */}
       <p className="text-base font-bold leading-relaxed text-foreground">{questionText}</p>
 
-      {/* Options */}
       <div className="space-y-3">
         {options.map((option) => {
           const isSelected = selected === option.key;
@@ -309,10 +300,8 @@ export function QuizCard({
         </div>
       )}
 
-      {/* Feedback Section */}
       {submitted && (
         <div className="space-y-3 pt-1">
-          {/* Status Banner */}
           <div
             className={cn(
               "rounded-md border-2 p-4 text-sm flex items-start gap-3 shadow-[2px_2px_0px_var(--shadow-color)]",
@@ -479,7 +468,6 @@ export function QuizCard({
         </div>
       )}
 
-      {/* Submit / Recorded */}
       {!submitted ? (
         <Button
           id="quiz-submit-btn"
