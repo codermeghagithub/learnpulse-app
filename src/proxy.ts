@@ -59,6 +59,18 @@ export async function proxy(request: NextRequest) {
     supabaseResponse.cookies.getAll().forEach((cookie) => {
       redirectResponse.cookies.set(cookie);
     });
+    // When session is invalid or user is logged out, explicitly purge stale sb-* cookies
+    if (!user) {
+      request.cookies.getAll().forEach((cookie) => {
+        if (cookie.name.startsWith("sb-")) {
+          redirectResponse.cookies.set(cookie.name, "", {
+            path: "/",
+            maxAge: 0,
+            expires: new Date(0),
+          });
+        }
+      });
+    }
     return redirectResponse;
   };
 
