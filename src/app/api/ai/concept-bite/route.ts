@@ -9,7 +9,7 @@ const requestSchema = z.object({
   conceptName: z.string().trim().min(2, "Concept name must be at least 2 characters.").max(200),
   description: z.string().trim().max(2000).optional(),
   forceRefresh: z.boolean().optional(),
-  challengeIndex: z.number().int().min(0).max(100).optional(),
+  challengeIndex: z.number().int().min(0).max(1_000_000).optional(),
 });
 
 interface PersistedQuickCheck {
