@@ -228,6 +228,8 @@ graph TD
   - Input: Unstructured syllabus text (20 to 10,000 characters).
   - Processing: Gemini synthesizes 2 to 20 concepts, directed prerequisite edges, and 4-option diagnostic MCQs.
   - Validation: Server validates generated JSON against `dagSynthesisOutputSchema` and verifies acyclicity via Kahn's algorithm before database insertion.
+- **FR-TCH-03:** The authoring engine and synthesis API SHALL reject course creation if an equivalent title exists for the teacher, normalizing whitespace, case, punctuation, common acronyms, and phonetic/Levenshtein similarity (threshold $\ge 0.82$).
+- **FR-TCH-04:** All authoring server actions and API routes SHALL strictly validate UUID parameters and reject malformed identifiers before executing database queries.
 
 ---
 

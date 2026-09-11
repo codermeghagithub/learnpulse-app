@@ -24,7 +24,8 @@ Traditional Computer-Based Testing (CBT) systems evaluate student performance th
 * **Prerequisite Traversal Latency:** $< 5\text{ms}$ on graphs up to 2,000 nodes.
 * **Misconception Diagnosis Latency:** $< 1\text{ms}$ on in-memory cache hit; $< 1.5\text{s}$ on fresh Gemini 3.6 Flash synthesis.
 * **Test Suite Quality:** 100% pass rate across 105 automated unit and algorithmic test assertions in 12 suites (`vitest.config.mjs`).
-* **Security & Vulnerability:** 0 known package vulnerabilities (`npm audit`), strict Zod validation on every input payload, zero raw database error leakage, 100% Row-Level Security (RLS) database isolation.
+* **Security & Input Validation:** 0 known package vulnerabilities (`npm audit`), strict Zod schema validation across all endpoints and dynamic routes preventing raw SQL/`22P02` exceptions, zero internal error leakage, and 100% Row-Level Security (RLS) database isolation.
+* **Duplicate Prevention:** Automated multi-pass duplicate course detection engine rejecting identical courses across case, punctuation, word order, acronyms, and fuzzy typos.
 
 ---
 
@@ -422,22 +423,24 @@ Reverse-engineers the student's distractor choice into an actionable cognitive e
 ### 6.4 `POST /api/ai/synthesize-dag`
 Transforms raw syllabus text into structured concepts, validated edges, and diagnostic questions.
 
-* **ACID Course Creation:**
-  1. Inserts course record.
-  2. Synthesizes concepts and performs Kahn's topological sort.
-  3. Inserts concepts. If concept insertion fails, deletes the newly created orphan course.
-  4. Inserts valid prerequisite edges and questions.
+* **ACID Course Creation & Duplicate Defense:**
+  1. Executes duplicate course detection (`findDuplicateCourse`) against existing teacher courses; rejects duplicates with 409 Conflict.
+  2. Inserts course record.
+  3. Synthesizes concepts and performs Kahn's topological sort.
+  4. Inserts concepts. If concept insertion fails, deletes the newly created orphan course.
+  5. Inserts valid prerequisite edges and real-world scenario questions.
 
 ---
 
 ### 6.5 Server Actions (`src/app/actions/`)
 * **`authoring.ts`:**
-  - `createCourseAction(formData)`: Teacher-only; verifies authenticated profile role, validates title and subject.
+  - Strict input validation: Every action validates `courseId`, `conceptId`, and `edgeId` upfront via `uuidSchema.safeParse` before querying Postgres.
+  - `createCourseAction(formData)`: Teacher-only; verifies authenticated profile role, validates title/subject bounds, and blocks duplicate course titles.
   - `addConceptAction(courseId, data)`: Adds concept node linked to course.
   - `addEdgeAction(courseId, data)`: Evaluates Kahn's topological sort before inserting; rejects cycles with user-friendly error.
   - `deleteCourseAction(courseId)`: Verifies teacher ownership before cascade deletion.
 * **`enrollment.ts`:**
-  - `enrollInCourseAction(courseId)`: Student-only; writes composite enrollment record and synchronizes user session metadata.
+  - `enrollInCourseAction(courseId)`: Student-only; validates UUID, writes composite enrollment record, and synchronizes user session metadata.
   - `unenrollFromCourseAction(courseId)`: Drops enrollment and revalidates `/dashboard` and `/dashboard/courses`.
 
 ---
@@ -479,6 +482,7 @@ For rural learning environments or intermittent university WiFi:
    - `.gitignore` strictly isolates `.env*` files.
 3. **Dependency Vulnerability Baseline:** Maintained at **0 vulnerabilities** (`npm audit`).
 4. **NEP 2020 Compliance:** Vernacular language anchors (Hindi/Hinglish) embedded directly into AI diagnosis prompts to support equitable comprehension.
+5. **Input Validation & Query Defense:** All route handlers, server actions, and dynamic route parameters enforce strict Zod schemas (UUID format, bounded character counts). Malformed inputs trigger early 400 Bad Request or `notFound()`, completely preventing Postgres syntax errors (`22P02`) and invalid query executions.
 
 ---
 

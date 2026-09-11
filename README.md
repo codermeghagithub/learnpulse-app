@@ -116,6 +116,10 @@ flowchart TD
 * **1-Click Self-Enrollment & Drops:** Complete student autonomy to join or leave courses. Diagnostic tracking, attempts, and mastery are isolated strictly to enrolled courses.
 * **Cohort Roster Isolation:** Teacher dashboard metrics, student counts, and class-wide bottleneck heatmaps automatically filter to students who are actively enrolled in that specific course.
 
+### 8. Intelligent Duplicate Course Prevention & Strict Schema Validation
+* **Duplicate Detection Engine:** Blocks duplicate course creations irrespective of casing, punctuation, acronym expansion (`DSA` vs. `Data Structures and Algorithms`, `OS` vs. `Operating Systems`), word order, and fuzzy typos.
+* **Strict Input Schema Validation:** All endpoints, server actions, and dynamic route parameters enforce strict Zod schemas with UUID formats, character bounds, and payload limits, rejecting invalid requests before hitting database or AI layers.
+
 ---
 
 ## 🏛️ System Architecture
@@ -352,9 +356,10 @@ npm run build
 ## 🔒 Security, Privacy & ACID Integrity
 
 1. **Row-Level Security (RLS):** All Postgres tables implement explicit policies restricting student queries exclusively to their own UUID records.
-2. **Internal Error Masking:** Database error codes, PostgreSQL constraints, and file paths are never surfaced to clients. All client errors return sanitized, human-friendly messages while logging full exceptions server-side.
-3. **Secret Hygiene:** 0 API keys, service role tokens, or credentials are leaked in client bundles or git history.
-4. **ACID Properties & Idempotency:** Mastery re-calculations, attempt insertions, and intervention records execute with database consistency (`onConflict` upserts, zero duplicate records, verified zero score drift).
+2. **Strict Schema Input Validation:** Every endpoint, action, and dynamic route strictly verifies UUID formats, character boundaries, and array length limits via Zod before hitting DB queries, returning safe 400/404 responses.
+3. **Internal Error Masking:** Database error codes, PostgreSQL constraints, and file paths are never surfaced to clients. All client errors return sanitized, human-friendly messages while logging full exceptions server-side.
+4. **Secret Hygiene & Audit:** 0 API keys, service role tokens, or credentials in client bundles or git history (`npm audit` confirms 0 vulnerabilities).
+5. **ACID Properties & Idempotency:** Mastery re-calculations, attempt insertions, and intervention records execute with database consistency (`onConflict` upserts, zero duplicate records, verified zero score drift).
 
 ---
 
@@ -381,12 +386,15 @@ learnpulse-app/
 │   │   ├── mastery/              # InteractiveDagGraph, ConceptChain, MasteryBar
 │   │   ├── practice/             # QuizCard (Mental Mirror, Cognitive Dissonance)
 │   │   ├── remediation/          # ConceptBiteCard (60-Sec bilingual bites)
-│   │   └── teacher/              # SyllabusIngestionModal, Cohort view
+│   │   └── teacher/              # CreateCourseModal, Synthesizer, Authoring sub-components
 │   ├── lib/
-│   │   ├── ai/                   # Gemini client, prompt templates, Zod schemas
-│   │   ├── algorithms/           # Graph BFS, Kahn's TopoSort, Scaled Mastery, Decay
+│   │   ├── ai/                   # Gemini client, fallbacks, prompts, Zod schemas
+│   │   ├── algorithms/           # Graph BFS, Kahn's TopoSort, Scaled Mastery, Decay, Risk
+│   │   ├── courses/              # Strict duplicate course detection engine
 │   │   ├── enrollment.ts         # Student course enrollment & cohort roster queries
-│   │   └── offline/              # Offline queue & automatic sync engine
+│   │   ├── offline/              # Offline queue & automatic sync engine
+│   │   └── teacher/              # Teacher dashboard data loader service
+│   ├── types/                    # Canonical curriculum domain models (curriculum.ts)
 │   └── utils/
 │       └── supabase/             # Server & browser SSR client creators
 ├── supabase/                     # SQL schemas & migration history

@@ -151,6 +151,7 @@ journey
 - **FR-6.1:** Teachers must be able to paste unstructured course text or syllabus markdown.
 - **FR-6.2:** The system must synthesize atomic concepts, difficulty levels, directed prerequisite edges, and 4-option diagnostic MCQs.
 - **FR-6.3:** The authoring backend must execute Kahn's algorithm topological sort before saving edges, rejecting any edge that would create a directed cycle.
+- **FR-6.4:** Duplicate Course Prevention: The authoring engine must detect and strictly prevent duplicate course creation by the same teacher, accounting for spelling variations, acronyms, capitalization, and punctuation.
 
 ### Epic 7: Offline Resilience & PWA Synchronization
 - **FR-7.1:** When network connectivity is lost, the practice engine must automatically enqueue attempts in local storage.
@@ -174,8 +175,9 @@ journey
 
 ### 6.2 Security & Data Privacy
 - **Row-Level Security (RLS):** Enabled on all Supabase PostgreSQL tables. No student can read or modify another student's attempts or interventions.
+- **Strict Schema Validation:** All endpoints, server actions, and dynamic route segments enforce bounded Zod schemas (UUID format, length bounds) to eliminate `22P02` SQL type errors and prevent injection.
 - **Secret Hygiene:** All API keys (`GEMINI_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`) must remain strictly server-side. Zero secrets exposed to client browser bundles.
-- **Error Masking:** Database error codes and stack traces must never leak to clients.
+- **Error Masking:** Database error codes and stack traces must never leak to clients; safe generic messages are returned while logging full details server-side.
 
 ### 6.3 Reliability & ACID Integrity
 - 100% idempotent seeding and attempt processing with zero score drift.
