@@ -160,6 +160,8 @@ graph TB
 
 ## 📐 Mathematical Formulations & Algorithms
 
+> 📖 **Comprehensive Documentation:** For detailed mathematical derivations, runtime matrices, and IEEE 1016 software specifications, refer to [**`docs/ALGORITHMS.md`**](docs/ALGORITHMS.md) and [**`src/lib/algorithms/README.md`**](src/lib/algorithms/README.md).
+
 ### 1. Question-Bank-Aware Scaled Mastery
 Prevents grinding while ensuring high standards:
 $$\text{Coverage} = \min\left(1, \frac{\text{Unique Questions Solved Correctly}}{\text{Total Available Questions for Concept}}\right)$$
@@ -368,6 +370,7 @@ npm run build
 ```
 learnpulse-app/
 ├── docs/                         # Engineering specifications & architecture documentation
+│   ├── ALGORITHMS.md             # Algorithmic Specification Document (IEEE 1016)
 │   ├── PRD.md                    # Product Requirements Document
 │   ├── SRS.md                    # Software Requirements Specification (IEEE 830)
 │   └── TRD.md                    # Technical Requirements & Architecture Document
@@ -389,7 +392,8 @@ learnpulse-app/
 │   │   └── teacher/              # CreateCourseModal, Synthesizer, Authoring sub-components
 │   ├── lib/
 │   │   ├── ai/                   # Gemini client, fallbacks, prompts, Zod schemas
-│   │   ├── algorithms/           # Graph BFS, Kahn's TopoSort, Scaled Mastery, Decay, Risk
+│   │   ├── algorithms/           # Core graph, mastery, decay, risk, and review algorithms
+│   │   │   └── README.md         # Algorithms architectural guide & module handbook
 │   │   ├── courses/              # Strict duplicate course detection engine
 │   │   ├── enrollment.ts         # Student course enrollment & cohort roster queries
 │   │   ├── offline/              # Offline queue & automatic sync engine
