@@ -13,6 +13,7 @@ import { MasteryExplainerModal } from "@/components/mastery/MasteryExplainerModa
 import { ArrowLeft, BookOpen, Zap } from "lucide-react";
 import { getDaysSince, cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
+import { z } from "zod";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +27,10 @@ export async function generateMetadata() {
 
 export default async function GapPage({ params }: PageProps) {
   const { conceptId } = await params;
+  if (!z.string().uuid().safeParse(conceptId).success) {
+    notFound();
+  }
+
   const supabase = await createClient();
 
   const { data: { user } } = await supabase.auth.getUser();

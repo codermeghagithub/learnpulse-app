@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const parsed = requestSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json({ error: "Invalid request payload" }, { status: 400 });
+      return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid request payload" }, { status: 400 });
     }
 
     const { questionId, selectedAnswer, conceptId, isReviewQuestion, originConceptId } = parsed.data;
@@ -245,6 +245,6 @@ export async function POST(req: NextRequest) {
     });
   } catch (err) {
     console.error("[/api/submit-attempt]", err);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ error: "Unable to submit attempt. Please try again." }, { status: 500 });
   }
 }

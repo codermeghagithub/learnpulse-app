@@ -10,6 +10,8 @@ import {
   type ConceptEdge,
 } from "@/lib/algorithms/graph";
 import { z } from "zod";
+import { checkDuplicateCourseTitle } from "@/lib/courses/duplicateDetection";
+import { requireAuth } from "@/lib/auth";
 
 // Input validation schemas
 
@@ -59,7 +61,7 @@ const questionInputSchema = z.object({
   options: z
     .array(
       z.object({
-        key: z.string().trim().min(1).max(10),
+        key: z.enum(["A", "B", "C", "D"], { message: "Option key must be A, B, C, or D." }),
         text: z.string().trim().min(1, "Option text cannot be empty.").max(500, "Option text cannot exceed 500 characters."),
       })
     )
@@ -79,9 +81,7 @@ const questionInputSchema = z.object({
 
 const uuidSchema = z.string().uuid("Invalid identifier format.");
 
-import { requireAuth } from "@/lib/auth";
-
-// Auth helpers
+// Auth helper
 const getTeacherUser = () => requireAuth("teacher");
 
 // Verifies teacher owns the specified course
@@ -127,6 +127,23 @@ export async function createCourseAction(formData: FormData) {
 
     const { title, subject } = parsed.data;
 
+    // Check for duplicate course titles (case, punctuation, acronyms, plurals, typos)
+    const { data: existingCourses } = await supabase
+      .from("courses")
+      .select("title")
+      .eq("teacher_id", user.id);
+
+    const duplicateCheck = checkDuplicateCourseTitle(
+      title,
+      (existingCourses ?? []).map((c) => c.title)
+    );
+
+    if (duplicateCheck.isDuplicate) {
+      return {
+        error: `A class matching this title already exists in your account: "${duplicateCheck.existingTitle}". Duplicate classes are strictly prevented.`,
+      };
+    }
+
     const { data: newCourse, error } = await supabase
       .from("courses")
       .insert({
@@ -169,8 +186,13 @@ export async function createConceptAction(
   }
 ) {
   try {
+    const parsedCourseId = uuidSchema.safeParse(courseId);
+    if (!parsedCourseId.success) {
+      return { error: "Invalid course ID format." };
+    }
+
     const { supabase, user } = await getTeacherUser();
-    await verifyCourseOwnership(supabase, courseId, user.id);
+    await verifyCourseOwnership(supabase, parsedCourseId.data, user.id);
 
     const parsed = conceptInputSchema.safeParse(data);
     if (!parsed.success) {
@@ -182,7 +204,7 @@ export async function createConceptAction(
     const { data: newConcept, error } = await supabase
       .from("concepts")
       .insert({
-        course_id: courseId,
+        course_id: parsedCourseId.data,
         name,
         description: description || null,
         difficulty,
@@ -198,7 +220,7 @@ export async function createConceptAction(
       return { error: "Unable to add concept. Please try again." };
     }
 
-    revalidatePath(`/teacher/courses/${courseId}/concepts`);
+    revalidatePath(`/teacher/courses/${parsedCourseId.data}/concepts`);
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/practice");
     revalidatePath("/teacher");
@@ -212,26 +234,31 @@ export async function createConceptAction(
 
 export async function deleteConceptAction(courseId: string, conceptId: string) {
   try {
-    const { supabase, user } = await getTeacherUser();
-    await verifyCourseOwnership(supabase, courseId, user.id);
+    const parsedCourseId = uuidSchema.safeParse(courseId);
+    if (!parsedCourseId.success) {
+      return { error: "Invalid course ID format." };
+    }
 
     const parsedConceptId = uuidSchema.safeParse(conceptId);
     if (!parsedConceptId.success) {
       return { error: "Invalid concept ID format." };
     }
 
+    const { supabase, user } = await getTeacherUser();
+    await verifyCourseOwnership(supabase, parsedCourseId.data, user.id);
+
     const { error } = await supabase
       .from("concepts")
       .delete()
       .eq("id", parsedConceptId.data)
-      .eq("course_id", courseId);
+      .eq("course_id", parsedCourseId.data);
 
     if (error) {
       console.error("[authoring:deleteConceptAction] Database error:", error);
       return { error: "Unable to delete concept. Please try again." };
     }
 
-    revalidatePath(`/teacher/courses/${courseId}/concepts`);
+    revalidatePath(`/teacher/courses/${parsedCourseId.data}/concepts`);
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/practice");
     revalidatePath("/teacher");
@@ -252,8 +279,13 @@ export async function createPrerequisiteEdgeAction(
   weight: number = 2
 ) {
   try {
+    const parsedCourseId = uuidSchema.safeParse(courseId);
+    if (!parsedCourseId.success) {
+      return { error: "Invalid course ID format." };
+    }
+
     const { supabase, user } = await getTeacherUser();
-    await verifyCourseOwnership(supabase, courseId, user.id);
+    await verifyCourseOwnership(supabase, parsedCourseId.data, user.id);
 
     const parsed = edgeInputSchema.safeParse({ prerequisiteId, conceptId, weight });
     if (!parsed.success) {
@@ -270,7 +302,7 @@ export async function createPrerequisiteEdgeAction(
     const { data: concepts } = await supabase
       .from("concepts")
       .select("id, name")
-      .eq("course_id", courseId);
+      .eq("course_id", parsedCourseId.data);
 
     const conceptList = concepts ?? [];
     const allConceptIds = conceptList.map((c) => c.id);
@@ -280,7 +312,7 @@ export async function createPrerequisiteEdgeAction(
     const { data: existingEdgesRaw } = await supabase
       .from("concept_edges")
       .select("id, prerequisite_id, concept_id, weight")
-      .eq("course_id", courseId);
+      .eq("course_id", parsedCourseId.data);
 
     const existingEdges: ConceptEdge[] = (existingEdgesRaw ?? []).map((e) => ({
       prerequisite_id: e.prerequisite_id,
@@ -327,7 +359,7 @@ export async function createPrerequisiteEdgeAction(
     const { data: newEdge, error } = await supabase
       .from("concept_edges")
       .insert({
-        course_id: courseId,
+        course_id: parsedCourseId.data,
         prerequisite_id: validPrereqId,
         concept_id: validConceptId,
         weight: validWeight,
@@ -340,7 +372,7 @@ export async function createPrerequisiteEdgeAction(
       return { error: "Unable to establish prerequisite edge. Please try again." };
     }
 
-    revalidatePath(`/teacher/courses/${courseId}/concepts`);
+    revalidatePath(`/teacher/courses/${parsedCourseId.data}/concepts`);
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/gaps");
 
@@ -353,26 +385,31 @@ export async function createPrerequisiteEdgeAction(
 
 export async function deletePrerequisiteEdgeAction(courseId: string, edgeId: string) {
   try {
-    const { supabase, user } = await getTeacherUser();
-    await verifyCourseOwnership(supabase, courseId, user.id);
+    const parsedCourseId = uuidSchema.safeParse(courseId);
+    if (!parsedCourseId.success) {
+      return { error: "Invalid course ID format." };
+    }
 
     const parsedEdgeId = uuidSchema.safeParse(edgeId);
     if (!parsedEdgeId.success) {
       return { error: "Invalid edge ID format." };
     }
 
+    const { supabase, user } = await getTeacherUser();
+    await verifyCourseOwnership(supabase, parsedCourseId.data, user.id);
+
     const { error } = await supabase
       .from("concept_edges")
       .delete()
       .eq("id", parsedEdgeId.data)
-      .eq("course_id", courseId);
+      .eq("course_id", parsedCourseId.data);
 
     if (error) {
       console.error("[authoring:deletePrerequisiteEdgeAction] Database error:", error);
       return { error: "Unable to delete prerequisite relationship." };
     }
 
-    revalidatePath(`/teacher/courses/${courseId}/concepts`);
+    revalidatePath(`/teacher/courses/${parsedCourseId.data}/concepts`);
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/gaps");
 
@@ -397,8 +434,13 @@ export async function createQuestionAction(
   }
 ) {
   try {
+    const parsedCourseId = uuidSchema.safeParse(courseId);
+    if (!parsedCourseId.success) {
+      return { error: "Invalid course ID format." };
+    }
+
     const { supabase, user } = await getTeacherUser();
-    await verifyCourseOwnership(supabase, courseId, user.id);
+    await verifyCourseOwnership(supabase, parsedCourseId.data, user.id);
 
     const parsed = questionInputSchema.safeParse(data);
     if (!parsed.success) {
@@ -417,7 +459,7 @@ export async function createQuestionAction(
     const { data: newQ, error } = await supabase
       .from("questions")
       .insert({
-        course_id: courseId,
+        course_id: parsedCourseId.data,
         concept_id,
         question_text,
         options,
@@ -433,7 +475,7 @@ export async function createQuestionAction(
       return { error: "Unable to create practice question. Please try again." };
     }
 
-    revalidatePath(`/teacher/courses/${courseId}/concepts`);
+    revalidatePath(`/teacher/courses/${parsedCourseId.data}/concepts`);
     revalidatePath("/dashboard/practice");
     revalidatePath("/teacher");
 
@@ -446,26 +488,31 @@ export async function createQuestionAction(
 
 export async function deleteQuestionAction(courseId: string, questionId: string) {
   try {
-    const { supabase, user } = await getTeacherUser();
-    await verifyCourseOwnership(supabase, courseId, user.id);
+    const parsedCourseId = uuidSchema.safeParse(courseId);
+    if (!parsedCourseId.success) {
+      return { error: "Invalid course ID format." };
+    }
 
     const parsedQId = uuidSchema.safeParse(questionId);
     if (!parsedQId.success) {
       return { error: "Invalid question ID format." };
     }
 
+    const { supabase, user } = await getTeacherUser();
+    await verifyCourseOwnership(supabase, parsedCourseId.data, user.id);
+
     const { error } = await supabase
       .from("questions")
       .delete()
       .eq("id", parsedQId.data)
-      .eq("course_id", courseId);
+      .eq("course_id", parsedCourseId.data);
 
     if (error) {
       console.error("[authoring:deleteQuestionAction] Database error:", error);
       return { error: "Unable to delete question." };
     }
 
-    revalidatePath(`/teacher/courses/${courseId}/concepts`);
+    revalidatePath(`/teacher/courses/${parsedCourseId.data}/concepts`);
     revalidatePath("/dashboard/practice");
 
     return { success: true };
@@ -477,13 +524,13 @@ export async function deleteQuestionAction(courseId: string, questionId: string)
 
 export async function deleteCourseAction(courseId: string) {
   try {
-    const { supabase, user } = await getTeacherUser();
-    await verifyCourseOwnership(supabase, courseId, user.id);
-
     const parsedCourseId = uuidSchema.safeParse(courseId);
     if (!parsedCourseId.success) {
       return { error: "Invalid course ID format." };
     }
+
+    const { supabase, user } = await getTeacherUser();
+    await verifyCourseOwnership(supabase, parsedCourseId.data, user.id);
 
     const { error } = await supabase
       .from("courses")

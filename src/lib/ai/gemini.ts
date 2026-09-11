@@ -34,25 +34,23 @@ export {
 };
 
 // Model configuration
-const MODEL_NAME = process.env.GEMINI_MODEL || "gemini-3.6-flash";
+const PRIMARY_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+const FALLBACK_MODELS = [PRIMARY_MODEL, "gemini-3.6-flash"].filter(
+  (model, index, arr) => arr.indexOf(model) === index
+);
 const CACHE_THRESHOLD = 5;
 
 // Shared client helpers
-
-/** Initialise the Gemini client (throws if API key is missing). */
 function getClient(): GoogleGenerativeAI {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("GEMINI_API_KEY environment variable is not set");
   return new GoogleGenerativeAI(apiKey);
 }
 
-/**
- * Get a configured Gemini model instance.
- * Centralising this avoids repeating generation config across every function.
- */
-function getModel(temperature = 0.3, maxOutputTokens = 4000): GenerativeModel {
+// Returns configured Gemini generative model instance
+function getModel(modelName: string, temperature = 0.3, maxOutputTokens = 4000): GenerativeModel {
   return getClient().getGenerativeModel({
-    model: MODEL_NAME,
+    model: modelName,
     generationConfig: {
       responseMimeType: "application/json",
       temperature,
@@ -61,10 +59,7 @@ function getModel(temperature = 0.3, maxOutputTokens = 4000): GenerativeModel {
   });
 }
 
-/**
- * Repairs JSON truncated by token limits by closing unclosed strings,
- * removing trailing commas, and matching open braces and brackets.
- */
+// Repairs JSON truncated mid-stream by token limit boundaries
 function repairTruncatedJson(jsonStr: string): string {
   let inString = false;
   let isEscaped = false;
@@ -110,37 +105,37 @@ function repairTruncatedJson(jsonStr: string): string {
   return repaired;
 }
 
-/**
- * Call Gemini and return raw parsed JSON, or null on any failure.
- * Strips accidental markdown fences and repairs truncated JSON if output token bounds were hit.
- */
+// Executes Gemini request with model fallback and JSON structure repair
 async function callGeminiRaw(
   prompt: string,
   temperature?: number,
   maxOutputTokens?: number
 ): Promise<unknown> {
-  try {
-    const model = getModel(temperature, maxOutputTokens);
-    const result = await model.generateContent(prompt);
-    const text = result.response
-      .text()
-      .trim()
-      .replace(/^```json\s*/i, "")
-      .replace(/^```\s*/i, "")
-      .replace(/\s*```$/i, "")
-      .trim();
-
+  for (const modelName of FALLBACK_MODELS) {
     try {
-      return JSON.parse(text);
-    } catch {
-      // Attempt repair if response was cut off mid-string or mid-structure
-      const repaired = repairTruncatedJson(text);
-      return JSON.parse(repaired);
+      const model = getModel(modelName, temperature, maxOutputTokens);
+      const result = await model.generateContent(prompt);
+      const text = result.response
+        .text()
+        .trim()
+        .replace(/^```json\s*/i, "")
+        .replace(/^```\s*/i, "")
+        .replace(/\s*```$/i, "")
+        .trim();
+
+      try {
+        return JSON.parse(text);
+      } catch {
+        // Attempt repair if response was cut off mid-string or mid-structure
+        const repaired = repairTruncatedJson(text);
+        return JSON.parse(repaired);
+      }
+    } catch (err) {
+      console.warn(`[gemini] Call failed on model "${modelName}":`, err instanceof Error ? err.message : err);
     }
-  } catch (err) {
-    console.error("[gemini] Raw call failed:", err instanceof Error ? err.message : err);
-    return null;
   }
+
+  return null;
 }
 
 
@@ -223,7 +218,7 @@ export async function synthesizeDag(
   topicText: string,
   courseTitle?: string
 ): Promise<DagSynthesisOutput & { isAiGenerated: boolean }> {
-  const raw = await callGeminiRaw(buildDagSynthesisPrompt(topicText, courseTitle), 0.4, 6000);
+  const raw = await callGeminiRaw(buildDagSynthesisPrompt(topicText, courseTitle), 0.4, 8000);
   const validated = raw ? dagSynthesisOutputSchema.safeParse(raw) : null;
 
   if (validated?.success) {

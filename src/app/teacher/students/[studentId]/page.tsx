@@ -12,6 +12,7 @@ import { CourseSelector } from "@/components/CourseSelector";
 import { getStudentEnrolledCourseIds } from "@/lib/enrollment";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { z } from "zod";
 
 interface PageProps {
   params: Promise<{ studentId: string }>;
@@ -29,7 +30,16 @@ export default async function TeacherStudentPage({
   searchParams,
 }: PageProps) {
   const { studentId } = await params;
-  const { courseId: paramCourseId } = (await searchParams) ?? {};
+  if (!z.string().uuid().safeParse(studentId).success) {
+    notFound();
+  }
+
+  const rawCourseId = (await searchParams)?.courseId;
+  const paramCourseId =
+    rawCourseId && z.string().uuid().safeParse(rawCourseId).success
+      ? rawCourseId
+      : undefined;
+
   const supabase = await createClient();
 
   // Auth check

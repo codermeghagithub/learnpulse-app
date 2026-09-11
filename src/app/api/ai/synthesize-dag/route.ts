@@ -7,6 +7,7 @@ import {
   synthesizedQuestionSchema,
 } from "@/lib/ai/schemas";
 import { buildAdjacencyList, topologicalSort } from "@/lib/algorithms/graph";
+import { checkDuplicateCourseTitle } from "@/lib/courses/duplicateDetection";
 import { z } from "zod";
 
 // Request validation schema
@@ -14,12 +15,22 @@ import { z } from "zod";
 const requestSchema = z
   .object({
     topicText: z.string().max(3000).optional().default(""),
-    courseTitle: z.string().min(2).max(120).optional(),
-    courseSubject: z.string().min(2).max(100).optional(),
+    courseTitle: z
+      .string()
+      .trim()
+      .min(2, "Course title must be at least 2 characters.")
+      .max(120, "Course title cannot exceed 120 characters.")
+      .optional(),
+    courseSubject: z
+      .string()
+      .trim()
+      .min(2, "Subject department must be at least 2 characters.")
+      .max(100, "Subject cannot exceed 100 characters.")
+      .optional(),
     concepts: z.array(synthesizedConceptSchema).min(1).max(30).optional(),
-    edges: z.array(synthesizedEdgeSchema).optional(),
-    questions: z.array(synthesizedQuestionSchema).optional(),
-    targetCourseId: z.string().uuid().optional(),
+    edges: z.array(synthesizedEdgeSchema).max(100).optional(),
+    questions: z.array(synthesizedQuestionSchema).max(150).optional(),
+    targetCourseId: z.string().uuid("Invalid target course ID format.").optional(),
     persist: z.boolean().default(false),
   })
 
@@ -62,7 +73,7 @@ export async function POST(req: NextRequest) {
     if (!parsed.success) {
       console.warn("[/api/ai/synthesize-dag] Validation failure:", parsed.error.format());
       return NextResponse.json(
-        { error: "Invalid payload" },
+        { error: parsed.error.issues[0]?.message ?? "Invalid payload" },
         { status: 400 }
       );
     }
@@ -147,6 +158,26 @@ export async function POST(req: NextRequest) {
     let effectiveCourseId: string;
 
     if (!targetCourseId) {
+      // Check for duplicate course title for this teacher
+      const { data: existingCourses } = await supabase
+        .from("courses")
+        .select("title")
+        .eq("teacher_id", user.id);
+
+      const duplicateCheck = checkDuplicateCourseTitle(
+        finalCourseTitle,
+        (existingCourses ?? []).map((c) => c.title)
+      );
+
+      if (duplicateCheck.isDuplicate) {
+        return NextResponse.json(
+          {
+            error: `A class matching this title already exists in your account: "${duplicateCheck.existingTitle}". Duplicate classes are strictly prevented.`,
+          },
+          { status: 409 }
+        );
+      }
+
       // 1. Insert new course with the academic course title
       const { data: newCourse, error: courseError } = await supabase
         .from("courses")
@@ -272,6 +303,6 @@ export async function POST(req: NextRequest) {
 
   } catch (err) {
     console.error("[/api/ai/synthesize-dag] Unexpected error:", err);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ error: "Unable to synthesize course. Please try again." }, { status: 500 });
   }
 }

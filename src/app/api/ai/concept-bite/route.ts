@@ -5,11 +5,11 @@ import type { ConceptBiteOutput, BilingualChallenge, ConceptBiteSection } from "
 import { z } from "zod";
 
 const requestSchema = z.object({
-  conceptId: z.string().trim().min(1, "Concept ID is required").max(100),
+  conceptId: z.string().uuid("Invalid concept ID format."),
   conceptName: z.string().trim().min(2, "Concept name must be at least 2 characters.").max(200),
   description: z.string().trim().max(2000).optional(),
   forceRefresh: z.boolean().optional(),
-  challengeIndex: z.number().int().min(0).max(1_000_000).optional(),
+  challengeIndex: z.number().int().min(0).max(100).optional(),
 });
 
 interface PersistedQuickCheck {
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     if (!parsed.success) {
       console.warn("[/api/ai/concept-bite] Validation failure:", parsed.error.format());
       return NextResponse.json(
-        { error: "Invalid request payload" },
+        { error: parsed.error.issues[0]?.message ?? "Invalid request payload" },
         { status: 400 }
       );
     }
@@ -150,7 +150,7 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error("[/api/ai/concept-bite] Error:", err);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Unable to load concept bite. Please try again." },
       { status: 500 }
     );
   }

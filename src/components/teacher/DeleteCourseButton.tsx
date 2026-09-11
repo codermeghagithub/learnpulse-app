@@ -34,7 +34,6 @@ export function DeleteCourseButton({
           autoClose: 4000,
           closeButton: true,
         });
-        setLoading(false);
       } else {
         toast.update(toastId, {
           render: `Course "${courseTitle}" successfully deleted`,
@@ -55,6 +54,7 @@ export function DeleteCourseButton({
         autoClose: 4000,
         closeButton: true,
       });
+    } finally {
       setLoading(false);
     }
   }

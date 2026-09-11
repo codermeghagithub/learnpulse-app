@@ -15,7 +15,7 @@ export function ToastProvider() {
       pauseOnFocusLoss
       draggable
       pauseOnHover
-      className="z-[99999]"
+      className="z-99999"
     />
   );
 }

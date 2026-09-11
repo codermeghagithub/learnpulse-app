@@ -7,12 +7,7 @@ import { BookOpen, Cpu, Database, Network, Box, Compass, Plus } from "lucide-rea
 
 import { useCourseStore } from "@/lib/store";
 import { createClient } from "@/utils/supabase/client";
-
-interface Course {
-  id: string;
-  title: string;
-  subject?: string;
-}
+import type { Course } from "@/types/curriculum";
 
 interface CourseSelectorProps {
   courses: Course[];

@@ -63,7 +63,7 @@ const DIFFICULTY_BADGE: Record<QuizCardProps["difficulty"], string> = {
   hard: "text-destructive bg-destructive/10 border-destructive/20",
 };
 
-/** Inline fallback when the API is offline — keeps the UI from being empty. */
+// Client fallback feedback when diagnosis endpoint is unreachable
 function buildClientFallback(
   selectedOpt: string,
   correctOpt: string,

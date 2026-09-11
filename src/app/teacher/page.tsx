@@ -3,10 +3,9 @@ import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import { MasteryBar } from "@/components/mastery/MasteryBar";
 import { RiskBadge } from "@/components/risk/RiskBadge";
-import { computeRisk, inactivityScore } from "@/lib/algorithms/risk";
 import { getMasteryStage } from "@/lib/masteryLevels";
 import { MasteryExplainerModal } from "@/components/mastery/MasteryExplainerModal";
-import { cn, getDaysSince } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import {
   Users,
   TrendingUp,
@@ -15,11 +14,10 @@ import {
   GraduationCap,
   Sparkles,
 } from "lucide-react";
-
 import { CourseSelector } from "@/components/CourseSelector";
 import { CreateCourseModal } from "@/components/teacher/CreateCourseModal";
 import { DeleteCourseButton } from "@/components/teacher/DeleteCourseButton";
-import { getEnrolledStudentsForCourse } from "@/lib/enrollment";
+import { getTeacherDashboardData } from "@/lib/teacher/dashboardService";
 import { buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -27,8 +25,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Class Overview — LearnPulse",
-  description:
-    "Read-only teacher view: class average mastery and at-risk student list.",
+  description: "Read-only teacher view: class average mastery and at-risk student list.",
 };
 
 interface PageProps {
@@ -45,29 +42,33 @@ export default async function TeacherPage({ searchParams }: PageProps) {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, role")
+    .select("role")
     .eq("id", user.id)
     .single();
   if (profile?.role !== "teacher") redirect("/login");
 
-  // Fetch teacher's courses
-  const { data: courses } = await supabase
-    .from("courses")
-    .select("id, title, subject")
-    .eq("teacher_id", user.id)
-    .order("title");
+  const dbCourseId = (user.user_metadata?.selectedCourseId as string) || null;
 
-  const validCourses = courses ?? [];
+  const {
+    validCourses,
+    selectedCourse,
+    selectedCourseId,
+    conceptAverages,
+    classStudents,
+    studentRoster,
+    activeStudentsInCourse,
+    atRiskStudentsInCourse,
+    displayClassAvg,
+    displayAttemptsCount,
+  } = await getTeacherDashboardData(supabase, user.id, dbCourseId, paramCourseId);
 
-  if (validCourses.length === 0) {
+  if (validCourses.length === 0 || !selectedCourse || !selectedCourseId) {
     return (
       <div className="px-8 py-16 max-w-3xl mx-auto text-center space-y-4">
         <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 border border-primary/20 text-primary mx-auto">
           <GraduationCap className="h-6 w-6" />
         </div>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          No courses yet
-        </h1>
+        <h1 className="text-2xl font-semibold tracking-tight">No courses yet</h1>
         <p className="text-muted-foreground text-sm max-w-md mx-auto">
           Create your first course to begin tracking student risk, concept
           mastery, and prerequisite diagnostics.
@@ -78,155 +79,6 @@ export default async function TeacherPage({ searchParams }: PageProps) {
       </div>
     );
   }
-
-  // Determine selected course from URL parameter or user metadata
-  const dbCourseId = (user.user_metadata?.selectedCourseId as string) || null;
-  const activeCourseId =
-    paramCourseId && validCourses.some((c) => c.id === paramCourseId)
-      ? paramCourseId
-      : dbCourseId && validCourses.some((c) => c.id === dbCourseId)
-        ? dbCourseId
-        : null;
-
-  const selectedCourse =
-    validCourses.find((c) => c.id === activeCourseId) ?? validCourses[0];
-  const selectedCourseId = selectedCourse.id;
-
-  if (selectedCourseId && selectedCourseId !== dbCourseId) {
-    await supabase.auth.updateUser({
-      data: { selectedCourseId },
-    });
-  }
-
-  // Fetch all concepts in selected course
-  const { data: concepts } = await supabase
-    .from("concepts")
-    .select("id, name, difficulty, course_id")
-    .eq("course_id", selectedCourseId);
-
-  const conceptList = concepts ?? [];
-  const conceptIds = conceptList.map((c) => c.id);
-
-  // 1. Fetch student profiles actively enrolled in the selected course
-  const classStudents = await getEnrolledStudentsForCourse(
-    supabase,
-    selectedCourseId,
-  );
-
-  // 2. Fetch mastery records in the selected course
-  const { data: courseMastery } =
-    conceptIds.length > 0
-      ? await supabase
-          .from("mastery")
-          .select(
-            "user_id, concept_id, score, attempts_count, correct_count, updated_at",
-          )
-          .in("concept_id", conceptIds)
-      : { data: [] };
-
-  // Compute class average per concept in this course
-  const masteryByConcept = new Map<string, number[]>();
-  for (const m of courseMastery ?? []) {
-    if (!masteryByConcept.has(m.concept_id))
-      masteryByConcept.set(m.concept_id, []);
-    masteryByConcept.get(m.concept_id)!.push(m.score);
-  }
-
-  const conceptAverages = conceptList
-    .map((c) => {
-      const scores = masteryByConcept.get(c.id) ?? [];
-      const avg =
-        scores.length > 0
-          ? scores.reduce((a, b) => a + b, 0) / scores.length
-          : 0;
-      return { ...c, average: avg, studentCount: scores.length };
-    })
-    .sort((a, b) => a.average - b.average);
-
-  // Map course-specific student mastery
-  const studentCourseDataMap = new Map<
-    string,
-    { scores: number[]; lastAttempt?: string; errors: number; total: number }
-  >();
-  for (const m of courseMastery ?? []) {
-    if (!studentCourseDataMap.has(m.user_id)) {
-      studentCourseDataMap.set(m.user_id, { scores: [], errors: 0, total: 0 });
-    }
-    const entry = studentCourseDataMap.get(m.user_id)!;
-    entry.scores.push(m.score);
-    entry.total += m.attempts_count;
-    entry.errors += m.attempts_count - m.correct_count;
-    if (
-      !entry.lastAttempt ||
-      (m.updated_at && m.updated_at > entry.lastAttempt)
-    ) {
-      entry.lastAttempt = m.updated_at;
-    }
-  }
-
-  // Build performance roster for students enrolled in this course
-  const studentRoster = classStudents.map((student) => {
-    const courseData = studentCourseDataMap.get(student.id);
-
-    const hasCourseAttempts = !!courseData && courseData.scores.length > 0;
-    const courseAvgMastery = hasCourseAttempts
-      ? courseData.scores.reduce((a, b) => a + b, 0) / courseData.scores.length
-      : 0;
-    const courseDaysSinceLast = courseData
-      ? getDaysSince(courseData.lastAttempt)
-      : 999;
-    const courseRepeatedErrors =
-      courseData && courseData.total > 0
-        ? courseData.errors / courseData.total
-        : 0;
-
-    const courseRisk = computeRisk({
-      masteryScore: courseAvgMastery,
-      decline: 0,
-      repeatedErrors: courseRepeatedErrors,
-      inactivity: inactivityScore(courseDaysSinceLast),
-    });
-
-    return {
-      id: student.id,
-      name: student.full_name,
-      hasCourseAttempts,
-      courseAvgMastery,
-      courseConceptCount: courseData?.scores.length ?? 0,
-      courseTotalAttempts: courseData?.total ?? 0,
-      courseRisk,
-    };
-  });
-
-  // Sort roster:
-  // 1. Active students with highest risk first
-  // 2. Unstarted students alphabetically by name
-  studentRoster.sort((a, b) => {
-    if (a.hasCourseAttempts && !b.hasCourseAttempts) return -1;
-    if (!a.hasCourseAttempts && b.hasCourseAttempts) return 1;
-    if (a.hasCourseAttempts && b.hasCourseAttempts) {
-      return b.courseRisk.score - a.courseRisk.score;
-    }
-    return a.name.localeCompare(b.name);
-  });
-
-  const activeStudentsInCourse = studentRoster.filter(
-    (s) => s.hasCourseAttempts,
-  );
-  const atRiskStudentsInCourse = activeStudentsInCourse.filter(
-    (s) =>
-      s.courseRisk.bucket === "At Risk" || s.courseRisk.bucket === "Critical",
-  );
-
-  const courseClassAvg =
-    activeStudentsInCourse.length > 0
-      ? activeStudentsInCourse.reduce((sum, s) => sum + s.courseAvgMastery, 0) /
-        activeStudentsInCourse.length
-      : 0;
-
-  // Strict course isolation: selected course metrics must NEVER fall back to global stats
-  const displayClassAvg = courseClassAvg;
-  const displayAttemptsCount = activeStudentsInCourse.length;
 
   return (
     <div className="w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8">
@@ -249,7 +101,7 @@ export default async function TeacherPage({ searchParams }: PageProps) {
         </div>
       </div>
 
-      {/* Course selector tabs + management link */}
+      {/* Course selector tabs & management actions */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <CourseSelector
@@ -260,8 +112,9 @@ export default async function TeacherPage({ searchParams }: PageProps) {
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 w-full">
           <DeleteCourseButton
+            key={selectedCourseId}
             courseId={selectedCourseId}
-            courseTitle={selectedCourse?.title ?? "Course"}
+            courseTitle={selectedCourse.title}
           />
           <Link
             href={`/teacher/courses/${selectedCourseId}/concepts`}
@@ -277,7 +130,7 @@ export default async function TeacherPage({ searchParams }: PageProps) {
         </div>
       </div>
 
-      {/* Stats row */}
+      {/* Performance Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Card 1: Class Average */}
         <div className="rounded-xl border-2 border-border bg-card p-5 space-y-2 shadow-[2px_2px_0px_var(--shadow-color)]">
@@ -323,9 +176,7 @@ export default async function TeacherPage({ searchParams }: PageProps) {
             {classStudents.length}
           </div>
           <p className="text-xs text-muted-foreground font-medium">
-            {classStudents.length === 1
-              ? "student joined"
-              : "students joined"}
+            {classStudents.length === 1 ? "student joined" : "students joined"}
           </p>
         </div>
 
@@ -340,9 +191,7 @@ export default async function TeacherPage({ searchParams }: PageProps) {
           <div
             className={cn(
               "text-3xl sm:text-4xl font-bold tracking-tight tabular-nums pt-1",
-              atRiskStudentsInCourse.length > 0
-                ? "text-primary"
-                : "text-success",
+              atRiskStudentsInCourse.length > 0 ? "text-primary" : "text-success"
             )}
           >
             {atRiskStudentsInCourse.length}
@@ -355,7 +204,7 @@ export default async function TeacherPage({ searchParams }: PageProps) {
         </div>
       </div>
 
-      {/* Concept averages */}
+      {/* Topic Mastery Progress */}
       <div className="animate-slide-up space-y-3">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-bold text-base text-foreground">Topic Progress</h2>
@@ -391,7 +240,7 @@ export default async function TeacherPage({ searchParams }: PageProps) {
         </div>
       </div>
 
-      {/* Student Performance & Risk Indicators — ALWAYS VISIBLE */}
+      {/* Student Roster & Support */}
       <div className="animate-slide-up space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
@@ -407,7 +256,6 @@ export default async function TeacherPage({ searchParams }: PageProps) {
           </div>
         </div>
 
-        {/* Informational notice when course has no attempts yet */}
         {studentRoster.length > 0 && activeStudentsInCourse.length === 0 && (
           <div className="rounded-xl border-2 border-border bg-accent-yellow/15 p-4 flex items-start gap-3 shadow-[2px_2px_0px_var(--shadow-color)]">
             <Sparkles className="h-5 w-5 text-primary shrink-0 mt-0.5" />
@@ -416,14 +264,12 @@ export default async function TeacherPage({ searchParams }: PageProps) {
                 No quizzes taken in {selectedCourse.title} yet
               </p>
               <p>
-                All {studentRoster.length} enrolled students are listed
-                below with their overall progress.
+                All {studentRoster.length} enrolled students are listed below with their overall progress.
               </p>
             </div>
           </div>
         )}
 
-        {/* Empty state when 0 students enrolled in this course */}
         {studentRoster.length === 0 ? (
           <div className="rounded-xl p-10 text-center space-y-3 border-2 border-dashed border-border bg-card shadow-[2px_2px_0px_var(--shadow-color)]">
             <div className="flex h-12 w-12 items-center justify-center rounded-md bg-accent-blue/20 border-2 border-border text-foreground mx-auto shadow-[1px_1px_0px_var(--shadow-color)]">
@@ -433,12 +279,11 @@ export default async function TeacherPage({ searchParams }: PageProps) {
               No students enrolled in this course yet
             </p>
             <p className="text-xs text-muted-foreground max-w-sm mx-auto font-medium">
-              Students can pick {selectedCourse.title} from their Course Catalog.
-              Once enrolled, their learning progress and scores will appear here.
+              Students can pick {selectedCourse.title} from their Course Catalog. Once enrolled,
+              their learning progress and scores will appear here.
             </p>
           </div>
         ) : (
-          /* Student Roster Cards */
           <div className="space-y-3">
             {studentRoster.map((student, idx) => (
               <Link

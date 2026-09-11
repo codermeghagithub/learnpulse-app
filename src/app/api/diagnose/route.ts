@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
     const parsed = requestSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
-        { error: "Invalid request payload" },
+        { error: parsed.error.issues[0]?.message ?? "Invalid request payload" },
         { status: 400 }
       );
     }
@@ -177,7 +177,7 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error("[/api/diagnose]", err);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Unable to run diagnosis. Please try again." },
       { status: 500 }
     );
   }

@@ -1,6 +1,7 @@
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
 import { CourseAuthoringClient } from "./CourseAuthoringClient";
+import { z } from "zod";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +11,10 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps) {
   const { id } = await params;
+  if (!z.string().uuid().safeParse(id).success) {
+    return { title: "Curriculum Authoring" };
+  }
+
   const supabase = await createClient();
   const { data: course } = await supabase
     .from("courses")
@@ -24,6 +29,10 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function CourseAuthoringPage({ params }: PageProps) {
   const { id: courseId } = await params;
+  if (!z.string().uuid().safeParse(courseId).success) {
+    notFound();
+  }
+
   const supabase = await createClient();
 
   const {

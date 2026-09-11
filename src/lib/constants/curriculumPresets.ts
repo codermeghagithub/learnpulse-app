@@ -26,6 +26,6 @@ export const CURRICULUM_PRESETS: CurriculumPreset[] = [
   },
   {
     name: "Data Structures & Algorithms",
-    text: "Data Structures and Algorithms: Array Manipulations, Linked Lists, Stacks & Queues, Binary Trees & BSTs, Graph Traversals (BFS/DFS), Dynamic Programming",
+    text: "Data Structures and Algorithms: Asymptotic Complexity & Arrays, Linked Lists, Stacks & Queues, Recursion & Backtracking, Binary Search Trees, Binary Heaps & Priority Queues, Hash Tables, Graph Traversals (BFS/DFS), Shortest Path Algorithms, Dynamic Programming",
   },
 ];

@@ -117,26 +117,38 @@ export function CourseAuthoringClient({
                 closeToast();
                 setDeletingCourse(true);
                 const toastId = toast.loading(`Deleting "${course.title}"...`);
-                const res = await deleteCourseAction(course.id);
-                if (res?.error) {
+                try {
+                  const res = await deleteCourseAction(course.id);
+                  if (res?.error) {
+                    toast.update(toastId, {
+                      render: `Failed to delete course: ${res.error}`,
+                      type: "error",
+                      isLoading: false,
+                      autoClose: 4000,
+                      closeButton: true,
+                    });
+                  } else {
+                    toast.update(toastId, {
+                      render: `Course "${course.title}" deleted successfully`,
+                      type: "success",
+                      isLoading: false,
+                      autoClose: 2500,
+                      closeButton: true,
+                    });
+                    router.push("/teacher");
+                    router.refresh();
+                  }
+                } catch (err) {
+                  console.error("Delete course error:", err);
                   toast.update(toastId, {
-                    render: `Failed to delete course: ${res.error}`,
+                    render: "Failed to delete course. Please try again.",
                     type: "error",
                     isLoading: false,
                     autoClose: 4000,
                     closeButton: true,
                   });
+                } finally {
                   setDeletingCourse(false);
-                } else {
-                  toast.update(toastId, {
-                    render: `Course "${course.title}" deleted successfully`,
-                    type: "success",
-                    isLoading: false,
-                    autoClose: 2500,
-                    closeButton: true,
-                  });
-                  router.push("/teacher");
-                  router.refresh();
                 }
               }}
               className="px-3.5 py-1.5 text-xs rounded-lg bg-destructive text-white hover:bg-destructive/90 transition-colors font-semibold shadow-xs cursor-pointer inline-flex items-center gap-1.5"

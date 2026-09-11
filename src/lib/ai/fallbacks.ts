@@ -109,6 +109,14 @@ export function buildDeterministicDagFallback(
     ) {
       title = "Data Mining and Warehousing";
     } else if (
+      fullText.includes("data structure") ||
+      fullText.includes("algorithm") ||
+      fullText.includes("dsa") ||
+      fullText.includes("binary tree") ||
+      fullText.includes("linked list")
+    ) {
+      title = "Data Structures and Algorithms";
+    } else if (
       fullText.includes("deadlock") ||
       fullText.includes("operating system") ||
       fullText.includes("semaphore") ||
@@ -137,109 +145,323 @@ export function buildDeterministicDagFallback(
   // Pre-configured curricular concepts for standard academic subjects
   const lowerTitle = title.toLowerCase();
   let concepts: DagSynthesisOutput["concepts"] = [
-    { name: "Foundational Principles", description: `Fundamental theories and models of ${title}.`, difficulty: "easy" },
-    { name: "Core Architecture & Logic", description: `Primary operational frameworks and architecture in ${title}.`, difficulty: "medium" },
+    { name: "Foundational Principles & Theory", description: `Fundamental theories and models of ${title}.`, difficulty: "easy" },
+    { name: "Core Architecture & Data Flow", description: `Primary operational frameworks and data pathways in ${title}.`, difficulty: "easy" },
     { name: "Methodologies & Algorithms", description: `Key computational algorithms and workflows used in ${title}.`, difficulty: "medium" },
-    { name: "Advanced Applications", description: `Complex problem solving and synthesis in ${title}.`, difficulty: "hard" },
+    { name: "Implementation & Practical Patterns", description: `Concrete implementation architectures and component interactions in ${title}.`, difficulty: "medium" },
+    { name: "System Optimization & Scaling", description: `Performance bottlenecks, profiling, and optimization techniques in ${title}.`, difficulty: "hard" },
+    { name: "Advanced Applications & Edge Cases", description: `Complex problem solving, failure mode mitigation, and synthesis in ${title}.`, difficulty: "hard" },
   ];
 
-  if (lowerTitle.includes("artificial intelligence")) {
+  let customEdges: DagSynthesisOutput["edges"] = [];
+
+  if (
+    lowerTitle.includes("data structure") ||
+    lowerTitle.includes("algorithm") ||
+    lowerTitle.includes("dsa")
+  ) {
+    concepts = [
+      { name: "Asymptotic Analysis & Arrays", description: "Time and space complexity (Big-O, Omega, Theta), array memory layout, and two-pointer techniques.", difficulty: "easy" },
+      { name: "Linear Structures: Stacks & Queues", description: "LIFO stack operations, FIFO queue buffering, and monotonic stack/queue patterns.", difficulty: "easy" },
+      { name: "Linked Lists & Pointer Manipulation", description: "Singly and doubly linked lists, pointer rewiring, and cycle detection.", difficulty: "easy" },
+      { name: "Recursion & Backtracking", description: "Call stack mechanics, base conditions, state restoration, and permutation/subset search.", difficulty: "medium" },
+      { name: "Binary Trees & BSTs", description: "Tree traversals (inorder, preorder, postorder, BFS), and Binary Search Tree ordering invariants.", difficulty: "medium" },
+      { name: "Priority Queues & Binary Heaps", description: "Min/max heap properties, array representations, sift-up/down operations, and top-K elements.", difficulty: "medium" },
+      { name: "Hashing & Hash Tables", description: "Hash functions, collision handling (chaining, open addressing), and average O(1) key lookups.", difficulty: "medium" },
+      { name: "Graph Representations & Traversals", description: "Adjacency lists and matrices, Breadth-First Search (BFS), and Depth-First Search (DFS).", difficulty: "hard" },
+      { name: "Shortest Path & Greedy Algorithms", description: "Greedy choice properties, Dijkstra's single-source shortest path, and minimum spanning trees.", difficulty: "hard" },
+      { name: "Dynamic Programming Foundations", description: "Optimal substructure, overlapping subproblems, memoization vs tabulation, and state transitions.", difficulty: "hard" },
+    ];
+
+    customEdges = [
+      { prerequisiteName: "Asymptotic Analysis & Arrays", conceptName: "Linear Structures: Stacks & Queues", weight: 1.0 },
+      { prerequisiteName: "Asymptotic Analysis & Arrays", conceptName: "Linked Lists & Pointer Manipulation", weight: 1.0 },
+      { prerequisiteName: "Asymptotic Analysis & Arrays", conceptName: "Recursion & Backtracking", weight: 0.9 },
+      { prerequisiteName: "Linked Lists & Pointer Manipulation", conceptName: "Binary Trees & BSTs", weight: 1.0 },
+      { prerequisiteName: "Recursion & Backtracking", conceptName: "Binary Trees & BSTs", weight: 0.9 },
+      { prerequisiteName: "Binary Trees & BSTs", conceptName: "Priority Queues & Binary Heaps", weight: 0.8 },
+      { prerequisiteName: "Asymptotic Analysis & Arrays", conceptName: "Hashing & Hash Tables", weight: 0.9 },
+      { prerequisiteName: "Linear Structures: Stacks & Queues", conceptName: "Graph Representations & Traversals", weight: 0.9 },
+      { prerequisiteName: "Recursion & Backtracking", conceptName: "Graph Representations & Traversals", weight: 0.9 },
+      { prerequisiteName: "Graph Representations & Traversals", conceptName: "Shortest Path & Greedy Algorithms", weight: 1.0 },
+      { prerequisiteName: "Recursion & Backtracking", conceptName: "Dynamic Programming Foundations", weight: 1.0 },
+    ];
+  } else if (lowerTitle.includes("artificial intelligence")) {
     concepts = [
       { name: "State Space Search & Heuristics", description: "Informed and uninformed search algorithms, A* search, and heuristic design.", difficulty: "easy" },
-      { name: "Knowledge Representation & Logic", description: "Propositional and first-order predicate logic for automated reasoning.", difficulty: "medium" },
-      { name: "Constraint Satisfaction & Games", description: "Constraint propagation, minimax search, and alpha-beta pruning.", difficulty: "medium" },
-      { name: "Machine Learning & Neural Nets", description: "Supervised learning foundations, gradient descent, and neural networks.", difficulty: "hard" },
+      { name: "Knowledge Representation & Logic", description: "Propositional and first-order predicate logic for automated reasoning.", difficulty: "easy" },
+      { name: "Adversarial Search & Games", description: "Minimax search, alpha-beta pruning, and evaluation heuristics in game playing.", difficulty: "medium" },
+      { name: "Constraint Satisfaction Problems", description: "Constraint propagation, backtracking with forward checking, and arc consistency.", difficulty: "medium" },
+      { name: "Machine Learning Foundations", description: "Supervised vs unsupervised learning, loss functions, and gradient descent optimization.", difficulty: "hard" },
+      { name: "Neural Networks & Deep Learning", description: "Multilayer perceptrons, backpropagation, activation functions, and regularization.", difficulty: "hard" },
     ];
-  } else if (lowerTitle.includes("data mining") || lowerTitle.includes("warehousing")) {
-    concepts = [
-      { name: "Data Preprocessing & Cleaning", description: "Techniques for handling noise, normalization, data integration, and reduction.", difficulty: "easy" },
-      { name: "Data Warehousing & OLAP", description: "Star/snowflake schemas, multidimensional data cubes, and slicing/dicing operations.", difficulty: "easy" },
-      { name: "Association Rule Mining", description: "Discovering frequent itemsets using the Apriori algorithm and FP-growth.", difficulty: "medium" },
-      { name: "Classification & Clustering", description: "Supervised decision trees, Naive Bayes, K-Means clustering, and evaluation.", difficulty: "hard" },
+
+    customEdges = [
+      { prerequisiteName: "State Space Search & Heuristics", conceptName: "Adversarial Search & Games", weight: 1.0 },
+      { prerequisiteName: "State Space Search & Heuristics", conceptName: "Constraint Satisfaction Problems", weight: 0.9 },
+      { prerequisiteName: "Knowledge Representation & Logic", conceptName: "Constraint Satisfaction Problems", weight: 0.8 },
+      { prerequisiteName: "State Space Search & Heuristics", conceptName: "Machine Learning Foundations", weight: 0.7 },
+      { prerequisiteName: "Machine Learning Foundations", conceptName: "Neural Networks & Deep Learning", weight: 1.0 },
     ];
   } else if (lowerTitle.includes("operating systems")) {
     concepts = [
-      { name: "Process Management & Scheduling", description: "Process lifecycles, context switching, and CPU scheduling algorithms.", difficulty: "easy" },
-      { name: "Concurrency & Synchronization", description: "Critical sections, mutexes, semaphores, and classical synchronization problems.", difficulty: "medium" },
-      { name: "Deadlock Detection & Prevention", description: "Banker's algorithm, resource allocation graphs, and recovery strategies.", difficulty: "medium" },
-      { name: "Virtual Memory Management", description: "Paging, segmentation, TLBs, and page replacement policies.", difficulty: "hard" },
+      { name: "Process Management & Scheduling", description: "Process lifecycles, context switching, and CPU scheduling algorithms (FCFS, SJF, RR).", difficulty: "easy" },
+      { name: "Threads & Concurrency", description: "Kernel vs user threads, multi-threading architectures, and race conditions.", difficulty: "easy" },
+      { name: "Synchronization & Classical Problems", description: "Critical sections, mutex locks, semaphores, and monitor synchronization.", difficulty: "medium" },
+      { name: "Deadlock Detection & Avoidance", description: "Deadlock conditions, resource allocation graphs, and Banker's algorithm.", difficulty: "medium" },
+      { name: "Memory Management & Paging", description: "Address translation, contiguous allocation, paging, segmentation, and TLBs.", difficulty: "medium" },
+      { name: "Virtual Memory & Page Replacement", description: "Demand paging, page fault handling, and page replacement policies (FIFO, LRU).", difficulty: "hard" },
+      { name: "File Systems & Storage Management", description: "File allocation methods, directory structures, inode mechanisms, and disk scheduling.", difficulty: "hard" },
+    ];
+
+    customEdges = [
+      { prerequisiteName: "Process Management & Scheduling", conceptName: "Threads & Concurrency", weight: 1.0 },
+      { prerequisiteName: "Threads & Concurrency", conceptName: "Synchronization & Classical Problems", weight: 1.0 },
+      { prerequisiteName: "Synchronization & Classical Problems", conceptName: "Deadlock Detection & Avoidance", weight: 1.0 },
+      { prerequisiteName: "Process Management & Scheduling", conceptName: "Memory Management & Paging", weight: 0.9 },
+      { prerequisiteName: "Memory Management & Paging", conceptName: "Virtual Memory & Page Replacement", weight: 1.0 },
+      { prerequisiteName: "Memory Management & Paging", conceptName: "File Systems & Storage Management", weight: 0.8 },
+    ];
+  } else if (lowerTitle.includes("database") || lowerTitle.includes("dbms") || lowerTitle.includes("sql")) {
+    concepts = [
+      { name: "Relational Data Model & Keys", description: "Entity-relationship diagrams, relations, primary/foreign keys, and integrity constraints.", difficulty: "easy" },
+      { name: "SQL Querying & Aggregations", description: "Data definition, joins, nested subqueries, grouping, and set operations.", difficulty: "easy" },
+      { name: "Functional Dependencies & Normalization", description: "Lossless join decomposition, 1NF, 2NF, 3NF, and BCNF normal forms.", difficulty: "medium" },
+      { name: "Transactions & ACID Guarantees", description: "Atomicity, consistency, isolation, durability, and serializability schedules.", difficulty: "medium" },
+      { name: "Concurrency Control & Locking", description: "Two-phase locking (2PL), deadlock prevention, and timestamp ordering protocols.", difficulty: "hard" },
+      { name: "Indexing & B+ Trees", description: "Clustered and non-clustered indexes, B-tree/B+ tree node splits, and hash indexing.", difficulty: "hard" },
+    ];
+
+    customEdges = [
+      { prerequisiteName: "Relational Data Model & Keys", conceptName: "SQL Querying & Aggregations", weight: 1.0 },
+      { prerequisiteName: "Relational Data Model & Keys", conceptName: "Functional Dependencies & Normalization", weight: 1.0 },
+      { prerequisiteName: "SQL Querying & Aggregations", conceptName: "Transactions & ACID Guarantees", weight: 0.9 },
+      { prerequisiteName: "Transactions & ACID Guarantees", conceptName: "Concurrency Control & Locking", weight: 1.0 },
+      { prerequisiteName: "Relational Data Model & Keys", conceptName: "Indexing & B+ Trees", weight: 0.8 },
     ];
   }
 
-  // Generate 4 diagnostic practice questions for EACH concept (ranked easy to hard)
+  // Generate tough, real-world, out-of-the-box questions for EACH concept
   const questions: DagSynthesisOutput["questions"] = [];
 
   for (const c of concepts) {
-    // 1. Easy: Foundational definition & core objective
-    questions.push({
-      conceptName: c.name,
-      questionText: `What is the primary objective of "${c.name}" within ${title}?`,
-      options: [
-        { key: "A" as const, text: c.description },
-        { key: "B" as const, text: `To bypass standard safety constraints in ${title}.` },
-        { key: "C" as const, text: "To eliminate the need for algorithmic evaluation entirely." },
-        { key: "D" as const, text: "A legacy formatting convention without computational effect." },
-      ],
-      correctAnswer: "A" as const,
-      explanation: `By definition, ${c.name} is designed to: ${c.description}`,
-      difficulty: "easy" as const,
-    });
+    const cLower = c.name.toLowerCase();
 
-    // 2. Easy / Medium: Mechanism & terminology
-    questions.push({
-      conceptName: c.name,
-      questionText: `Which of the following statements accurately characterizes the mechanism of "${c.name}"?`,
-      options: [
-        { key: "A" as const, text: `It operates systematically on core data structures and parameters defined for ${title}.` },
-        { key: "B" as const, text: "It executes exclusively on physical hardware layers without software intervention." },
-        { key: "C" as const, text: "It guarantees constant-time O(1) performance under any non-deterministic input." },
-        { key: "D" as const, text: "It requires external cloud connectivity to perform fundamental logic." },
-      ],
-      correctAnswer: "A" as const,
-      explanation: `The operational mechanism of ${c.name} relies on systematic transformations of structured parameters within ${title}.`,
-      difficulty: "easy" as const,
-    });
+    // Specific tricky scenario questions tailored to core engineering concepts
+    if (cLower.includes("asymptotic") || cLower.includes("array")) {
+      questions.push({
+        conceptName: c.name,
+        questionText: "An ultra-low-latency financial engine switches from a hash table with O(1) average lookup to a contiguous sorted array with O(log N) binary search for 5,000 tickers. Profiling reveals binary search executes 3x faster in production. Why does this counter-intuitive result occur on modern hardware?",
+        options: [
+          { key: "A" as const, text: "Contiguous arrays maximize CPU L1/L2 cache line spatial locality and hardware prefetching, avoiding pointer-chasing cache misses." },
+          { key: "B" as const, text: "Binary search algorithms bypass operating system kernel scheduling queues entirely." },
+          { key: "C" as const, text: "Hash functions strictly consume quadratic O(N^2) cycles once the dataset exceeds 1,000 entries." },
+          { key: "D" as const, text: "Modern production compilers automatically convert binary search into direct branchless constant-time opcodes." },
+        ],
+        correctAnswer: "A" as const,
+        explanation: "Hardware cache lines (typically 64 bytes) fetch adjacent array elements ahead of time. Node-based hash maps scatter memory across the heap, incurring multiple high-latency RAM roundtrips (100–200 CPU cycles per cache miss).",
+        difficulty: "easy" as const,
+      });
 
-    // 3. Medium: Application, invariant rules, and trade-offs
-    questions.push({
-      conceptName: c.name,
-      questionText: `When applying "${c.name}" in practical engineering systems, which trade-off or constraint must be considered?`,
-      options: [
-        { key: "A" as const, text: "Balancing computational overhead against solution precision or latency." },
-        { key: "B" as const, text: "It can only be computed if the input domain contains no negative values." },
-        { key: "C" as const, text: "It completely prevents any runtime exceptions across the entire architecture." },
-        { key: "D" as const, text: "It requires infinite memory allocation to achieve convergence." },
-      ],
-      correctAnswer: "A" as const,
-      explanation: `Practical deployment of ${c.name} fundamentally involves balancing time/space complexity against accuracy constraints.`,
-      difficulty: "medium" as const,
-    });
+      questions.push({
+        conceptName: c.name,
+        questionText: "A dynamic array resizes by doubling capacity at 100% full, but immediately halves capacity when occupancy drops below 50%. An adversary sends an alternating stream of push() and pop() requests exactly at the capacity threshold. What is the worst-case per-operation time complexity under this workload?",
+        options: [
+          { key: "A" as const, text: "O(N) per operation because every consecutive operation triggers a complete array reallocation and element copy (thrashing)." },
+          { key: "B" as const, text: "Amortized O(1) because the operating system page cache absorbs successive allocations without physical memory movement." },
+          { key: "C" as const, text: "Strictly O(log N) as the heap manager maintains balanced buddy-allocation blocks." },
+          { key: "D" as const, text: "O(1) because pop() operations merely decrement the size counter without altering physical buffer bounds." },
+        ],
+        correctAnswer: "A" as const,
+        explanation: "Immediate shrinking causes memory thrashing: push() allocates 2N space and copies N items; the next pop() allocates N space and copies N items. Production systems use hysteresis (e.g. shrink only when dropping below 25% capacity).",
+        difficulty: "hard" as const,
+      });
+    } else if (cLower.includes("stack") || cLower.includes("queue")) {
+      questions.push({
+        conceptName: c.name,
+        questionText: "A high-throughput telemetry service processes an unbounded real-time stream of incoming sensor readings using a monotonic stack. If incoming values arrive in strictly increasing order (v1 < v2 < ... < vn), how many total stack push and pop operations are performed across the entire stream of N items?",
+        options: [
+          { key: "A" as const, text: "Exactly N pushes and 0 pops during the stream, maintaining linear O(N) aggregate processing time." },
+          { key: "B" as const, text: "O(N^2) total operations because every element forces a complete linear traversal of the stack buffer." },
+          { key: "C" as const, text: "O(N log N) operations because monotonic ordering requires binary search repositioning on each insert." },
+          { key: "D" as const, text: "Zero operations because monotonic stacks reject pre-sorted streaming data." },
+        ],
+        correctAnswer: "A" as const,
+        explanation: "In a monotonic decreasing stack, strictly increasing elements pop everything. In a monotonic increasing stack, they simply push. In all cases, each element is pushed at most once and popped at most once, guaranteeing strict amortized O(1) per element.",
+        difficulty: "medium" as const,
+      });
 
-    // 4. Hard: Edge cases, failure modes, and deep analysis
-    questions.push({
-      conceptName: c.name,
-      questionText: `Under which edge condition will a system relying on "${c.name}" encounter severe performance degradation or failure?`,
-      options: [
-        { key: "A" as const, text: "When input assumptions, scale bounds, or dependency guarantees are violated." },
-        { key: "B" as const, text: "Whenever compiled with modern optimizing compilers." },
-        { key: "C" as const, text: "When executed concurrently on symmetric multiprocessing architectures." },
-        { key: "D" as const, text: "Whenever input data is sorted in non-decreasing order." },
-      ],
-      correctAnswer: "A" as const,
-      explanation: `Algorithms implementing ${c.name} rely on invariant input guarantees; violating domain constraints causes degeneration or pathological states.`,
-      difficulty: "hard" as const,
-    });
+      questions.push({
+        conceptName: c.name,
+        questionText: "You implement a FIFO queue using two LIFO stacks (Inbox and Outbox). A junior engineer notices that a single dequeue operation can take O(N) worst-case time. Under what exact condition will this O(N) latency spike occur?",
+        options: [
+          { key: "A" as const, text: "When Outbox is empty and an incoming dequeue request forces pouring all N accumulated elements from Inbox to Outbox." },
+          { key: "B" as const, text: "Whenever both stacks hold an odd number of elements." },
+          { key: "C" as const, text: "On every single dequeue operation because elements must be flipped on both ends." },
+          { key: "D" as const, text: "Only when physical RAM exhaustion forces swap memory paging." },
+        ],
+        correctAnswer: "A" as const,
+        explanation: "Elements are poured into Outbox only when Outbox is completely empty. Although that single dequeue takes O(N) time, the next N-1 dequeues take O(1), preserving amortized O(1) per operation.",
+        difficulty: "hard" as const,
+      });
+    } else if (cLower.includes("tree") || cLower.includes("bst")) {
+      questions.push({
+        conceptName: c.name,
+        questionText: "A database query planner constructs an in-memory Binary Search Tree from customer transaction records sorted chronologically by timestamp. The team notices query response times degrade from 1ms to 250ms. What mathematical degeneration occurred, and what invariant guarantees an AVL or Red-Black tree solves it?",
+        options: [
+          { key: "A" as const, text: "Inserting sorted keys degenerates the BST into a linked list of height N (O(N) search); height-balancing bounds maximum tree height to O(log N)." },
+          { key: "B" as const, text: "Inserting sorted keys causes hash collisions at the root node, overflowing the tree's bucket array." },
+          { key: "C" as const, text: "BSTs cannot represent temporal timestamps without floating-point rounding errors." },
+          { key: "D" as const, text: "The tree depth exceeds the 32-bit integer address range, corrupting the left-child pointer table." },
+        ],
+        correctAnswer: "A" as const,
+        explanation: "Sorted data creates a degenerate 'skewed' tree with zero left children. AVL trees enforce a balance factor (-1, 0, 1), guaranteeing height <= 1.44 log2 N via tree rotations.",
+        difficulty: "medium" as const,
+      });
+
+      questions.push({
+        conceptName: c.name,
+        questionText: "Consider ANY strictly full binary tree where every internal node has exactly 2 non-null children. If the tree contains exactly L leaf nodes, how many internal nodes I must it have, regardless of whether it is perfectly balanced or pathologically skewed?",
+        options: [
+          { key: "A" as const, text: "I = L - 1 (proven by induction: every 2-child fork introduces 1 internal node and increases the net leaf count by 1)." },
+          { key: "B" as const, text: "I = 2L in balanced trees, but I = L in skewed trees." },
+          { key: "C" as const, text: "I = floor(log2 L) dependent on the tree's maximum depth." },
+          { key: "D" as const, text: "I = L + 1 because the root node contributes an extra level." },
+        ],
+        correctAnswer: "A" as const,
+        explanation: "In any full binary tree with L leaves, the number of internal nodes is strictly invariant: I = L - 1. Tree balance affects height, not node counts.",
+        difficulty: "hard" as const,
+      });
+    } else if (cLower.includes("dynamic programming") || cLower.includes("greedy")) {
+      questions.push({
+        conceptName: c.name,
+        questionText: "Why does Dijkstra's greedy shortest-path algorithm catastrophically fail on graphs containing negative edge weights, whereas the Bellman-Ford dynamic programming approach handles them correctly?",
+        options: [
+          { key: "A" as const, text: "Dijkstra assumes optimal substructure is monotonic (once a node is settled, its distance can never decrease), an invariant broken by negative weights." },
+          { key: "B" as const, text: "Dijkstra's priority queue cannot store signed integer bit-representations." },
+          { key: "C" as const, text: "Negative edges cause integer overflow inside the relaxation step." },
+          { key: "D" as const, text: "Dijkstra's algorithm converts directed graphs into undirected minimum spanning trees." },
+        ],
+        correctAnswer: "A" as const,
+        explanation: "Dijkstra's greedy choice property relies on non-negative weights: adding an edge can only increase or maintain path cost. A negative edge allows a roundabout path to end up cheaper, which Dijkstra never revisits.",
+        difficulty: "hard" as const,
+      });
+
+      questions.push({
+        conceptName: c.name,
+        questionText: "In the 0/1 Knapsack problem (items cannot be cut into fractions), a greedy algorithm that picks items with the highest value-to-weight ratio fails to guarantee an optimal solution. Why does greedy fail here but succeed on Fractional Knapsack?",
+        options: [
+          { key: "A" as const, text: "Greedy choices leave indivisible empty capacity ('slack') that a combination of lower-density items could fill more profitably; DP explores these capacity subproblems." },
+          { key: "B" as const, text: "0/1 Knapsack has no overlapping subproblems, making dynamic programming the only valid polynomial-time method." },
+          { key: "C" as const, text: "Fractional Knapsack relies on non-deterministic Turing machines to approximate optimal ratios." },
+          { key: "D" as const, text: "0/1 Knapsack cannot be solved using array memoization tables." },
+        ],
+        correctAnswer: "A" as const,
+        explanation: "In 0/1 knapsack, selecting a bulky item with high ratio might leave empty space that cannot be filled. Fractional knapsack allows filling the remaining sliver with partial items, maintaining the greedy invariant.",
+        difficulty: "medium" as const,
+      });
+    } else if (cLower.includes("hash")) {
+      questions.push({
+        conceptName: c.name,
+        questionText: "A production microservice experiences a Denial-of-Service (DoS) where CPU utilization spikes to 100% processing tiny 50 KB JSON payloads. Security analysis confirms an algorithmic Hash Collision Attack. How does this attack degrade the system, and what is the modern remedy?",
+        options: [
+          { key: "A" as const, text: "The attacker crafts keys that generate identical hash codes, collapsing O(1) lookups into worst-case O(N) linked-list traversals; runtimes mitigate this with SipHash and randomized per-process seeds." },
+          { key: "B" as const, text: "The attacker floods memory with null pointers, causing kernel TLB shootdowns across all CPU cores." },
+          { key: "C" as const, text: "The hash table runs out of prime modulus buckets, entering an infinite loop inside the modulo operator." },
+          { key: "D" as const, text: "The hash function consumes cryptographic SHA-512 rounds on every incoming request parameter." },
+        ],
+        correctAnswer: "A" as const,
+        explanation: "If hash functions are deterministic and unkeyed (e.g. MurmurHash or polynomial hashes), adversaries generate precomputed collisions. SipHash uses a secret random key generated at process startup.",
+        difficulty: "hard" as const,
+      });
+
+      questions.push({
+        conceptName: c.name,
+        questionText: "In a hash table utilizing open addressing with linear probing, the load factor reaches 0.90. What critical performance degradation occurs, and why is tombstones deletion necessary?",
+        options: [
+          { key: "A" as const, text: "Primary clustering forms long contiguous occupied runs; naive deletion without tombstones breaks the probe sequence for subsequently inserted keys." },
+          { key: "B" as const, text: "Linear probing creates duplicate keys at index 0, corrupting table metadata." },
+          { key: "C" as const, text: "Open addressing switches to quadratic probing once load factor crosses 0.75." },
+          { key: "D" as const, text: "The hash table locks all reads until elements are re-sorted alphabetically." },
+        ],
+        correctAnswer: "A" as const,
+        explanation: "When searching for an element, linear probing stops at the first empty slot. If an intermediate key is deleted and set to empty, subsequent searches terminate prematurely without finding the target.",
+        difficulty: "medium" as const,
+      });
+    } else if (cLower.includes("graph") || cLower.includes("network")) {
+      questions.push({
+        conceptName: c.name,
+        questionText: "In a social network graph with 2,000,000 users where each user averages 400 friends, running standard BFS to find degree-3 connection paths crashes with Out-Of-Memory (OOM). Why does bidirectional BFS avoid this memory explosion?",
+        options: [
+          { key: "A" as const, text: "Standard BFS explores b^d = 400^3 ≈ 64,000,000 frontier nodes; bidirectional BFS searches from both ends simultaneously, reducing frontier memory to 2 * b^(d/2) ≈ 2 * 400^1.5 ≈ 16,000 nodes." },
+          { key: "B" as const, text: "Bidirectional BFS replaces the adjacency list with an adjacency matrix that uses 0 bytes of RAM." },
+          { key: "C" as const, text: "Standard BFS creates memory leaks in the operating system thread pool that bidirectional BFS cleans up." },
+          { key: "D" as const, text: "Bidirectional BFS eliminates all cycles without maintaining a visited set." },
+        ],
+        correctAnswer: "A" as const,
+        explanation: "The exponential frontier in BFS grows as O(b^d). Meeting in the middle reduces the maximum exponent from d to d/2, cutting required frontier storage by several orders of magnitude.",
+        difficulty: "hard" as const,
+      });
+
+      questions.push({
+        conceptName: c.name,
+        questionText: "You need to detect cycles in a directed graph representing package build dependencies. An engineer attempts to use BFS without in-degree counting, while another proposes Kahn's algorithm. Why does naive BFS fail to detect cycles in directed graphs?",
+        options: [
+          { key: "A" as const, text: "A directed cycle can be entered from multiple nodes, so BFS cross-edges do not necessarily indicate cycles; Kahn's algorithm tracks in-degrees to detect remaining unprocessed dependencies." },
+          { key: "B" as const, text: "BFS can only be executed on undirected trees, not directed graphs." },
+          { key: "C" as const, text: "Kahn's algorithm uses depth-first backtracking to mark nodes as currently visited." },
+          { key: "D" as const, text: "Directed graphs cannot be stored using adjacency lists." },
+        ],
+        correctAnswer: "A" as const,
+        explanation: "In a directed graph, finding an already visited node does NOT imply a cycle (it could be a forward or cross-edge). Kahn's algorithm removes nodes with 0 in-degrees; if nodes remain, a directed cycle exists.",
+        difficulty: "medium" as const,
+      });
+    } else {
+      // Dynamic, highly rigorous scenario questions for all other concepts
+      questions.push({
+        conceptName: c.name,
+        questionText: `A mission-critical distributed platform relies on "${c.name}" within ${title}. Under sudden 10x burst load, the system experiences cascading latency spikes. An architecture review identifies that a hidden invariant of "${c.name}" was violated. Which failure mode is the root cause?`,
+        options: [
+          { key: "A" as const, text: `The operational assumptions of "${c.name}" break down under high contention, causing resource thrashing and unamortized latency spikes.` },
+          { key: "B" as const, text: "The network socket buffer resets all active TCP handshakes to synchronous polling mode." },
+          { key: "C" as const, text: "The algorithm assumes infinite L1 cache capacity, causing kernel panic interrupts." },
+          { key: "D" as const, text: "Static code analyzers enforce immutable execution, preventing runtime parameter adjustments." },
+        ],
+        correctAnswer: "A" as const,
+        explanation: `Under extreme load, systems using "${c.name}" must account for contention and queue buildup. When invariant assumptions are breached, amortized efficiency degrades to worst-case behavior.`,
+        difficulty: "medium" as const,
+      });
+
+      questions.push({
+        conceptName: c.name,
+        questionText: `When optimizing "${c.name}" in production, an engineer proposes an out-of-the-box shortcut to eliminate intermediate synchronization overhead. What subtle trade-off makes this shortcut hazardous in safety-critical environments?`,
+        options: [
+          { key: "A" as const, text: "It introduces race conditions and non-deterministic state corruption under concurrent or interleaved execution." },
+          { key: "B" as const, text: "It doubles physical silicon transistor wear across multi-core processors." },
+          { key: "C" as const, text: "It strictly forces the database storage engine to revert to serializable isolation." },
+          { key: "D" as const, text: "It invalidates all cryptographic public keys stored in the hardware security module." },
+        ],
+        correctAnswer: "A" as const,
+        explanation: `Prematurely removing synchronization in "${c.name}" breaks memory visibility barriers, creating silent data corruption and race conditions that only reproduce under high concurrency.`,
+        difficulty: "hard" as const,
+      });
+    }
   }
+
+  const edges =
+    customEdges.length > 0
+      ? customEdges
+      : concepts.slice(0, -1).map((c, i) => ({
+          prerequisiteName: c.name,
+          conceptName: concepts[i + 1].name,
+          weight: 0.9,
+        }));
 
   return {
     courseTitle: title,
     courseSubject: "Computer Science",
     concepts,
-    edges: [
-      { prerequisiteName: concepts[0].name, conceptName: concepts[1].name, weight: 1.0 },
-      { prerequisiteName: concepts[1].name, conceptName: concepts[2].name, weight: 1.0 },
-      { prerequisiteName: concepts[2].name, conceptName: concepts[3].name, weight: 0.8 },
-    ],
+    edges,
     questions,
   };
 }

@@ -63,13 +63,7 @@ Respond ONLY with this JSON (no markdown):
 
 // Misconception and cognitive dissonance prompts
 
-/**
- * Builds the "Mental Mirror" prompt.
- *
- * If the student provided an optional reasoning note (why they thought
- * their answer was right), Gemini uses that to make the cognitive
- * dissonance counter-example extremely targeted.
- */
+// Builds bilingual misconception diagnosis prompt incorporating student reasoning
 export function buildMisconceptionPrompt({
   questionText,
   selectedOptionText,
@@ -137,10 +131,7 @@ Respond with ONLY a JSON object in this exact format (no markdown, no backticks,
 
 // Concept bite remediation prompts
 
-/**
- * Builds a prompt for a bilingual 60-Second Concept Bite (English + Hindi/Hinglish)
- * with a pool of challenging, tricky real-world scenario questions.
- */
+// Builds prompt for bilingual 60-second concept bite and real-world scenario questions
 export function buildConceptBitePrompt(conceptName: string, description?: string): string {
   return `You are a world-class STEM educator, senior systems architect, and cognitive psychologist.
 Create an advanced bilingual "60-Second Concept Bite" for Indian engineering students (NEP 2020 aligned) to master the concept: "${conceptName}".
@@ -224,14 +215,7 @@ Respond with ONLY a JSON object in this exact format (no markdown, no backticks,
 
 // DAG course synthesis prompts
 
-/**
- * Converts course title or syllabus text into an atomic concept list
- * and prerequisite dependency graph.
- *
- * Ensures courseTitle is always an overarching academic subject name
- * (e.g., "Artificial Intelligence", "Data Mining and Warehousing", "Operating Systems")
- * and not a specific sub-topic/concept.
- */
+// Builds curriculum synthesis prompt mapping topic text to course graph and scenario questions
 export function buildDagSynthesisPrompt(topicText: string, courseTitle?: string): string {
   const courseContext = courseTitle?.trim()
     ? `The target course/subject name is explicitly specified as: "${courseTitle.trim()}". Use this exact course name for "courseTitle".\n`
@@ -250,15 +234,30 @@ Your job:
    - NEVER use a narrow concept, single algorithm, or chapter name as the courseTitle (e.g. NEVER name the course "OS Deadlocks", "Database Normalization", "TCP/IP", or "Banker's Algorithm").
    - If the teacher input mentions a specific topic or module, map it to its standard overarching university subject name (e.g. Deadlocks -> "Operating Systems", Normalization -> "Database Management Systems", Minimax -> "Artificial Intelligence", OLAP -> "Data Mining and Warehousing").
 2. "courseSubject": The broader department or academic discipline (e.g. "Computer Science & Engineering", "Information Technology", "Data Science").
-3. Extract 4 to 10 ATOMIC, fundamental curriculum concepts that belong to this subject. Each concept should be a clear, modular unit of knowledge.
-4. Infer prerequisite dependencies between the concepts. A prerequisite edge means: a student MUST understand concept A before they can meaningfully learn concept B.
+3. EXTRACT 6 TO 10 COMPREHENSIVE CURRICULUM MODULES/CONCEPTS ("concepts"):
+   - University-level courses are broad and modular (covering foundational, intermediate, and advanced topics). Do NOT output only 3 or 4 basic concepts.
+   - For example, a complete "Data Structures and Algorithms" curriculum must include 7 to 9 core modules (e.g. Asymptotic Analysis & Arrays, Stacks & Queues, Linked Lists, Recursion & Backtracking, Binary Search Trees, Binary Heaps, Hashing & Hash Tables, Graph Traversals, Shortest Paths, Dynamic Programming).
+   - Ensure each concept is an atomic, modular unit of knowledge with a clear description and difficulty ("easy" | "medium" | "hard").
+4. INFER PREREQUISITE DEPENDENCIES ("edges"):
+   - A prerequisite edge means: a student MUST understand concept A before they can meaningfully learn concept B.
+   - Build a well-connected, natural learning progression (DAG).
 5. Assign a weight (0.5 to 1.0) to each edge: 1.0 = strong direct prerequisite, 0.5 = recommended prerequisite.
-6. Ensure the graph has NO cycles (it must be a valid DAG).
-7. PRACTICE QUESTIONS (CRITICAL): Generate 4 to 5 diagnostic multiple-choice questions (MCQs) for EACH concept, graded and ordered by difficulty ranking from "easy" to "medium" to "hard" (e.g. 1-2 easy foundational questions, 2 medium application questions, 1 hard problem-solving question per concept). Each question must have 4 options (keys: A, B, C, D), a single correctAnswer key, an explanation of why the correct answer is right and why distractors fail, and the difficulty ("easy" | "medium" | "hard").
+6. Ensure the graph has NO cycles (it must be a strictly valid DAG).
+7. PRACTICE QUESTIONS (CRITICAL QUALITY REQUIREMENT — OUT-OF-THE-BOX & CONCEPTUAL LOGICAL CHALLENGES):
+   - Generate 3 to 4 TOUGH, highly conceptual diagnostic multiple-choice questions (MCQs) for EACH concept, graded and ordered by difficulty ranking from "easy" to "medium" to "hard".
+   - STRICTLY ZERO ROTE DEFINITIONS OR TRIVIA: NEVER ask simple dictionary or memorization questions like "What is X?", "Which of the following defines X?", or trivial syntax checks.
+   - REAL-LIFE SCENARIOS & PRODUCTION INCIDENTS: Frame every question around a concrete engineering scenario, production bottleneck, concurrency race, cache anomaly, memory leak, or architectural trade-off.
+   - TRICKY OUT-OF-THE-BOX LOGIC: Questions must test subtle invariant preservation, counter-intuitive paradoxes, and multi-step deduction that force students to think critically and analytically.
+   - SOPHISTICATED TRAP DISTRACTORS: Options A, B, C, D must all sound plausible. The distractors must deliberately target common mental traps, flawed assumptions, and cognitive misconceptions students make.
+   - DEEP LOGICAL EXPLANATION: The "explanation" must thoroughly analyze why the correct answer is right and diagnose why the attractive trap distractor is logically flawed.
+   - DIFFICULTY RANKING:
+     * "easy": A foundational yet tricky conceptual scenario requiring mechanical or invariant understanding.
+     * "medium": A realistic system design dilemma or algorithm trade-off with competing constraints.
+     * "hard": A tough, out-of-the-box edge case, pathological input boundary, or counter-intuitive brain-teaser.
 
 Respond with ONLY a JSON object in this exact format (no markdown, no extra text):
 {
-  "courseTitle": "Formal Course Name (e.g. Artificial Intelligence, Data Mining and Warehousing)",
+  "courseTitle": "Formal Course Name (e.g. Data Structures and Algorithms, Operating Systems)",
   "courseSubject": "Academic Discipline (e.g. Computer Science & Engineering)",
   "concepts": [
     {
@@ -277,25 +276,27 @@ Respond with ONLY a JSON object in this exact format (no markdown, no extra text
   "questions": [
     {
       "conceptName": "Concept Name (must match a concept name exactly)",
-      "questionText": "Clear, diagnostic MCQ question prompt",
+      "questionText": "Realistic, scenario-driven question prompt testing subtle logic, trade-offs, or edge cases",
       "options": [
-        { "key": "A", "text": "First option" },
-        { "key": "B", "text": "Second option" },
-        { "key": "C", "text": "Third option" },
-        { "key": "D", "text": "Fourth option" }
+        { "key": "A", "text": "Logically sound correct answer" },
+        { "key": "B", "text": "Plausible distractor targeting common misconception" },
+        { "key": "C", "text": "Plausible distractor targeting flawed mental model" },
+        { "key": "D", "text": "Plausible distractor targeting boundary/asymptotic trap" }
       ],
       "correctAnswer": "A",
-      "explanation": "Why the correct answer is right and distractor misconceptions.",
+      "explanation": "In-depth explanation showing why A is correct and debunking the subtle traps in B, C, and D.",
       "difficulty": "easy" | "medium" | "hard"
     }
   ]
 }
 
 Rules:
-- "courseTitle" must be the overarching subject name, never a concept or chapter.
+- "courseTitle" must be the overarching subject name, never a single concept or chapter.
+- concepts array MUST contain 6 to 10 comprehensive curriculum concepts covering the subject.
 - concept names must be unique.
 - all edge names and question conceptNames MUST exactly match concept names in the concepts array.
-- For EACH concept in concepts, generate 4 to 5 questions ordered from easy to hard.
+- For EACH concept in concepts, generate 2 to 3 diagnostic questions ordered from easy to hard.
+- ZERO dictionary/definition questions. Every question must challenge the student with a tricky, conceptual real-world scenario or out-of-the-box logical dilemma.
 - the graph must have no cycles.
 - difficulty must be one of: easy, medium, hard.`;
 }

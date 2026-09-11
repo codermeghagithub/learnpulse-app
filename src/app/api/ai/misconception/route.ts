@@ -5,7 +5,7 @@ import { z } from "zod";
 
 // Request validation
 const requestSchema = z.object({
-  questionId: z.string().trim().min(1, "Question ID is required").max(100),
+  questionId: z.string().uuid("Invalid question ID format."),
   questionText: z.string().trim().min(5, "Question text must be at least 5 characters").max(2000),
   selectedOptionText: z.string().trim().min(1, "Selected option text is required").max(1000),
   selectedKey: z.enum(["A", "B", "C", "D"], {
@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
     const parsed = requestSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
-        { error: "Invalid request payload" },
+        { error: parsed.error.issues[0]?.message ?? "Invalid request payload" },
         { status: 400 }
       );
     }
