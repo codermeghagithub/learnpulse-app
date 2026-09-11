@@ -61,11 +61,7 @@ interface SynthesisResult {
   cycleDetected?: boolean;
 }
 
-interface ExampleSubject {
-  name: string;
-  text: string;
-}
-
+import { CURRICULUM_PRESETS } from "@/lib/constants/curriculumPresets";
 
 const DIFFICULTY_COLOR: Record<SynthesizedConcept["difficulty"], string> = {
   easy: "text-success bg-success/10 border-success/20",
@@ -73,36 +69,7 @@ const DIFFICULTY_COLOR: Record<SynthesizedConcept["difficulty"], string> = {
   hard: "text-destructive bg-destructive/10 border-destructive/20",
 };
 
-const EXAMPLE_SUBJECTS: ExampleSubject[] = [
-  {
-    name: "Artificial Intelligence",
-    text: "Artificial Intelligence: State Space Search, Heuristic Search (A*), Minimax & Alpha-Beta Pruning, Constraint Satisfaction, Propositional Logic, Knowledge Representation, Machine Learning Basics",
-  },
-  {
-    name: "Data Mining and Warehousing",
-    text: "Data Mining and Warehousing: Data Preprocessing, Data Warehousing & OLAP, Association Rule Mining (Apriori), Classification (Decision Trees), Cluster Analysis (K-Means), Outlier Detection",
-  },
-  {
-    name: "Operating Systems",
-    text: "Operating Systems: Process Scheduling, Concurrency & Synchronization, Deadlock Prevention, Memory Management & Paging, Virtual Memory, File Systems",
-  },
-  {
-    name: "Database Management Systems",
-    text: "Database Management Systems: Relational Model, SQL Queries, Schema Normalization (1NF-BCNF), Transaction ACID, Concurrency Control, Indexing & B+ Trees",
-  },
-  {
-    name: "Computer Networks",
-    text: "Computer Networks: OSI Model, Data Link Framing, IP Addressing & Subnetting, Routing Protocols, TCP/UDP Transport, Congestion Control, DNS & HTTP",
-  },
-];
-
-/* QuickCourseSynthesizer: synthesizes curriculum drafts for teacher review before DB persistence.
- *
- * Strict Zero-Trust Architecture:
- * - Synthesis produces a draft in memory ONLY. Nothing is saved to DB.
- * - Teacher inspects concepts, prerequisite edges, and questions in review tabs.
- * - Only after explicit final confirmation is the course persisted to the database.
- */
+// Synthesizes curriculum drafts for teacher review before database persistence
 interface QuickCourseSynthesizerProps {
   isModal?: boolean;
   onClose?: () => void;
@@ -369,7 +336,7 @@ export function QuickCourseSynthesizer({
               Quick examples:
             </p>
             <div className="flex flex-wrap gap-2">
-              {EXAMPLE_SUBJECTS.map((sub, i) => (
+              {CURRICULUM_PRESETS.map((sub, i) => (
                 <Button
                   key={i}
                   id={`example-subject-${i}`}

@@ -13,24 +13,13 @@ import { z } from "zod";
 
 const requestSchema = z
   .object({
-    /** Free-form topic text, syllabus excerpt, or comma-separated topic list. */
     topicText: z.string().max(3000).optional().default(""),
-    /** Explicit course / subject name (e.g. "Artificial Intelligence", "Data Mining and Warehousing") */
     courseTitle: z.string().min(2).max(120).optional(),
-    /** Academic department / discipline (e.g. "Computer Science & Engineering") */
     courseSubject: z.string().min(2).max(100).optional(),
-    /** Teacher-reviewed / edited concepts to persist directly */
     concepts: z.array(synthesizedConceptSchema).min(1).max(30).optional(),
-    /** Teacher-reviewed / edited edges to persist directly */
     edges: z.array(synthesizedEdgeSchema).optional(),
-    /** Teacher-reviewed / edited practice questions */
     questions: z.array(synthesizedQuestionSchema).optional(),
-    /** Optional: if provided, adds synthesized DAG directly to an existing course */
     targetCourseId: z.string().uuid().optional(),
-    /**
-     * If true, persist the synthesized course + concepts + edges + questions to the database.
-     * If false (default), only return the preview without writing anything.
-     */
     persist: z.boolean().default(false),
   })
 

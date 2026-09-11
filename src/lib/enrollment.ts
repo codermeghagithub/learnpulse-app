@@ -2,10 +2,7 @@ import type { createClient } from "@/utils/supabase/server";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
 
-/**
- * Fetch the list of course IDs that a student is actively enrolled in.
- * Dual-tier resolution: checks database `enrollments` table with user_metadata fallback.
- */
+// Fetches active enrolled course IDs with fallback to user metadata
 export async function getStudentEnrolledCourseIds(
   supabase: SupabaseServerClient,
   userId: string,
@@ -54,11 +51,7 @@ export async function getStudentEnrolledCourseIds(
   return [];
 }
 
-/**
- * Fetch the student roster enrolled in a given course.
- * Dual-tier resolution: checks database `enrollments` table joined with `profiles`,
- * and falls back to user_metadata scanning if the table is not yet migrated.
- */
+// Fetches enrolled student roster for a course
 interface EnrolledProfileRow {
   user_id: string;
   profiles: { id: string; full_name: string } | null;

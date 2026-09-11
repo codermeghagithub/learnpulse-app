@@ -113,13 +113,15 @@ export function DashboardClientView({
       animate="show"
       className="w-full max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 sm:space-y-8"
     >
-      {/* ── Top Hero Banner ── */}
       <motion.div
         variants={itemVariants}
         className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b-2 border-border/40 relative"
       >
         <div className="space-y-1.5 min-w-0 flex-1">
-          <Badge variant="outline" className="gap-2 px-3 py-1 text-xs font-bold bg-primary text-primary-foreground border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] h-auto rounded-xs">
+          <Badge
+            variant="outline"
+            className="gap-2 px-3 py-1 text-xs font-bold bg-primary text-primary-foreground border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] h-auto rounded-xs"
+          >
             <span className="h-2 w-2 rounded-xs bg-white" />
             <span>Smart Learning Active</span>
             <span className="opacity-60">&bull;</span>
@@ -132,7 +134,8 @@ export function DashboardClientView({
             Good day, {firstName}
           </h1>
           <p className="text-muted-foreground text-xs sm:text-sm max-w-2xl leading-relaxed font-medium">
-            Find out what you know, review tricky questions, and build confidence with quick practice.
+            Find out what you know, review tricky questions, and build
+            confidence with quick practice.
           </p>
         </div>
 
@@ -144,7 +147,6 @@ export function DashboardClientView({
         </div>
       </motion.div>
 
-      {/* ── Course Selector Tabs ── */}
       {validCourses.length > 0 && (
         <motion.div variants={itemVariants}>
           <CourseSelector
@@ -157,7 +159,6 @@ export function DashboardClientView({
 
       {validCourses.length === 0 ? (
         totalPlatformCoursesCount > 0 ? (
-          /* ── Empty State: Student has not enrolled in any course yet ── */
           <motion.div
             variants={itemVariants}
             className="rounded-xl p-10 sm:p-14 text-center space-y-6 border-2 border-dashed border-border bg-card shadow-[2px_2px_0px_var(--shadow-color)]"
@@ -181,7 +182,7 @@ export function DashboardClientView({
                 id="empty-state-browse-catalog-btn"
                 className={cn(
                   buttonVariants(),
-                  "gap-2 rounded-md px-6 py-2.5 text-xs sm:text-sm font-bold border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] hover:shadow-[3px_3px_0px_var(--shadow-color)] cursor-pointer h-10"
+                  "gap-2 rounded-md px-6 py-2.5 text-xs sm:text-sm font-bold border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] hover:shadow-[3px_3px_0px_var(--shadow-color)] cursor-pointer h-10",
                 )}
               >
                 <Plus className="h-4 w-4" />
@@ -190,7 +191,6 @@ export function DashboardClientView({
             </div>
           </motion.div>
         ) : (
-          /* ── Empty State: No courses published on platform yet ── */
           <motion.div
             variants={itemVariants}
             className="rounded-xl p-12 text-center space-y-5 border-2 border-dashed border-border bg-card shadow-[2px_2px_0px_var(--shadow-color)]"
@@ -211,7 +211,6 @@ export function DashboardClientView({
           </motion.div>
         )
       ) : validConcepts.length === 0 ? (
-        /* ── Empty State: Course empty ── */
         <motion.div
           variants={itemVariants}
           className="rounded-xl p-12 text-center space-y-5 border-2 border-dashed border-border bg-card shadow-[2px_2px_0px_var(--shadow-color)]"
@@ -231,7 +230,6 @@ export function DashboardClientView({
         </motion.div>
       ) : (
         <>
-          {/* ── First-time Onboarding Card ── */}
           {attemptedConcepts.length === 0 && (
             <motion.div
               variants={itemVariants}
@@ -246,8 +244,8 @@ export function DashboardClientView({
                   Ready to test your knowledge in {selectedCourse?.title}?
                 </h3>
                 <p className="text-xs sm:text-sm text-muted-foreground max-w-xl leading-relaxed font-medium">
-                  Take a quick practice quiz to see what you already know, find topics
-                  that need review, and get instant explanations.
+                  Take a quick practice quiz to see what you already know, find
+                  topics that need review, and get instant explanations.
                 </p>
               </div>
               <Link
@@ -255,7 +253,7 @@ export function DashboardClientView({
                 id="empty-state-cta"
                 className={cn(
                   buttonVariants(),
-                  "relative z-10 gap-2 rounded-md px-6 py-2.5 text-xs sm:text-sm font-bold border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] hover:shadow-[3px_3px_0px_var(--shadow-color)] shrink-0 cursor-pointer h-10"
+                  "relative z-10 gap-2 rounded-md px-6 py-2.5 text-xs sm:text-sm font-bold border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] hover:shadow-[3px_3px_0px_var(--shadow-color)] shrink-0 cursor-pointer h-10",
                 )}
               >
                 <Zap className="h-4 w-4" />
@@ -264,7 +262,6 @@ export function DashboardClientView({
             </motion.div>
           )}
 
-          {/* ── Three Key KPI Cards ── */}
           <motion.div
             variants={containerVariants}
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5"
@@ -318,7 +315,10 @@ export function DashboardClientView({
                   </div>
                   Lessons in Class
                 </span>
-                <Badge variant="outline" className="text-[10px] font-bold tracking-wide text-muted-foreground bg-muted px-2 py-0.5 border-1.5 border-border rounded-xs">
+                <Badge
+                  variant="outline"
+                  className="text-[10px] font-bold tracking-wide text-muted-foreground bg-muted px-2 py-0.5 border-1.5 border-border rounded-xs"
+                >
                   Course Topics
                 </Badge>
               </div>
@@ -428,7 +428,6 @@ export function DashboardClientView({
             </motion.div>
           </motion.div>
 
-          {/* ── Weak Concepts: Needing Attention Grid ── */}
           {weakConcepts.length > 0 && (
             <motion.div variants={itemVariants} className="space-y-4">
               <div className="flex items-center justify-between">
@@ -438,7 +437,10 @@ export function DashboardClientView({
                     Topics Needing Practice
                   </h2>
                 </div>
-                <Badge variant="outline" className="text-xs px-3 py-0.5 bg-accent-yellow/30 text-foreground border-1.5 border-border font-bold rounded-xs">
+                <Badge
+                  variant="outline"
+                  className="text-xs px-3 py-0.5 bg-accent-yellow/30 text-foreground border-1.5 border-border font-bold rounded-xs"
+                >
                   {weakConcepts.length} topic
                   {weakConcepts.length > 1 ? "s" : ""} under 60%
                 </Badge>
@@ -465,7 +467,10 @@ export function DashboardClientView({
                           <span className="font-bold text-sm sm:text-base group-hover:text-primary transition-colors line-clamp-1 flex items-center gap-2">
                             <span>{concept.name}</span>
                           </span>
-                          <Badge variant="outline" className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold bg-muted px-2.5 py-0.5 border-1.5 border-border rounded-xs">
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold bg-muted px-2.5 py-0.5 border-1.5 border-border rounded-xs"
+                          >
                             {concept.difficulty}
                           </Badge>
                         </div>
@@ -506,7 +511,6 @@ export function DashboardClientView({
             </motion.div>
           )}
 
-          {/* ── All Concepts List ── */}
           <motion.div variants={itemVariants} className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -514,7 +518,10 @@ export function DashboardClientView({
                   All Course Topics
                 </h2>
               </div>
-              <Badge variant="outline" className="text-xs text-foreground font-bold bg-muted px-3 py-0.5 border-1.5 border-border rounded-xs font-mono">
+              <Badge
+                variant="outline"
+                className="text-xs text-foreground font-bold bg-muted px-3 py-0.5 border-1.5 border-border rounded-xs font-mono"
+              >
                 {conceptsWithRisk.length} topics
               </Badge>
             </div>
@@ -533,7 +540,10 @@ export function DashboardClientView({
                         <span className="font-bold text-sm sm:text-base group-hover:text-primary transition-colors truncate text-foreground">
                           {concept.name}
                         </span>
-                        <Badge variant="outline" className="hidden sm:inline-flex text-[10px] uppercase tracking-wider text-muted-foreground font-bold px-2 py-0.5 bg-muted border-1.5 border-border rounded-xs">
+                        <Badge
+                          variant="outline"
+                          className="hidden sm:inline-flex text-[10px] uppercase tracking-wider text-muted-foreground font-bold px-2 py-0.5 bg-muted border-1.5 border-border rounded-xs"
+                        >
                           {concept.difficulty}
                         </Badge>
                       </div>

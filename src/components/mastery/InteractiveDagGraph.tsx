@@ -382,11 +382,9 @@ export function InteractiveDagGraph({
         </p>
       </div>
 
-      {/* Selected Node Details Card (Bug-Free Compact Flex Layout) */}
       {selectedNode && (
         <div className="glass-card rounded-xl p-4 sm:p-5 flex items-center justify-between flex-wrap gap-4 border-2 border-border animate-fade-in bg-card shadow-[3px_3px_0px_var(--shadow-color)]">
           <div className="flex items-center gap-3.5 min-w-0">
-            {/* Mastery Score Badge (Guaranteed No Overlap with shrink-0 & Math.round) */}
             <div
               className={cn(
                 "flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-white font-bold text-xs border-2 border-border shadow-[1px_1px_0px_var(--shadow-color)]",

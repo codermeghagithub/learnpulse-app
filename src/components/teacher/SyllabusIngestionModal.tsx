@@ -30,28 +30,7 @@ interface SyllabusIngestionModalProps {
   onSuccess?: () => void;
 }
 
-const AICTE_PRESETS = [
-  {
-    title: "Artificial Intelligence & ML",
-    text: "Artificial Intelligence: State Space Search, Heuristic Search (A*), Minimax & Alpha-Beta Pruning, Constraint Satisfaction, Propositional Logic, Knowledge Representation, Machine Learning Basics",
-  },
-  {
-    title: "Database Engineering",
-    text: "Database Engineering: Relational Model, SQL Queries, Schema Normalization (1NF-BCNF), Transaction ACID, Concurrency Control, Indexing & B+ Trees",
-  },
-  {
-    title: "Operating Systems",
-    text: "Operating Systems: Process Scheduling, Concurrency & Synchronization, Deadlock Prevention, Memory Management & Paging, Virtual Memory, File Systems",
-  },
-  {
-    title: "Computer Networks",
-    text: "Computer Networks: OSI Model, Data Link Framing, IP Addressing & Subnetting, Routing Protocols, TCP/UDP Transport, Congestion Control, DNS & HTTP",
-  },
-  {
-    title: "Data Structures & Algorithms",
-    text: "Data Structures and Algorithms: Array Manipulations, Linked Lists, Stacks & Queues, Binary Trees & BSTs, Graph Traversals (BFS/DFS), Dynamic Programming",
-  },
-];
+import { CURRICULUM_PRESETS } from "@/lib/constants/curriculumPresets";
 
 export function SyllabusIngestionModal({
   courseId,
@@ -152,9 +131,9 @@ export function SyllabusIngestionModal({
             AICTE Standard Curriculum Presets:
           </Label>
           <div className="flex flex-wrap gap-1.5">
-            {AICTE_PRESETS.map((preset) => (
+            {CURRICULUM_PRESETS.map((preset) => (
               <Button
-                key={preset.title}
+                key={preset.name}
                 type="button"
                 variant={topicText === preset.text ? "secondary" : "outline"}
                 size="sm"
@@ -169,7 +148,7 @@ export function SyllabusIngestionModal({
                     : "border-border bg-card hover:bg-muted text-foreground",
                 )}
               >
-                {preset.title}
+                {preset.name}
               </Button>
             ))}
           </div>

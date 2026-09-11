@@ -230,7 +230,7 @@
   }
 }
 
-/* ── Neo-Brutalist custom utility classes ── */
+/* Utility classes */
 @layer utilities {
   .no-scrollbar::-webkit-scrollbar {
     display: none;
@@ -318,7 +318,7 @@
   }
 }
 
-/* ── Smooth animations ── */
+/* Animations */
 @keyframes slide-up {
   from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -352,12 +352,12 @@
 .delay-200 { animation-delay: 200ms; }
 .delay-300 { animation-delay: 300ms; }
 
-/* ── Mastery bar animation ── */
+/* Mastery bar animation */
 .mastery-bar-fill {
   transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* ── React Flow Custom Theme ── */
+/* React Flow Theme */
 .react-flow__controls {
   box-shadow: 2px 2px 0px var(--shadow-color) !important;
   border: 2px solid var(--border) !important;
@@ -384,7 +384,7 @@
   display: none !important;
 }
 
-/* ── React Toastify Theme Integration ── */
+/* React Toastify Theme */
 .Toastify__toast {
   border-radius: 0.5rem !important;
   font-family: 'Outfit', system-ui, sans-serif !important;

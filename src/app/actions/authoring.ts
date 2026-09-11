@@ -79,28 +79,10 @@ const questionInputSchema = z.object({
 
 const uuidSchema = z.string().uuid("Invalid identifier format.");
 
+import { requireAuth } from "@/lib/auth";
+
 // Auth helpers
-
-// Verifies current session is an authenticated teacher
-async function getTeacherUser() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error("Unauthorized");
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  if (profile?.role !== "teacher") {
-    throw new Error("Forbidden: Teacher role required");
-  }
-
-  return { supabase, user };
-}
+const getTeacherUser = () => requireAuth("teacher");
 
 // Verifies teacher owns the specified course
 async function verifyCourseOwnership(
