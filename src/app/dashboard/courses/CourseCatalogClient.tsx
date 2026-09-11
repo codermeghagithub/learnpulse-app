@@ -90,6 +90,8 @@ export function CourseCatalogClient({
     }
   }
 
+  const enrolledCount = courses.filter((c) => enrolledIds.has(c.id)).length;
+
   const filteredCourses = courses.filter((c) => {
     const matchesSearch =
       c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -114,7 +116,8 @@ export function CourseCatalogClient({
             Course Catalog
           </h1>
           <p className="text-sm text-muted-foreground mt-1 max-w-2xl font-medium">
-            Choose the courses you want to study. LearnPulse will personalize your practice quizzes and help you track your progress.
+            Choose the courses you want to study. LearnPulse will personalize
+            your practice quizzes and help you track your progress.
           </p>
         </div>
 
@@ -122,7 +125,7 @@ export function CourseCatalogClient({
           href="/dashboard"
           className={cn(
             buttonVariants({ variant: "outline", size: "sm" }),
-            "self-stretch sm:self-auto rounded-md font-bold border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] hover:shadow-[3px_3px_0px_var(--shadow-color)] transition-all shrink-0 cursor-pointer min-h-11 sm:min-h-0 justify-center"
+            "self-stretch sm:self-auto rounded-md font-bold border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] hover:shadow-[3px_3px_0px_var(--shadow-color)] transition-all shrink-0 cursor-pointer min-h-11 sm:min-h-0 justify-center",
           )}
         >
           Back to Dashboard
@@ -155,7 +158,7 @@ export function CourseCatalogClient({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by course title or department..."
-            className="w-full rounded-md pl-10 pr-4 py-2.5 h-11 sm:h-10 text-xs sm:text-sm bg-input border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)] focus:shadow-[3px_3px_0px_var(--shadow-color)]"
+            className="w-full rounded-md pl-10 pr-4 py-2.5 h-11 sm:h-10 text-xs sm:text-sm bg-input border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)]"
           />
         </div>
 
@@ -169,7 +172,7 @@ export function CourseCatalogClient({
               "flex-1 sm:flex-none rounded-sm text-xs font-bold min-h-10 sm:min-h-0 h-9 sm:h-8 px-3.5 cursor-pointer transition-all whitespace-nowrap",
               filter === "all"
                 ? "bg-foreground text-background shadow-[1px_1px_0px_var(--shadow-color)]"
-                : "text-muted-foreground hover:text-foreground"
+                : "text-muted-foreground hover:text-foreground",
             )}
           >
             All Courses ({courses.length})
@@ -183,10 +186,10 @@ export function CourseCatalogClient({
               "flex-1 sm:flex-none rounded-sm text-xs font-bold min-h-10 sm:min-h-0 h-9 sm:h-8 px-3.5 cursor-pointer transition-all whitespace-nowrap",
               filter === "enrolled"
                 ? "bg-foreground text-background shadow-[1px_1px_0px_var(--shadow-color)]"
-                : "text-muted-foreground hover:text-foreground"
+                : "text-muted-foreground hover:text-foreground",
             )}
           >
-            My Enrolled ({enrolledIds.size})
+            My Enrolled ({enrolledCount})
           </Button>
         </div>
       </div>
@@ -229,17 +232,23 @@ export function CourseCatalogClient({
                 key={course.id}
                 className={cn(
                   "group relative flex flex-col justify-between rounded-xl p-6 transition-all duration-150 border-2 border-border bg-card shadow-[2px_2px_0px_var(--shadow-color)] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_var(--shadow-color)]",
-                  isEnrolled && "border-primary/80 bg-primary/5"
+                  isEnrolled && "border-primary/80 bg-primary/5",
                 )}
               >
                 <div className="space-y-4">
                   {/* Top badges */}
                   <div className="flex items-center justify-between gap-2">
-                    <Badge variant="outline" className="text-[11px] font-bold px-2.5 py-0.5 rounded-xs bg-muted border-1.5 border-border text-foreground">
+                    <Badge
+                      variant="outline"
+                      className="text-[11px] font-bold px-2.5 py-0.5 rounded-xs bg-muted border-1.5 border-border text-foreground"
+                    >
                       {course.subject}
                     </Badge>
                     {isEnrolled ? (
-                      <Badge variant="outline" className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-xs bg-success/20 text-success border-1.5 border-success">
+                      <Badge
+                        variant="outline"
+                        className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-xs bg-success/20 text-success border-1.5 border-success"
+                      >
                         <CheckCircle2 className="h-3 w-3" />
                         Enrolled
                       </Badge>

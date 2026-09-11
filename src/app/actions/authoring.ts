@@ -532,6 +532,16 @@ export async function deleteCourseAction(courseId: string) {
     const { supabase, user } = await getTeacherUser();
     await verifyCourseOwnership(supabase, parsedCourseId.data, user.id);
 
+    // Clean up student enrollments associated with this course
+    try {
+      await supabase
+        .from("enrollments")
+        .delete()
+        .eq("course_id", parsedCourseId.data);
+    } catch {
+      // Best effort cleanup if table exists
+    }
+
     const { error } = await supabase
       .from("courses")
       .delete()

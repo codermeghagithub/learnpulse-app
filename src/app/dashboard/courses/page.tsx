@@ -88,9 +88,12 @@ export default async function CourseCatalogPage() {
     }
   }
 
-  // 5. Build catalog courses list
+  // 5. Build catalog courses list (sanitize enrolled IDs to only valid existing courses)
+  const activeCourseIdSet = new Set(courses.map((c) => c.id));
+  const validEnrolledIds = enrolledIds.filter((id) => activeCourseIdSet.has(id));
+
   const catalogCourses: CatalogCourse[] = courses.map((c) => {
-    const isEnrolled = enrolledIds.includes(c.id);
+    const isEnrolled = validEnrolledIds.includes(c.id);
     return {
       id: c.id,
       title: c.title,
@@ -105,7 +108,7 @@ export default async function CourseCatalogPage() {
   return (
     <CourseCatalogClient
       courses={catalogCourses}
-      initialEnrolledIds={enrolledIds}
+      initialEnrolledIds={validEnrolledIds}
     />
   );
 }
