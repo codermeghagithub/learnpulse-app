@@ -97,7 +97,7 @@ function CustomConceptNode({ data }: NodeProps<Node<ConceptNodeData>>) {
           ? "border-primary bg-primary/10 shadow-[3px_3px_0px_var(--shadow-color)]"
           : isSelected
           ? "border-primary shadow-[3px_3px_0px_var(--shadow-color)]"
-          : "border-border hover:border-foreground/80 hover:shadow-[3px_3px_0px_var(--shadow-color)]"
+          : cn("hover:shadow-[3px_3px_0px_var(--shadow-color)]", borderClass)
       )}
     >  <Handle
         type="target"

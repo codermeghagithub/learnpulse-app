@@ -7,7 +7,6 @@ import {
   XCircle,
   Brain,
   Sparkles,
-  Lightbulb,
   Zap,
   MessageSquare,
 } from "lucide-react";

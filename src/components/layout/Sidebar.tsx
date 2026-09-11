@@ -31,9 +31,24 @@ interface NavItem {
 }
 
 const STUDENT_NAV: NavItem[] = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, id: "nav-dashboard" },
-  { href: "/dashboard/courses", label: "Course Catalog", icon: Compass, id: "nav-courses" },
-  { href: "/dashboard/practice", label: "Practice", icon: Zap, id: "nav-practice" },
+  {
+    href: "/dashboard",
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    id: "nav-dashboard",
+  },
+  {
+    href: "/dashboard/courses",
+    label: "Course Catalog",
+    icon: Compass,
+    id: "nav-courses",
+  },
+  {
+    href: "/dashboard/practice",
+    label: "Practice",
+    icon: Zap,
+    id: "nav-practice",
+  },
 ];
 
 const TEACHER_NAV: NavItem[] = [
@@ -49,6 +64,14 @@ export function Sidebar({ role, fullName }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [prevPathname, setPrevPathname] = useState(pathname);
+
+  // Close drawer automatically on route navigation during render
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
+    setMobileOpen(false);
+  }
+
   const navItems = role === "teacher" ? TEACHER_NAV : STUDENT_NAV;
 
   // Prevent background scrolling when mobile drawer is open
@@ -63,11 +86,6 @@ export function Sidebar({ role, fullName }: SidebarProps) {
     };
   }, [mobileOpen]);
 
-  // Close drawer automatically on route navigation
-  useEffect(() => {
-    setMobileOpen(false);
-  }, [pathname]);
-
   async function handleSignOut() {
     const supabase = createClient();
     await supabase.auth.signOut();
@@ -79,7 +97,10 @@ export function Sidebar({ role, fullName }: SidebarProps) {
     <div className="flex h-full w-full flex-col bg-sidebar border-r-2 border-border relative">
       {/* Brand Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b-2 border-border">
-        <Link href={role === "teacher" ? "/teacher" : "/dashboard"} className="flex items-center gap-3 group min-h-11">
+        <Link
+          href={role === "teacher" ? "/teacher" : "/dashboard"}
+          className="flex items-center gap-3 group min-h-11"
+        >
           <div className="flex h-9 w-9 items-center justify-center rounded-md bg-primary text-primary-foreground border-2 border-border shadow-[2px_2px_0px_var(--shadow-color)]">
             <Brain className="h-5 w-5 stroke-[2.5]" />
           </div>
@@ -111,7 +132,10 @@ export function Sidebar({ role, fullName }: SidebarProps) {
       </div>
 
       {/* Nav List */}
-      <nav className="flex-1 px-3.5 py-4 space-y-2 overflow-y-auto scrollbar-thin" aria-label="Main navigation">
+      <nav
+        className="flex-1 px-3.5 py-4 space-y-2 overflow-y-auto scrollbar-thin"
+        aria-label="Main navigation"
+      >
         <div className="px-3 pb-1 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
           Navigation
         </div>
@@ -130,8 +154,8 @@ export function Sidebar({ role, fullName }: SidebarProps) {
               className={cn(
                 "group relative flex items-center justify-between rounded-md px-3.5 py-2.5 min-h-11 text-sm font-medium transition-all duration-100 cursor-pointer",
                 isActive
-                  ? "bg-[#151313] text-[#FFFFFF] border-2 border-[#151313] dark:bg-[#F7F7F5] dark:text-[#151313] dark:border-[#F7F7F5] shadow-[2px_2px_0px_var(--shadow-color)]"
-                  : "border-2 border-transparent text-foreground hover:border-border hover:bg-card hover:shadow-[2px_2px_0px_var(--shadow-color)]"
+                  ? "bg-[#151313] text-[#FFFFFF] border-2 border-[#151313] shadow-[2px_2px_0px_var(--shadow-color)]"
+                  : "border-2 border-transparent text-foreground hover:border-border hover:bg-card hover:shadow-[2px_2px_0px_var(--shadow-color)]",
               )}
             >
               <div className="flex items-center gap-3">
@@ -140,7 +164,7 @@ export function Sidebar({ role, fullName }: SidebarProps) {
                     "h-4.5 w-4.5 shrink-0 stroke-[2.5] transition-transform duration-100 group-hover:scale-110",
                     isActive
                       ? "text-primary"
-                      : "text-foreground group-hover:text-primary"
+                      : "text-foreground group-hover:text-primary",
                   )}
                 />
                 <span>{item.label}</span>
@@ -177,8 +201,12 @@ export function Sidebar({ role, fullName }: SidebarProps) {
               {fullName.charAt(0) || "U"}
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-medium truncate leading-tight text-foreground">{fullName}</p>
-              <p className="text-[10px] font-normal text-muted-foreground capitalize leading-tight mt-0.5">{role}</p>
+              <p className="text-xs font-medium truncate leading-tight text-foreground">
+                {fullName}
+              </p>
+              <p className="text-[10px] font-normal text-muted-foreground capitalize leading-tight mt-0.5">
+                {role}
+              </p>
             </div>
           </div>
           <Button
@@ -210,7 +238,9 @@ export function Sidebar({ role, fullName }: SidebarProps) {
             <Brain className="h-4.5 w-4.5 stroke-[2.5]" />
           </div>
           <div className="flex flex-col">
-            <span className="font-semibold text-sm text-foreground font-heading leading-tight">LearnPulse</span>
+            <span className="font-semibold text-sm text-foreground font-heading leading-tight">
+              LearnPulse
+            </span>
             <span className="text-[10px] text-muted-foreground font-medium leading-tight">
               {role === "teacher" ? "Teacher Portal" : "Student Hub"}
             </span>

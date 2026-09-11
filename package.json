@@ -8,9 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest",
-    "test:run": "vitest run",
-    "reset": "node --env-file=.env.local scripts/reset_demo_data.mjs",
-    "seed": "node --env-file=.env.local scripts/reset_demo_data.mjs"
+    "test:run": "vitest run"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
